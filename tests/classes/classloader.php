@@ -1,0 +1,45 @@
+<?php
+
+use MrBavii\SiteHelper\ClassLoader;
+
+require_once("simpletest/autorun.php");
+
+class TestClassLoader extends UnitTestCase
+{
+    public function setUp()
+    {
+        require_once(__DIR__ . "/../../classes/ClassLoader.php");
+        ClassLoader::install();
+    }
+
+    public function tearDown()
+    {
+    }
+
+    public function testWithUnderscore()
+    {
+        ClassLoader::register("TestNS", __DIR__ . "/classloader/c1", '_', ".class.php");
+
+        $this->assertFalse(class_exists("\\TestNS_Base", FALSE));
+        $this->assertFalse(class_exists("\\TestNS_Sub_SubItem", FALSE));
+
+        $this->assertTrue(class_exists("\\TestNS_Base", TRUE));
+        $this->assertTrue(class_exists("\\TestNS_Sub_SubItem", TRUE));
+        
+        $this->assertFalse(class_exists("\\TestNS_", TRUE));
+    }
+
+    public function testWithNamespace()
+    {
+        ClassLoader::register("TestNS", __DIR__ . "/classloader/c2", "\\", ".class.php");
+        
+        $this->assertFalse(class_exists("\\TestNS\\Base", FALSE));
+        $this->assertFalse(class_exists("\\TestNS\\Sub\\SubItem", FALSE));
+
+        $this->assertTrue(class_exists("\\TestNS\\Base", TRUE));
+        $this->assertTrue(class_exists("\\TestNS\\Sub\\SubItem", TRUE));
+
+        $this->assertFalse(class_exists("\\TestNS\\", TRUE));
+
+    }
+}

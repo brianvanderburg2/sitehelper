@@ -1,0 +1,145 @@
+Classes
+=======
+
+Config
+ClassLoader
+Database
+    Driver
+    PdoDriver
+    Grammar
+    MysqlGrammar
+    PgsqlGrammar
+    SqliteGrammar
+Cache
+    Driver
+    NullDriver
+    MemcacheDriver
+    RedisDriver
+    ApcDriver
+    FileDriver
+    SqliteDriver
+Session
+Security
+Template
+Dispatcher
+Browser
+Request
+Response
+Util
+Exception
+Language
+Logger
+Captcha
+FormBuilder
+ShCode
+Temp
+
+Database
+========
+
+$db = Database::Connect();
+
+$db->CreateTable('users', function($table){
+    $table->RowId('id');
+    $table->VarChar('username', 64')->NotNull();
+    $table->Unique('username');
+    $table->ForeignKey('column', 'table', 'column');
+});
+
+$id = $db->Insert('users', function($insert){
+    $update->String('username', $newname);
+    $update->Int(...);
+    $update->Raw(...);
+});
+
+$affected = $db->Update('users', function($query, $update){
+    $query->Where('users.id', '=', $id);
+    $update->String('username', $newname);
+});
+
+$affectd = $db->Delete('users', function($query){
+    $query->Where();
+    etc.
+});
+
+$results = $db->Query(function($query){
+    $query->Select('tablename', 'columns', 'more columns');
+    $query->Selete('anothertable', 'columns', 'more columns');
+    $querey->Where('tablename.column', '=', 'anothertable.anothercolumn');
+});
+
+foreach($results as $result)
+{
+    echo $result['tablename.column'];
+}
+
+$db->Transaction(function($db){
+    // Transaction stuff goes here
+});
+
+
+Config
+======
+
+Dotted names represent arrays:
+
+name = value: static::$config[name]
+
+name.subname = value: static::$config[name][subname]
+
+set and get should be configured to handle that:
+
+only leaves can have values:
+
+if:
+    name = value
+    name.name2 = value2:
+then:
+    get name: array(name2 => value2)
+
+if:
+    name.name2 = value2:
+    name = value
+then:
+    get name: value
+
+
+loadFile('filename', 'section')
+    load a php file and merge items into section:
+
+    php file:
+
+    return array('name' => value, and so on)
+
+loadIni('filename', 'section')
+    Load ini file and merge values into section
+
+Support for packages:
+
+'packagename::name1.name2.name3';
+
+Delay loading config files:
+
+Using a config path:
+
+foreach(paths as path)
+{
+    file_to_load = path/packagename/name1
+
+    Merge into config[$bundle][$file] ($file is $name1)
+
+    If there is no package name:
+
+    $config[''][$file] and filename is simply path/name1
+}
+
+Bundle => Package (laravel Bundle is our Package (or similar)
+
+
+License
+=======
+
+License under MIT.  1st, we are making this based on some code from the Laravel framework.
+We are actually making it our own, but using Laravel as an example for some ideas and whatnots.
+To avoid issues, and since Laravel is MIT licensed, we will also use the MIT license.
+
