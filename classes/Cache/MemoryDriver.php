@@ -24,5 +24,10 @@ class MemoryDriver extends Driver
     {
         unset($this->data[$name]);
     }
+
+    public function connected()
+    {
+        return TRUE;
+    }
 }
 

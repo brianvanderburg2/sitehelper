@@ -13,6 +13,8 @@ abstract class Driver
     abstract public function set($name, $value, $lifetime=null);
     abstract public function get($name, $def=null);
     abstract public function remove($name);
+    abstract public function connected();
+
     
     public function remember($name, $value, $lifetime=null)
     {

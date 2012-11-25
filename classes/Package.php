@@ -12,7 +12,7 @@ class Package
 
     const MAIN = 'application';
 
-    public static function parse($name)
+    public static function split($name)
     {
         if(isset(static::$parsed[$name]))
         {
@@ -21,6 +21,11 @@ class Package
 
         $p = explode('::', $name, 2);
         return (static::$parsed[$name] = (count($p) == 2) ? array($p[0], $p[1]) : array(static::MAIN, $p[0]));
+    }
+
+    public static function join($name, $element)
+    {
+        return $name . '::' . $element;
     }
 }
 

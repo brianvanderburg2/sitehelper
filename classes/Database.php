@@ -31,7 +31,9 @@ class Database
 
         if(!isset(static::$cache[$name]))
         {
-            $settings = Config::get('database.connections.' . $name);
+            list($package, $element) = Package::split($name);
+
+            $settings = Config::get(Package::join($package, 'database.connections.' . $element));
             if($settings === null)
             {
                 throw new Exception('No database settings: ' . $name);

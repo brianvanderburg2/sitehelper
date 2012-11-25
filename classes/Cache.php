@@ -28,13 +28,15 @@ class Cache
     {
         if($driver === null)
         {
-            $driver = Config::get('cache.driver', 'null');
+            $driver = Config::get('cache.driver', 'memory');
         }
 
         if(!isset(static::$cache[$driver]))
         {
-            $settings = Config::get('cache.' . $driver, array());
-            $settings['driver'] = $driver;
+            list($package, $element) = Package::split($driver);
+
+            $settings = Config::get(Package::join($package, 'cache.' . $element), array());
+            $settings['driver'] = $element;
 
             static::$cache[$driver] = static::connect($settings);
         }

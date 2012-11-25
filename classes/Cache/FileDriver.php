@@ -39,6 +39,11 @@ class FileDriver extends Driver
         }
     }
 
+    public function connected()
+    {
+        return $this->rootdir !== null;
+    }
+
     protected function filename($name)
     {
         if($this->rootdir !== null)

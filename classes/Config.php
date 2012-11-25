@@ -66,7 +66,7 @@ class Config
 
     protected static function findParent($name, $make=TRUE)
     {
-        list($package, $name) = Package::parse($name);
+        list($package, $name) = Package::split($name);
         $parts = explode('.', $name);
         $name = array_pop($parts);
 
