@@ -13,26 +13,28 @@ class Database
     protected static $drivers = array( 
     );
 
-    public static function register($driver, $factory)
+    public static function register($driver, $dfactory, $gfactory)
     {
-        static::$drivers[$driver] = $factory;
+        static::$drivers[$driver] = array($dfactory, $gfactory);
     }
 
-    public static function connection($name=null)
+    public static function connection($name='')
     {
-        if($name === null)
+        // Normalize the name
+        list($package, $element) = Package::split($name);
+        if(strlen($element) == 0)
         {
-            $name = Config::get('database.default');
-            if($name === null)
+            $element = Config::get(Package::join($package, 'database.default'));
+            if($element === null)
             {
                 throw new Exception('No default database');
             }
         }
+        $name = Package::join($package, $element)
 
+        // Connect if not already
         if(!isset(static::$cache[$name]))
         {
-            list($package, $element) = Package::split($name);
-
             $settings = Config::get(Package::join($package, 'database.connections.' . $element));
             if($settings === null)
             {
@@ -58,16 +60,28 @@ class Database
 
         if(isset(static::$drivers[$driver]))
         {
-            $factory = static::$drivers[$driver];
+            list($dfactory, $gfactory) = static::$drivers[$driver];
 
-            if($factory instanceof \Closure)
+            // Create driver
+            if($dfactory instanceof \Closure)
             {
-                return $factory($settings);
+                $driver = $dfactory($settings);
             }
             else
             {
-                return new $factory($settings);
+                $driver = new $dfactory($settings);
             }
+
+            // Create grammar
+            if($gfactory instanceof \Closure)
+            {
+                return $gfactory($driver, $settings);
+            }
+            else
+            {
+                return new $gfactory($driver, $settings);
+            }
+
         }
         else
         {
