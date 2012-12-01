@@ -37,103 +37,34 @@ Temp
 Database
 ========
 
-$db = Database::Connect();
+$db = Database::connect();
 
-$db->CreateTable('users', function($table){
-    $table->RowId('id');
-    $table->VarChar('username', 64')->NotNull();
-    $table->Unique('username');
-    $table->ForeignKey('column', 'table', 'column');
-});
+$db->table('users')->join('groups', 'users.gid', '=', 'groups.id')
+   ->where('users.id', '=', $uid)->get(array('users.uid' => 'uid'));
 
-$id = $db->Insert('users', function($insert){
-    $update->String('username', $newname);
-    $update->Int(...);
-    $update->Raw(...);
-});
+Database::connect idea
 
-$affected = $db->Update('users', function($query, $update){
-    $query->Where('users.id', '=', $id);
-    $update->String('username', $newname);
-});
+instead of returning a driver, return a grammer:
 
-$affectd = $db->Delete('users', function($query){
-    $query->Where();
-    etc.
-});
+That is, instead of the user interacting with the driver directly, they interact with
+the grammar which will then work with the driver;
 
-$results = $db->Query(function($query){
-    $query->Select('tablename', 'columns', 'more columns');
-    $query->Selete('anothertable', 'columns', 'more columns');
-    $querey->Where('tablename.column', '=', 'anothertable.anothercolumn');
-});
+Register will require both the driver class and the grammar class to use:
 
-foreach($results as $result)
-{
-    echo $result['tablename.column'];
-}
+register('sqlite3', 'Sqlite3Grammar', 'Sqlite3Driver')
 
-$db->Transaction(function($db){
-    // Transaction stuff goes here
-});
+connect:
+    create the driver
+    then create the grammar and return it
 
+    connect(...)
+        $driver = new Driver(...);
+        $grammar = new Grammar($driver, ...);
 
-Config
-======
+        return $grammar;
 
-Dotted names represent arrays:
-
-name = value: static::$config[name]
-
-name.subname = value: static::$config[name][subname]
-
-set and get should be configured to handle that:
-
-only leaves can have values:
-
-if:
-    name = value
-    name.name2 = value2:
-then:
-    get name: array(name2 => value2)
-
-if:
-    name.name2 = value2:
-    name = value
-then:
-    get name: value
-
-
-loadFile('filename', 'section')
-    load a php file and merge items into section:
-
-    php file:
-
-    return array('name' => value, and so on)
-
-loadIni('filename', 'section')
-    Load ini file and merge values into section
-
-Support for packages:
-
-'packagename::name1.name2.name3';
-
-Delay loading config files:
-
-Using a config path:
-
-foreach(paths as path)
-{
-    file_to_load = path/packagename/name1
-
-    Merge into config[$bundle][$file] ($file is $name1)
-
-    If there is no package name:
-
-    $config[''][$file] and filename is simply path/name1
-}
-
-Bundle => Package (laravel Bundle is our Package (or similar)
+        $db = Database::connect();
+        $db->table('users')->...()
 
 
 License
