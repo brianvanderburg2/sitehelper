@@ -24,24 +24,26 @@ class Cache
         static::$drivers[$driver] = $factory;
     }
 
-    public static function driver($driver=null)
+    public static function driver($name='')
     {
-        if($driver === null)
+        // Normalize the driver name
+        list($package, $driver) = Package::split($name);
+        if(strlen($driver) == 0)
         {
-            $driver = Config::get('cache.driver', 'memory');
+            $driver = Config::get(Package::join($package, 'cache.driver'), 'memory');
+        }
+        $name = Package::join($package, $driver);
+
+        // Connect if not already
+        if(!isset(static::$cache[$name]))
+        {
+            $settings = Config::get(Package::join($package, 'cache.' . $driver), array());
+            $settings['driver'] = $driver;
+
+            static::$cache[$name] = static::connect($settings);
         }
 
-        if(!isset(static::$cache[$driver]))
-        {
-            list($package, $element) = Package::split($driver);
-
-            $settings = Config::get(Package::join($package, 'cache.' . $element), array());
-            $settings['driver'] = $element;
-
-            static::$cache[$driver] = static::connect($settings);
-        }
-
-        return static::$cache[$driver];
+        return static::$cache[$name];
     }
 
     public static function connect($settings)
