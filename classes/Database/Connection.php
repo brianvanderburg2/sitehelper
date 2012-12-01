@@ -1,18 +1,25 @@
 <?php
 
-// File:        Grammar.php
+// File:        Connection.php
 // Author:      Brian Allen Vanderburg II
-// Purpose:     Base class for describing the grammar for particular databases
+// Purpose:     Base class for connecting to the database
 
 namespace MrBavii\SiteHelper\Database;
 
-abstract class Grammar
+abstract class Connection
 {
-    protected $driver;
+    public $driver;
+    public $prefix = '';
+
 
     public function __construct($driver, $settings)
     {
         $this->driver = $driver;
+
+        if(isset($settings['prefix']))
+        {
+            $this->prefix = $settings['prefix'];
+        }
     }
 
     public function __destruct()
@@ -40,6 +47,7 @@ abstract class Grammar
         }
     }
 
+    // There are not used publicly, only by Table
     abstract public function quote_column($col);
     abstract public function quote_table($table);
     abstract public function quote_value($value);
@@ -47,5 +55,7 @@ abstract class Grammar
     abstract public function format_isnotnull($col);
     abstract public function format_islike($col, $like);
     abstract public function format_isnotlike($col, $like);
+    abstract public function format_limit($limit, $offset);
+
 }
 

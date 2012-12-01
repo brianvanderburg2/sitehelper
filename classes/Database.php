@@ -13,9 +13,9 @@ class Database
     protected static $drivers = array( 
     );
 
-    public static function register($driver, $dfactory, $gfactory)
+    public static function register($driver, $dfactory, $cfactory)
     {
-        static::$drivers[$driver] = array($dfactory, $gfactory);
+        static::$drivers[$driver] = array($dfactory, $cfactory);
     }
 
     public static function connection($name='')
@@ -60,7 +60,7 @@ class Database
 
         if(isset(static::$drivers[$driver]))
         {
-            list($dfactory, $gfactory) = static::$drivers[$driver];
+            list($dfactory, $cfactory) = static::$drivers[$driver];
 
             // Create driver
             if($dfactory instanceof \Closure)
@@ -72,14 +72,14 @@ class Database
                 $driver = new $dfactory($settings);
             }
 
-            // Create grammar
-            if($gfactory instanceof \Closure)
+            // Create connection
+            if($cfactory instanceof \Closure)
             {
-                return $gfactory($driver, $settings);
+                return $cfactory($driver, $settings);
             }
             else
             {
-                return new $gfactory($driver, $settings);
+                return new $cfactory($driver, $settings);
             }
 
         }

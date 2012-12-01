@@ -6,7 +6,7 @@
 
 namespace MrBavii\SiteHelper\Database;
 
-abstract class PdoDriver extends Driver
+class PdoDriver extends Driver
 {
     protected $pdo = null;
 
@@ -31,7 +31,7 @@ abstract class PdoDriver extends Driver
         }
         catch(\PDOException $e)
         {
-            // TODO: throw meaninful exception
+            throw new Exception('Error connecting to database.', 0, $e);
         }
     }
 
@@ -43,7 +43,7 @@ abstract class PdoDriver extends Driver
         }
         catch(\PDOException $e)
         {
-            // TODO: throw
+            throw new Exception('Transaction error.', 0, $e);
         }
     }
 
@@ -55,7 +55,7 @@ abstract class PdoDriver extends Driver
         }
         catch(\PDOException $e)
         {
-            // TODO: throw
+            throw new Exception('Transaction error.', 0, $e);
         }
     }
 
@@ -67,7 +67,7 @@ abstract class PdoDriver extends Driver
         }
         catch(\PDOException $e)
         {
-            // TODO: throw
+            throw new Exception('Transaction error.', 0, $e);
         }
     }
     
@@ -79,7 +79,7 @@ abstract class PdoDriver extends Driver
         }
         catch(\PDOException $e)
         {
-            // TODO: throw
+            throw new Exception('SQL execution error.', 0, $e);
         }
     }
 
@@ -92,13 +92,20 @@ abstract class PdoDriver extends Driver
         }
         catch(\PDOException $e)
         {
-            // TODO: throw
+            throw new Exception('SQL query error.', 0, $e);
         }
     }
 
     public function lastrowid()
     {
-        return $this->pdo->lastInsertId();
+        try
+        {
+            return $this->pdo->lastInsertId();
+        }
+        catch(\PDOException $e)
+        {
+            throw new Exception('Last row id error.', 0, $e);
+        }
     }
 }
 

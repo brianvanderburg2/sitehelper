@@ -29,7 +29,7 @@ class PdoQuery extends Query
         }
         catch(\PDOException $e)
         {
-            // TODO: throw
+            throw new Exception('Error during fetch.', 0, $e);
         }
     }
 }

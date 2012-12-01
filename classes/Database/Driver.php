@@ -22,6 +22,5 @@ abstract class Driver
 
     abstract public function exec();
     abstract public function query();
-    abstract public function lastrowid();
 }
 
