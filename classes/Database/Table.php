@@ -148,16 +148,21 @@ class Table
         return $result;
     }
 
-    public function increment($col, $count=1)
+    public function increment($col, $count=1, $action='+')
     {
         $col = $this->connection->quote_column($col);
         $count = (int)$count;
 
-        $sql = 'UPDATE '. $this->prefix . $this->table . "SET $col=$col+$count";
+        $sql = 'UPDATE '. $this->prefix . $this->table . "SET $col=$col$action$count";
         if($this->where_obj->where_clause)
         {
             $sql .= ' ' . $this->where_obj->where_clause;
         }
         return $this->driver->exec($sql);
+    }
+
+    public function decrement($col, $count=1)
+    {
+        return $this->increment($col, $count, '-');
     }
 }

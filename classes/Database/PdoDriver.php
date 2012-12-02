@@ -71,6 +71,18 @@ class PdoDriver extends Driver
         }
     }
     
+    public function quote($value)
+    {
+        try
+        {
+            $this->pdo->quote($value);
+        }
+        catch(\PDOException $e)
+        {
+            throw new Exception('SQL quote error.', 0, $e);
+        }
+    }
+
     public function exec($sql)
     {
         try

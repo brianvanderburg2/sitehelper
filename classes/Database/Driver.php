@@ -20,7 +20,8 @@ abstract class Driver
     abstract public function commit();
     abstract public function rollback();
 
-    abstract public function exec();
-    abstract public function query();
+    abstract public function quote($value);
+    abstract public function exec($sql);
+    abstract public function query($sql);
 }
 
