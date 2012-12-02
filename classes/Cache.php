@@ -27,17 +27,17 @@ class Cache
     public static function driver($name='')
     {
         // Normalize the driver name
-        list($package, $driver) = Package::split($name);
+        list($group, $driver) = Config::split($name);
         if(strlen($driver) == 0)
         {
-            $driver = Config::get(Package::join($package, 'cache.driver'), 'memory');
+            $driver = Config::get(Config::join($group, 'cache.driver'), 'memory');
         }
-        $name = Package::join($package, $driver);
+        $name = Config::join($group, $driver);
 
         // Connect if not already
         if(!isset(static::$cache[$name]))
         {
-            $settings = Config::get(Package::join($package, 'cache.' . $driver), array());
+            $settings = Config::get(Config::join($group, 'cache.' . $driver), array());
             $settings['driver'] = $driver;
 
             static::$cache[$name] = static::connect($settings);

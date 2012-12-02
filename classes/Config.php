@@ -8,7 +8,11 @@ namespace MrBavii\SiteHelper;
 
 class Config
 {
-    protected static $packages = array();
+    const MAIN = 'application';
+
+    protected static $splits = array();
+    protected static $groups = array();
+
     protected static $loaded_files = array();
     protected static $loaded_inis = array();
     protected static $loaded_configs = array();
@@ -66,16 +70,16 @@ class Config
 
     protected static function findParent($name, $make=TRUE)
     {
-        list($package, $name) = Package::split($name);
+        list($group, $name) = static::split($name);
         $parts = explode('.', $name);
         $name = array_pop($parts);
 
-        // Make sure the package config exists
-        if(!isset(static::$packages[$package]))
+        // Make sure the group exists
+        if(!isset(static::$groups[$group]))
         {
             if($make)
             {
-                static::$packages[$package] = array();
+                static::$groups[$group] = array();
             }
             else
             {
@@ -84,8 +88,8 @@ class Config
         }
 
         // If the name part is empty, then parts will be empty and so will name
-        // Will return the root array for the package and an empty name
-        $target = &static::$packages[$package];
+        // Will return the root array for the group and an empty name
+        $target = &static::$groups[$group];
         foreach($parts as $part)
         {
             if(!isset($target[$part]) || !is_array($target[$part]))
@@ -166,6 +170,22 @@ class Config
         }
 
         return $results;
+    }
+
+    public static function split($name)
+    {
+        if(isset(static::$splits[$name]))
+        {
+            return static::$splits[$name];
+        }
+
+        $p = explode('::', $name, 2);
+        return (static::$splits[$name] = (count($p) == 2) ? array($p[0], $p[1]) : array(static::MAIN, $p[0]));
+    }
+
+    public static function join($group, $element)
+    {
+        return $group . '::' . $element;
     }
 }
 

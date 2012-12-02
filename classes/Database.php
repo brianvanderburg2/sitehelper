@@ -21,21 +21,21 @@ class Database
     public static function connection($name='')
     {
         // Normalize the name
-        list($package, $element) = Package::split($name);
+        list($group, $element) = Config::split($name);
         if(strlen($element) == 0)
         {
-            $element = Config::get(Package::join($package, 'database.default'));
+            $element = Config::get(Config::join($group, 'database.default'));
             if($element === null)
             {
                 throw new Exception('No default database');
             }
         }
-        $name = Package::join($package, $element)
+        $name = Config::join($group, $element)
 
         // Connect if not already
         if(!isset(static::$cache[$name]))
         {
-            $settings = Config::get(Package::join($package, 'database.connections.' . $element));
+            $settings = Config::get(Config::join($group, 'database.connections.' . $element));
             if($settings === null)
             {
                 throw new Exception('No database settings: ' . $name);

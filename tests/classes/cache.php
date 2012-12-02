@@ -23,13 +23,13 @@ class TestCache extends UnitTestCase
         $this->assertTrue($handle->has('name') === FALSE);
         $this->assertTrue($handle->get('name') === null);
 
-        $handle = Cache::driver('Package2::memory');
+        $handle = Cache::driver('group2::memory');
 
         $handle->set('name', 100);
         $this->assertTrue($handle->has('name') === TRUE);
         $this->assertTrue($handle->get('name') === 100);
 
-        $handle = Cache::driver('Package2::memory');
+        $handle = Cache::driver('group2::memory');
 
         $this->assertTrue($handle->has('name') === TRUE);
         $this->assertTrue($handle->get('name') === 100);
