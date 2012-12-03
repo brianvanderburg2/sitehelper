@@ -108,7 +108,7 @@ class Table
                 }
                 else
                 {
-                    $colsql[] = $this->->connection->quote_column($key) . ' AS ' . $this->connection->quote_column($value);
+                    $colsql[] = $this->connection->quote_column($key) . ' AS ' . $this->connection->quote_column($value);
                 }
             }
         }
@@ -123,12 +123,12 @@ class Table
 
         if($this->where_obj->where_clause)
         {
-            $sql .= ' ' . $this->where_obj->where_clause;
+            $sql .= ' WHERE ' . $this->where_obj->where_clause;
         }
 
         if(count($this->ordered))
         {
-            $sql .= ' ' . implode(',', $this->ordered);
+            $sql .= ' ORDER BY ' . implode(',', $this->ordered);
         }
 
         if($this->limit || $this->offset)

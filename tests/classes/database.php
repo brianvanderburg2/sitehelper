@@ -15,4 +15,11 @@ class TestDatabase extends UnitTestCase
     {
     }
 
+    public function testDirect()
+    {
+        $db = Database::connect(array('driver' => 'sqlite3'));
+
+        $this->assertTrue($db instanceof Database\SqliteConnection);
+    }
+
 }

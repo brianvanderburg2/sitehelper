@@ -13,17 +13,17 @@ class SqliteConnection extends Connection
         $p = explode('.', $col);
         if(count($p) == 2)
         {
-            return $this->quote_table($p[0]) . ".'{$p[1]}'";
+            return $this->quote_table($p[0]) . ".`{$p[1]}`";
         }
         else
         {
-            return "'{$p[0]}'";
+            return "`{$p[0]}`";
         }
     }
 
     public function quote_table($table)
     {
-        return "'$table'";
+        return "`$table`";
     }
 
     public function quote_value($value)
@@ -53,7 +53,7 @@ class SqliteConnection extends Connection
 
     public function format_islike($col, $like)
     {
-        return $this->quote_column($col) ' LIKE ' $this->prepare_like($like);
+        return $this->quote_column($col) . ' LIKE ' . $this->prepare_like($like);
     }
 
     public function format_isnotlike($col, $like)

@@ -75,7 +75,7 @@ class PdoDriver extends Driver
     {
         try
         {
-            $this->pdo->quote($value);
+            return $this->pdo->quote($value);
         }
         catch(\PDOException $e)
         {

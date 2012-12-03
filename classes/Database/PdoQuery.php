@@ -12,7 +12,7 @@ class PdoQuery extends Query
 
     public function __construct($stmt)
     {
-        $this-stmt = $stmt;
+        $this->stmt = $stmt;
     }
 
     public function __destruct()

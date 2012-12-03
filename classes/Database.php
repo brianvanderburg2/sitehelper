@@ -11,6 +11,7 @@ class Database
 {
     protected static $cache = array(); 
     protected static $drivers = array( 
+        'sqlite3' => array('\MrBavii\SiteHelper\Database\Sqlite3Driver', '\MrBavii\SiteHelper\Database\SqliteConnection')
     );
 
     public static function register($driver, $dfactory, $cfactory)
@@ -30,7 +31,7 @@ class Database
                 throw new Exception('No default database');
             }
         }
-        $name = Config::join($group, $element)
+        $name = Config::join($group, $element);
 
         // Connect if not already
         if(!isset(static::$cache[$name]))

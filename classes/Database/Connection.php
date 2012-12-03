@@ -43,7 +43,7 @@ abstract class Connection
         catch(Exception $e)
         {
             $this->driver->rollback();
-            throw;
+            throw $e;
         }
     }
 
