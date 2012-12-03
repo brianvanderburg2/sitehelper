@@ -53,7 +53,7 @@ class SqliteConnection extends Connection
 
     public function format_islike($col, $like)
     {
-        return $this->quote_column($col) . ' LIKE ' . $this->prepare_like($like);
+        return $this->quote_column($col) . ' LIKE ' . $this->prepare_like($like) . "ESCAPE '\\'";
     }
 
     public function format_isnotlike($col, $like)

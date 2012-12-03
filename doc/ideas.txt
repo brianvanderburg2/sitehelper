@@ -42,29 +42,23 @@ $db = Database::connect();
 $db->table('users')->join('groups', 'users.gid', '=', 'groups.id')
    ->where('users.id', '=', $uid)->get(array('users.uid' => 'uid'));
 
-Database::connect idea
+Browser/Request/Response
+========================
 
-instead of returning a driver, return a grammer:
+class Browser
+{
+    // static class
+    static $filetypes = array(); // ending -> filetype
+}
 
-That is, instead of the user interacting with the driver directly, they interact with
-the grammar which will then work with the driver;
+class Request extends Browser
+{
+}
 
-Register will require both the driver class and the grammar class to use:
+class Response extends Browser
+{
+}
 
-register('sqlite3', 'Sqlite3Grammar', 'Sqlite3Driver')
-
-connect:
-    create the driver
-    then create the grammar and return it
-
-    connect(...)
-        $driver = new Driver(...);
-        $grammar = new Grammar($driver, ...);
-
-        return $grammar;
-
-        $db = Database::connect();
-        $db->table('users')->...()
 
 
 License
