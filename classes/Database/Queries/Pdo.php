@@ -1,12 +1,13 @@
 <?php
 
-// File:        PdoQuery.php
+// File:        Pdo.php
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Query object for PDO results
 
-namespace MrBavii\SiteHelper\Database;
+namespace MrBavii\SiteHelper\Database\Queries;
+use MrBavii\SiteHelper\Database;
 
-class PdoQuery extends Query
+class Pdo extends Query
 {
     protected $stmt = null;
 
@@ -29,7 +30,7 @@ class PdoQuery extends Query
         }
         catch(\PDOException $e)
         {
-            throw new Exception('Error during fetch.', 0, $e);
+            throw new Database\Exception('Error during fetch.', 0, $e);
         }
     }
 }

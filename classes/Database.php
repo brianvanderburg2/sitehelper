@@ -11,12 +11,12 @@ class Database
 {
     protected static $cache = array(); 
     protected static $drivers = array( 
-        'sqlite3' => array('\MrBavii\SiteHelper\Database\Sqlite3Driver', '\MrBavii\SiteHelper\Database\SqliteConnection')
+        'sqlite3' => array('\MrBavii\SiteHelper\Database\Connectors\Sqlite3', '\MrBavii\SiteHelper\Database\Grammars\Sqlite')
     );
 
-    public static function register($driver, $dfactory, $cfactory)
+    public static function register($driver, $cfactory, $gfactory)
     {
-        static::$drivers[$driver] = array($dfactory, $cfactory);
+        static::$drivers[$driver] = array($cfactory, $gfactory);
     }
 
     public static function connection($name='')
@@ -48,7 +48,7 @@ class Database
         return static::$cache[$name];
     }
 
-    public static function connect($settings)
+    public static function connect($settings, $offset=0)
     {
         if(isset($settings['driver']))
         {
@@ -61,27 +61,19 @@ class Database
 
         if(isset(static::$drivers[$driver]))
         {
-            list($dfactory, $cfactory) = static::$drivers[$driver];
+            list($cfactory, $gfactory) = static::$drivers[$driver];
 
-            // Create driver
-            if($dfactory instanceof \Closure)
-            {
-                $driver = $dfactory($settings);
-            }
-            else
-            {
-                $driver = new $dfactory($settings);
-            }
-
-            // Create connection
+            // Create connector
             if($cfactory instanceof \Closure)
             {
-                return $cfactory($driver, $settings);
+                $connector = $cfactory($settings, $gfactory);
             }
             else
             {
-                return new $cfactory($driver, $settings);
+                $connector = new $cfactory($settings, $gfactory);
             }
+
+            return $connector;
 
         }
         else

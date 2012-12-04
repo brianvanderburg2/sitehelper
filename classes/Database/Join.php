@@ -8,12 +8,12 @@ namespace MrBavii\SiteHelper\Database;
 
 class Join
 {
-    protected $connection = null;
+    protected $grammar = null;
     public $where_clause = "";
 
-    public function __construct($connection)
+    public function __construct($grammar)
     {
-        $this->connection = $connection;
+        $this->grammar = $grammar;
     }
 
     public function where()
@@ -65,7 +65,7 @@ class Join
 
     protected function format_where_closure($callback)
     {
-        $tmp = new Join($this->connection);
+        $tmp = new Join($this->grammar);
         call_user_func($callback, $tmp);
         return '(' . $tmp->where_clause . ')';
     }
@@ -75,22 +75,22 @@ class Join
         switch($comp)
         {
             case '=':
-                return $this->connection->quote_column($col1) . ' = ' . $this->connection->quote_column($col2);
+                return $this->grammar->quote_column($col1) . ' = ' . $this->grammar->quote_column($col2);
 
             case '!=':
-                return $this->connection->quote_column($col1) . ' != ' . $this->connection->quote_column($col2);
+                return $this->grammar->quote_column($col1) . ' != ' . $this->grammar->quote_column($col2);
 
             case '<':
-                return $this->connection->quote_column($col1) . ' < ' . $this->connection->quote_column($col2);
+                return $this->grammar->quote_column($col1) . ' < ' . $this->grammar->quote_column($col2);
 
             case '>':
-                return $this->connection->quote_column($col1) . ' > ' . $this->connection->quote_column($col2);
+                return $this->grammar->quote_column($col1) . ' > ' . $this->grammar->quote_column($col2);
 
             case '<=':
-                return $this->connection->quote_column($col1) . ' <= ' . $this->connection->quote_column($col2);
+                return $this->grammar->quote_column($col1) . ' <= ' . $this->grammar->quote_column($col2);
 
             case '>=':
-                return $this->connection->quote_column($col1) . ' >= ' . $this->connection->quote_column($col2);
+                return $this->grammar->quote_column($col1) . ' >= ' . $this->grammar->quote_column($col2);
 
             default:
                 throw new Exception('Invalid arguments');

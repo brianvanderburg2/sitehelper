@@ -1,19 +1,18 @@
 <?php
 
-// File:        PdoDriver.php
+// File:        Pdo.php
 // Author:      Brian Allen Vanderburg II
-// Purpose:     Driver for PDO
+// Purpose:     Connector for PDO
 
-namespace MrBavii\SiteHelper\Database;
+namespace MrBavii\SiteHelper\Database\Connectors;
+use MrBavii\SiteHelper\Database;
 
-class PdoDriver extends Driver
+class Pdo extends Connector
 {
     protected $pdo = null;
 
-    public function __construct($settings)
+    public function connect($settings)
     {
-        parent::__construct($settings);
-
         try
         {
             $this->pdo = new \PDO(
@@ -31,8 +30,13 @@ class PdoDriver extends Driver
         }
         catch(\PDOException $e)
         {
-            throw new Exception('Error connecting to database.', 0, $e);
+            throw new Database\Exception('Error connecting to database.', 0, $e);
         }
+    }
+
+    public function disconnect()
+    {
+        $this->pdo = null;
     }
 
     public function begin()
@@ -43,7 +47,7 @@ class PdoDriver extends Driver
         }
         catch(\PDOException $e)
         {
-            throw new Exception('Transaction error.', 0, $e);
+            throw new Database\Exception('Transaction error.', 0, $e);
         }
     }
 
@@ -55,7 +59,7 @@ class PdoDriver extends Driver
         }
         catch(\PDOException $e)
         {
-            throw new Exception('Transaction error.', 0, $e);
+            throw new Database\Exception('Transaction error.', 0, $e);
         }
     }
 
@@ -67,7 +71,7 @@ class PdoDriver extends Driver
         }
         catch(\PDOException $e)
         {
-            throw new Exception('Transaction error.', 0, $e);
+            throw new Database\Exception('Transaction error.', 0, $e);
         }
     }
     
@@ -79,7 +83,7 @@ class PdoDriver extends Driver
         }
         catch(\PDOException $e)
         {
-            throw new Exception('SQL quote error.', 0, $e);
+            throw new Database\Exception('SQL quote error.', 0, $e);
         }
     }
 
@@ -91,7 +95,7 @@ class PdoDriver extends Driver
         }
         catch(\PDOException $e)
         {
-            throw new Exception('SQL execution error.', 0, $e);
+            throw new Database\Exception('SQL execution error.', 0, $e);
         }
     }
 
@@ -100,23 +104,11 @@ class PdoDriver extends Driver
         try
         {
             $stmt = $this->pdo->query($sql);
-            return new PdoQuery($stmt);
+            return new Database\Queries\Pdo($stmt);
         }
         catch(\PDOException $e)
         {
-            throw new Exception('SQL query error.', 0, $e);
-        }
-    }
-
-    public function lastrowid()
-    {
-        try
-        {
-            return $this->pdo->lastInsertId();
-        }
-        catch(\PDOException $e)
-        {
-            throw new Exception('Last row id error.', 0, $e);
+            throw new Database\Exception('SQL query error.', 0, $e);
         }
     }
 }

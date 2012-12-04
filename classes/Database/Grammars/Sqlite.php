@@ -1,12 +1,13 @@
 <?php
 
-// File:        SqliteGrammar.php
+// File:        Sqlite.php
 // Author:      Brian Allen Vanderburg II
-// Purpose:     Connection for Sqlite
+// Purpose:     Grammar for Sqlite
 
-namespace MrBavii\SiteHelper\Database;
+namespace MrBavii\SiteHelper\Database\Grammars;
+use MrBavii\SiteHelper\Database;
 
-class SqliteConnection extends Connection
+class Sqlite extends Grammar
 {
     public function quote_column($col)
     {
@@ -28,7 +29,7 @@ class SqliteConnection extends Connection
 
     public function quote_value($value)
     {
-        return $this->driver->quote($value);
+        return $this->connector->quote($value);
     }
 
     public function format_isnull($col)

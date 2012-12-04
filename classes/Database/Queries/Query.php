@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Base class for a result from a query
 
-namespace MrBavii\SiteHelper\Database;
+namespace MrBavii\SiteHelper\Database\Queries;
 
 abstract class Query
 {

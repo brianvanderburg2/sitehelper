@@ -1,14 +1,14 @@
 <?php
 
-// File:        PdoDriver.php
+// File:        Sqlite3.php
 // Author:      Brian Allen Vanderburg II
-// Purpose:     Driver for Sqlite3
+// Purpose:     Connector for Sqlite3
 
-namespace MrBavii\SiteHelper\Database;
+namespace MrBavii\SiteHelper\Database\Connectors;
 
-class Sqlite3Driver extends PdoDriver
+class Sqlite3 extends Pdo
 {
-    public function __construct($settings)
+    public function connect($settings)
     {
         if(isset($settings['filename']))
         {
@@ -20,9 +20,9 @@ class Sqlite3Driver extends PdoDriver
             $filename = ':memory:';
         }
 
-        $settings['dsn'] = 'sqlite2:' . $filename;
+        $settings['dsn'] = 'sqlite:' . $filename;
 
-        parent::__construct($settings);
+        parent::connect($settings);
     }
 }
 

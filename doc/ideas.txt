@@ -42,6 +42,68 @@ $db = Database::connect();
 $db->table('users')->join('groups', 'users.gid', '=', 'groups.id')
    ->where('users.id', '=', $uid)->get(array('users.uid' => 'uid'));
 
+
+First, rename Connection to Grammar, and Driver to Connection
+
+
+Database::connect()
+{
+    just create the driver, not the grammer
+
+    internally, a grammar() method will create the grammar on demand when needed, using
+    Database::drivers, passing $this (the driver)
+
+    Table is Query builder, can use driver and grammar
+
+
+    Driver has insert method, returns last inserted row id.
+    For all supported database, the row id should be a row with a serially increasing number
+}
+
+class Connection
+{
+    __construct(...)
+    {
+        $this->settings = $settings);
+    }
+
+    abstract public function connect()
+    {
+    }
+
+    public function grammar()
+    {
+        if($this->grammar === null)
+        {
+            $driver = $this->settings['driver'];
+
+            use Database::drivers[$driver] to create grammar, passing $this
+        }
+    }
+
+    atomic($callback)
+    {
+    }
+
+    exec(...)
+    query(...)
+    lastid()
+    table(...)
+    {
+        return new Table($this, $this->grammar, $tablename);
+    }
+
+    
+
+
+Table methods:
+    exists
+    Table('users')->exists()
+    Table('users')->columns()
+
+
+}
+
 Browser/Request/Response
 ========================
 

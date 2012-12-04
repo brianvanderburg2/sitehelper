@@ -12,8 +12,8 @@ namespace MrBavii\SiteHelper\Database;
 
 class Table
 {
-    protected $connection = null;
-    protected $driver = null;
+    protected $grammar = null;
+    protected $connector = null;
     protected $prefix = '';
     protected $table = null;
 
@@ -24,14 +24,14 @@ class Table
     protected $offset = null;
     protected $limit = null;
 
-    public function __construct($connection, $table)
+    public function __construct($connector, $table)
     {
-        $this->connection = $connection;
-        $this->driver = $connection->driver;
-        $this->prefix = $connection->prefix;
+        $this->connector = $connector;
+        $this->grammar = $connector->grammar;
+        $this->prefix = $connector->prefix;
         $this->table = $table;
 
-        $this->where_obj = new Where($connection);
+        $this->where_obj = new Where($this->grammar);
     }
     
     public function join($table)
@@ -39,11 +39,11 @@ class Table
         $args = func_get_args();
         array_shift($args);
 
-        $join = new Join($this->connection);
+        $join = new Join($this->grammar);
         $join->handle_where($args);
 
-        $this->joins[] = 'INNER JOIN ' . $this->connection->quote_table($this->prefix.$table) . ' AS ' .
-                         $this->connection->quote_table($table) . ' ON ' . $join->where_clause;
+        $this->joins[] = 'INNER JOIN ' . $this->grammar->quote_table($this->prefix.$table) . ' AS ' .
+                         $this->grammar->quote_table($table) . ' ON ' . $join->where_clause;
 
         return $this;
     }
@@ -63,13 +63,13 @@ class Table
 
     public function order($col)
     {
-        $this->ordered[] = $this->connection->quote_column($col);
+        $this->ordered[] = $this->grammar->quote_column($col);
         return $this;
     }
     
     public function order_desc($col)
     {
-        $this->ordered[] = $this->connection->quote_column($col) . ' DESC';;
+        $this->ordered[] = $this->grammar->quote_column($col) . ' DESC';;
         return $this;
     }
 
@@ -87,7 +87,7 @@ class Table
 
     public function get($cols='*')
     {
-        return $this->driver->query($this->get_sql($cols));
+        return $this->connector->query($this->get_sql($cols));
     }
 
     public function get_sql($cols='*')
@@ -109,17 +109,17 @@ class Table
             {
                 if(is_int($key))
                 {
-                    $colsql[] = $this->connection->quote_column($value);
+                    $colsql[] = $this->grammar->quote_column($value);
                 }
                 else
                 {
-                    $colsql[] = $this->connection->quote_column($key) . ' AS ' . $this->connection->quote_column($value);
+                    $colsql[] = $this->grammar->quote_column($key) . ' AS ' . $this->grammar->quote_column($value);
                 }
             }
         }
 
         // Build select statement
-        $sql = 'SELECT ' . implode(', ', $colsql) . ' FROM ' . $this->connection->quote_table($this->prefix . $this->table) . ' AS ' . $this->connection->quote_table($this->table); 
+        $sql = 'SELECT ' . implode(', ', $colsql) . ' FROM ' . $this->grammar->quote_table($this->prefix . $this->table) . ' AS ' . $this->grammar->quote_table($this->table); 
 
         if(count($this->joins) > 0)
         {
@@ -138,7 +138,7 @@ class Table
 
         if($this->limit || $this->offset)
         {
-            $sql .=  ' ' . $this->connection->format_limit($this->limit, $this->offset);
+            $sql .=  ' ' . $this->grammar->format_limit($this->limit, $this->offset);
         }
 
         return $sql;
@@ -155,12 +155,12 @@ class Table
 
     public function increment($col, $count=1)
     {
-        return $this->driver->exec($this->increment_sql($col, $count));
+        return $this->connector->exec($this->increment_sql($col, $count));
     }
 
     public function increment_sql($col, $count=1, $action='+')
     {
-        $col = $this->connection->quote_column($col);
+        $col = $this->grammar->quote_column($col);
         $count = (int)$count;
 
         $sql = 'UPDATE '. $this->prefix . $this->table . "SET $col=$col$action$count";
@@ -174,7 +174,7 @@ class Table
 
     public function decrement($col, $count=1)
     {
-        return $this->driver->exec($this->decrement_sql($col, $count));
+        return $this->connector->exec($this->decrement_sql($col, $count));
     }
 
     public function decrement_sql($col, $count=1)
@@ -184,7 +184,7 @@ class Table
 
     public function delete()
     {
-        return $this->driver->exec($this->delete_sql());
+        return $this->connector->exec($this->delete_sql());
     }
 
     public function delete_sql()
@@ -205,7 +205,7 @@ class Table
 
     public function insert($cols)
     {
-        return $this->driver->exec($this->insert_sql($cols));
+        return $this->connector->exec($this->insert_sql($cols));
     }
 
     public function insert_sql($cols)
@@ -215,7 +215,7 @@ class Table
 
     public function update($cols)
     {
-        return $this->driver->exec($this->update_sql($cols));
+        return $this->connector->exec($this->update_sql($cols));
     }
 
     public function update_sql($cols)
@@ -225,11 +225,11 @@ class Table
 
     public function create()
     {
-        return $this->driver->exec($this->create_sql());
+        return $this->connector->exec($this->create_sql());
     }
 
     public function create_sql()
     {
-        // Since this is database specific, we call the connection to format this
+        // Since this is database specific, we call the grammar to format this
     }
 }

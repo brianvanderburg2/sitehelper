@@ -8,12 +8,12 @@ namespace MrBavii\SiteHelper\Database;
 
 class Where
 {
-    protected $connection = null;
+    protected $grammar = null;
     public $where_clause = "";
 
-    public function __construct($connection)
+    public function __construct($grammar)
     {
-        $this->connection = $connection;
+        $this->grammar = $grammar;
     }
 
     public function where()
@@ -68,7 +68,7 @@ class Where
 
     protected function format_where_closure($callback)
     {
-        $tmp = new Where($this->connection);
+        $tmp = new Where($this->grammar);
         call_user_func($callback, $tmp);
         return '(' . $tmp->where_clause . ')';
     }
@@ -79,11 +79,11 @@ class Where
         {
             case 'null':
             case 'NULL':
-                return $this->connection->format_isnull($col);
+                return $this->grammar->format_isnull($col);
 
             case 'notnull':
             case 'NOTNULL':
-                return $this->connection->format_isnotnull($col);
+                return $this->grammar->format_isnotnull($col);
 
             default;
                 throw new Exception('Invalid arguments');
@@ -95,30 +95,30 @@ class Where
         switch($comp)
         {
             case '=':
-                return $this->connection->quote_column($col) . ' = ' . $this->connection->quote_value($value);
+                return $this->grammar->quote_column($col) . ' = ' . $this->grammar->quote_value($value);
 
             case '!=':
-                return $this->connection->quote_column($col) . ' != ' . $this->connection->quote_value($value);
+                return $this->grammar->quote_column($col) . ' != ' . $this->grammar->quote_value($value);
 
             case '<':
-                return $this->connection->quote_column($col) . ' < ' . $this->connection->quote_value($value);
+                return $this->grammar->quote_column($col) . ' < ' . $this->grammar->quote_value($value);
 
             case '>':
-                return $this->connection->quote_column($col) . ' > ' . $this->connection->quote_value($value);
+                return $this->grammar->quote_column($col) . ' > ' . $this->grammar->quote_value($value);
 
             case '<=':
-                return $this->connection->quote_column($col) . ' <= ' . $this->connection->quote_value($value);
+                return $this->grammar->quote_column($col) . ' <= ' . $this->grammar->quote_value($value);
 
             case '>=':
-                return $this->connection->quote_column($col) . ' >= ' . $this->connection->quote_value($value);
+                return $this->grammar->quote_column($col) . ' >= ' . $this->grammar->quote_value($value);
 
             case 'like':
             case 'LIKE':
-                return $this->connection->format_islike($col, $value);
+                return $this->grammar->format_islike($col, $value);
             
             case 'notlike':
             case 'NOTLIKE':
-                return $this->connection->format_isnotlike($col, $value);
+                return $this->grammar->format_isnotlike($col, $value);
 
             default:
                 throw new Exception('Invalid arguments');

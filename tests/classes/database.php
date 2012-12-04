@@ -22,29 +22,29 @@ class TestDatabase extends UnitTestCase
     {
         $db = Database::connect(array('driver' => 'sqlite3'));
 
-        $this->assertTrue($db instanceof Database\SqliteConnection);
-        $this->assertTrue($db->driver instanceof Database\Sqlite3Driver);
+        $this->assertTrue($db instanceof Database\Connectors\Sqlite3);
+        $this->assertTrue($db->grammar instanceof Database\Grammars\Sqlite);
     }
 
     public function testConfig()
     {
         $db = Database::connection('test');
-        $this->assertTrue($db instanceof Database\SqliteConnection);
-        $this->assertTrue($db->driver instanceof Database\Sqlite3Driver);
+        $this->assertTrue($db instanceof Database\Connectors\Sqlite3);
+        $this->assertTrue($db->grammar instanceof Database\Grammars\Sqlite);
 
         // Reset config and test Database cache
         \MrBavii\SiteHelper\Config::set('database.connections', array());
         $this->assertTrue(\MrBavii\SiteHelper\Config::get('database.connections') == array());
 
         $db2 = Database::connection('test');
-        $this->assertTrue($db2 instanceof Database\SqliteConnection);
-        $this->assertTrue($db2->driver instanceof Database\Sqlite3Driver);
+        $this->assertTrue($db2 instanceof Database\Connectors\Sqlite3);
+        $this->assertTrue($db2->grammar instanceof Database\Grammars\Sqlite);
 
         // Test group name
         $db3 = Database::connection('blah::test');
         
-        $this->assertTrue($db3 instanceof Database\SqliteConnection);
-        $this->assertTrue($db3->driver instanceof Database\Sqlite3Driver);
+        $this->assertTrue($db3 instanceof Database\Connectors\Sqlite3);
+        $this->assertTrue($db3->grammar instanceof Database\Grammars\Sqlite);
     }
 
     public function testSql()
