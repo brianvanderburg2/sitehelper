@@ -70,5 +70,6 @@ abstract class Connector
     abstract public function quote($value);
     abstract public function exec($sql);
     abstract public function query($sql);
+    abstract public function rowid();
 }
 

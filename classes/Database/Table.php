@@ -42,7 +42,7 @@ class Table
         $join = new Join($this->grammar);
         $join->handle_where($args);
 
-        $this->joins[] = 'INNER JOIN ' . $this->grammar->quote_table($this->prefix.$table) . ' AS ' .
+        $this->joins[] = 'INNER JOIN ' . $this->grammar->quote_table($this->prefix . $table) . ' AS ' .
                          $this->grammar->quote_table($table) . ' ON ' . $join->where_clause;
 
         return $this;
@@ -163,7 +163,7 @@ class Table
         $col = $this->grammar->quote_column($col);
         $count = (int)$count;
 
-        $sql = 'UPDATE '. $this->prefix . $this->table . "SET $col=$col$action$count";
+        $sql = 'UPDATE '. $this->grammar->quote_table($this->prefix . $this->table) . "SET $col=$col$action$count";
         if($this->where_obj->where_clause)
         {
             $sql .= ' ' . $this->where_obj->where_clause;
@@ -189,7 +189,7 @@ class Table
 
     public function delete_sql()
     {
-        $sql = 'DELETE FROM ' . $this->prefix . $this->table;
+        $sql = 'DELETE FROM ' . $this->grammar->quote_table($this->prefix . $this->table);
 
         if(strlen($this->where_obj->where_clause) > 0)
         {
@@ -208,9 +208,34 @@ class Table
         return $this->connector->exec($this->insert_sql($cols));
     }
 
+    public function insert_rowid($cols)
+    {
+        $this->insert($cols);
+        return $this->connector->rowid();
+    }
+
     public function insert_sql($cols)
     {
-        // TODO:
+        $keys = array_keys($cols);
+        $values = array_values($cols);
+
+        $keysql = array();
+        foreach($keys as $key)
+        {
+            $keysql[] = $this->grammar->quote_column($key);
+        }
+
+        $valuesql = array();
+        foreach($values as $value)
+        {
+            $valuesql[] = $this->grammar->quote_value($value);
+        }
+
+        $sql = 'INSERT INTO ' . $this->grammar->quote_table($this->prefix . $this->table);
+        $sql .= ' (' . implode(', ', $keysql) . ')';
+        $sql .= ' VALUES (' . implode(', ', $valuesql) . ')';
+
+        return $sql;
     }
 
     public function update($cols)
@@ -220,7 +245,19 @@ class Table
 
     public function update_sql($cols)
     {
-        // TODO:
+        $colsql = array();
+        foreach($cols as $col => $value)
+        {
+            $colsql[] = $this->grammar->quote_column($col) . ' = ' . $this->grammar->quote_value($value);
+        }
+
+        $sql = 'UPDATE ' . $this->grammar->quote_table($this->prefix . $this->table) . ' SET ' . implode(', ', $colsql);
+        if(strlen($this->where_obj->where_clause) > 0)
+        {
+            $sql .= ' WHERE ' . $this->where_obj->where_clause;
+        }
+
+        return $sql;
     }
 
     public function create()

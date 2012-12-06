@@ -111,6 +111,18 @@ class Pdo extends Connector
             throw new Database\Exception('SQL query error.', 0, $e);
         }
     }
+    
+    public function rowid()
+    {
+        try
+        {
+            return $this->pdo->lastInsertId();
+        }
+        catch(\PDOException $e)
+        {
+            throw new Database\Exception('SQL last inert id error.', 0, $e);
+        }
+    }
 }
 
 
