@@ -24,6 +24,10 @@ class Table
     protected $offset = null;
     protected $limit = null;
 
+    protected $columns = array();
+    protected $constraints = array('notnull' => array(), 'unique' => array(), 'default' => array(), 'fkey' => array(), 'pkey' => '');
+    protected $lastcol = null;
+
     public function __construct($connector, $table)
     {
         $this->connector = $connector;
@@ -82,6 +86,195 @@ class Table
     public function take($count)
     {
         $this->limit = $count;
+        return $this;
+    }
+
+    protected function column($name, $data, $store=TRUE)
+    {
+        if(!is_array($data))
+        {
+            $data = array($data);
+        }
+
+        $this->columns[$name] = $data;
+        if($store)
+        {
+            $this->lastcol = $name;
+        }
+        else
+        {
+            $this->lastcol = null;
+        }
+
+        return $this;
+    }
+
+    public function rowid($name)
+    {
+        $this->pkey($name);
+        return $this->column($name, 'rowid', FALSE);
+    }
+
+    public function rowidref($name)
+    {
+        return $this->column($name, 'rowidref');
+    }
+
+    public function varchar($name, $len)
+    {
+        return $this->column($name, array('varchar', $len));
+    }
+
+    public function fixedchar($name, $len)
+    {
+        return $this->column($name, array('char', $len));
+    }
+
+    public function int8($name)
+    {
+        return $this->column($name, 'int8');
+    }
+
+    public function int16($name)
+    {
+        return $this->column($name, 'int16');
+    }
+
+    public function int32($name)
+    {
+        return $this->column($name, 'int32');
+    }
+
+    public function int64($name)
+    {
+        return $this->column($name, 'int64');
+    }
+
+    public function uint8($name)
+    {
+        return $this->column($name, 'uint8');
+    }
+
+    public function uint16($name)
+    {
+        return $this->column($name, 'uint16');
+    }
+
+    public function uint32($name)
+    {
+        return $this->column($name, 'uint32');
+    }
+
+    public function uint64($name)
+    {
+        return $this->column($name, 'uint64');
+    }
+
+    public function notnull($col=null)
+    {
+        if($col === null)
+        {
+            $col = $this->lastcol;
+        }
+        else
+        {
+            $this->lastcol = null;
+        }
+        if($col === null)
+        {
+            throw new Exception('Constraint must apply to a column.');
+        }
+
+        $this->constraints['notnull'][] = $col;
+        return $this;
+    }
+
+    public function unique($col=null)
+    {
+        if($col === null)
+        {
+            $col = $this->lastcol;
+        }
+        else
+        {
+            $this->lastcol = null;
+        }
+        if($col === null)
+        {
+            throw new Exception('Constraint must apply to a column.');
+        }
+
+        // Each 'unique' is an array of the columns that should be unique
+        if(!is_array($col))
+        {
+            $col = array($col);
+        }
+
+        $this->constraints['unique'][] = $col;
+        return $this;
+    }
+
+    public function pkey($col=null)
+    {
+        if($col === null)
+        {
+            $col = $this->lastcol;
+        }
+        else
+        {
+            $this->lastcol = null;
+        }
+        if($col === null)
+        {
+            throw new Exception('Constraint must apply to a column.');
+        }
+
+        if(strlen($this->constraints['pkey']) == 0)
+        {
+            $this->constraints['pkey'] = $col;
+        }
+        else
+        {
+            throw new Exception('A table can only have one primary key.');
+        }
+        return $this;
+    }
+    
+    public function fkey($table, $column, $col=null)
+    {
+        if($col === null)
+        {
+            $col = $this->lastcol;
+        }
+        else
+        {
+            $this->lastcol = null;
+        }
+        if($col === null)
+        {
+            throw new Exception('Constraint must apply to a column.');
+        }
+
+        $this->constraints['fkey'][$col] = array($this->prefix . $table, $column);
+        return $this;
+    }
+
+    public function defvalue($value, $col=null)
+    {
+        if($col === null)
+        {
+            $col = $this->lastcol;
+        }
+        else
+        {
+            $this->lastcol = null;
+        }
+        if($col === null)
+        {
+            throw new Exception('Constraint must apply to a column.');
+        }
+
+        $this->constriants['default'][$col] = $value;
         return $this;
     }
 
@@ -267,6 +460,6 @@ class Table
 
     public function create_sql()
     {
-        // Since this is database specific, we call the grammar to format this
+        return $this->grammar->format_create_table($this->prefix . $this->table, $this->columns, $this->constraints);
     }
 }
