@@ -15,7 +15,7 @@ class TestCache extends UnitTestCase
     {
     }
 
-    public function testNull()
+    public function test_null()
     {
         $handle = Cache::driver('null');
 

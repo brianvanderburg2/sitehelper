@@ -16,7 +16,7 @@ class TestConfig extends UnitTestCase
     {
     }
 
-    public function testSetGet()
+    public function test_set_get()
     {
         Config::set('testc1', 100);
         Config::set('testc2', array(1, 2, 3));
@@ -50,7 +50,7 @@ class TestConfig extends UnitTestCase
         $this->assertTrue(Config::get('a.b.e') == 2020);
     }
 
-    public function testMerge()
+    public function test_merge()
     {
         Config::set('d.e.f', 100);
         Config::set('d.e.g', 200);
@@ -70,13 +70,13 @@ class TestConfig extends UnitTestCase
         Config::set('d.e.f', 100);
         Config::set('d.e.g', 200);
 
-        Config::mergeRecursive(array('h' => 300, 'i' => 400), 'd.e');
-        Config::mergeRecursive(array('f' => 600), 'd');
+        Config::merge_recursive(array('h' => 300, 'i' => 400), 'd.e');
+        Config::merge_recursive(array('f' => 600), 'd');
 
         $this->assertTrue(Config::get('d.e') == array('f' => 100, 'g' => 200, 'h' => 300, 'i' => 400));
         $this->assertTrue(Config::get('d.f') == 600);
 
-        Config::mergeRecursive(array('e' => array('f' => 500)), 'd');
+        Config::merge_recursive(array('e' => array('f' => 500)), 'd');
 
         $this->assertTrue(Config::get('d.e') == array('f' => 500, 'g' => 200, 'h' => 300, 'i' => 400));
         $this->assertTrue(Config::get('d.f') == 600);
@@ -96,7 +96,7 @@ class TestConfig extends UnitTestCase
         $this->assertTrue(Config::get('alpha::a') == array('c' => 100, 'd' => 400));
     }
 
-    public function testParse()
+    public function test_parse()
     {
         $p1 = 'host=test.tld,port=100,user=me,pass=secret';
         $p1r = array('host' => 'test.tld',
@@ -113,7 +113,7 @@ class TestConfig extends UnitTestCase
         $this->assertTrue(Config::parse($p2, ';', ':') == $p2r);
     }
 
-    public function testSplitJoin()
+    public function test_split_join()
     {
         $this->assertTrue(Config::split('a.b.c') == array(Config::MAIN, 'a.b.c'));
         $this->assertTrue(Config::split('something::a.b.c') == array('something', 'a.b.c'));

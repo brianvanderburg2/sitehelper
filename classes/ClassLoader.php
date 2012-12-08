@@ -23,15 +23,15 @@ class ClassLoader
         if(!static::$installed)
         {
             static::$installed = TRUE;
-            spl_autoload_register(array(__NAMESPACE__."\\ClassLoader", 'loadClass'));
+            spl_autoload_register(array(__NAMESPACE__."\\ClassLoader", 'load_class'));
         }
     }
 
-    public static function loadClass($classname)
+    public static function load_class($classname)
     {
         foreach(static::$loaders as $loader)
         {
-            if($loader->loadClass($classname))
+            if($loader->load_class($classname))
             {
                 break;
             }
@@ -62,7 +62,7 @@ class _ClassLoaderEntry
         }
     }
 
-    public function loadClass($classname)
+    public function load_class($classname)
     {
         // Check we are loading only for the desired namespace
         $check = $this->ns . $this->sep;

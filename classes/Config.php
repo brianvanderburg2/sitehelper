@@ -19,14 +19,14 @@ class Config
 
     public static function set($name, $value)
     {
-        $p = static::findParent($name);
+        $p = static::find_parent($name);
 
         $p[0][$p[1]] = $value;
     }
 
     public static function get($name, $def=null)
     {
-        $p = static::findParent($name, FALSE);
+        $p = static::find_parent($name, FALSE);
 
         if($p !== FALSE && isset($p[0][$p[1]]))
         {
@@ -40,26 +40,26 @@ class Config
 
     public static function merge($values, $where='')
     {
-        $p = &static::findArray($where);
+        $p = &static::find_array($where);
         foreach($values as $name => $value)
         {
             $p[$name] = $value;
         }
     }
 
-    public static function mergeRecursive($values, $where='')
+    public static function merge_recursive($values, $where='')
     {
-        $p = &static::findArray($where);
-        static::mergeHelper($p, $values);
+        $p = &static::find_array($where);
+        static::merge_helper($p, $values);
     }
 
-    protected static function mergeHelper(&$array1, &$array2)
+    protected static function merge_helper(&$array1, &$array2)
     {
         foreach($array2 as $name => $value)
         {
             if(isset($array1[$name]) && is_array($array1[$name]) && is_array($array2[$name]))
             {
-                static::mergeHelper($array1[$name], $array2[$name]);
+                static::merge_helper($array1[$name], $array2[$name]);
             }
             else
             {
@@ -68,7 +68,7 @@ class Config
         }
     }
 
-    protected static function findParent($name, $make=TRUE)
+    protected static function find_parent($name, $make=TRUE)
     {
         list($group, $name) = static::split($name);
         $parts = explode('.', $name);
@@ -110,9 +110,9 @@ class Config
         return array(&$target, $name);
     }
 
-    protected static function &findArray($name, $make=TRUE)
+    protected static function &find_array($name, $make=TRUE)
     {
-        $p = static::findParent($name, $make);
+        $p = static::find_parent($name, $make);
         if(strlen($p[1]) > 0)
         {
             if(!isset($p[0][$p[1]]) || !is_array($p[0][$p[1]]))

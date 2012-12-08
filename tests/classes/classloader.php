@@ -16,7 +16,7 @@ class TestClassLoader extends UnitTestCase
     {
     }
 
-    public function testWithUnderscore()
+    public function test_with_underscore()
     {
         ClassLoader::register("TestNS", __DIR__ . "/classloader/c1", '_', ".class.php");
 
@@ -29,7 +29,7 @@ class TestClassLoader extends UnitTestCase
         $this->assertFalse(class_exists("\\TestNS_", TRUE));
     }
 
-    public function testWithNamespace()
+    public function test_with_namespace()
     {
         ClassLoader::register("TestNS", __DIR__ . "/classloader/c2", "\\", ".class.php");
         

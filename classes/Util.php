@@ -8,7 +8,7 @@ namespace MrBavii\SiteHelper;
 
 class Util
 {
-    public static function loadPhp($__filename__, $__params__=array(), $__require__=TRUE)
+    public static function load_php($__filename__, $__params__=array(), $__require__=TRUE)
     {
         extract($__params__);
         if($__require__)
@@ -20,7 +20,7 @@ class Util
         }
     }
 
-    public static function loadIni($filename, $params=array())
+    public static function load_ini($filename, $params=array())
     {
         // TODO: use ini_parse and allow params to be used as constants in ini
     }
