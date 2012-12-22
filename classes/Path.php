@@ -1,12 +1,12 @@
 <?php
 
-// File:        Paths.php
+// File:        Path.php
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Manage paths for various resources
 
 namespace MrBavii\SiteHelper;
 
-class Paths
+class Path
 {
     protected static $paths = array();
 

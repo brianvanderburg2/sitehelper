@@ -1,11 +1,11 @@
 <?php
 
-use MrBavii\SiteHelper\Paths;
+use MrBavii\SiteHelper\Path;
 
 require_once("simpletest/autorun.php");
 require_once(__DIR__ . "/../../bootstrap.php");
 
-class TestPaths extends UnitTestCase
+class TestPath extends UnitTestCase
 {
     public function setUp()
     {

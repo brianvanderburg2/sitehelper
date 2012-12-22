@@ -24,7 +24,8 @@ check:
 tests: check
 	@$(CD) tests && $(PHP) classes/classloader.php
 	@$(CD) tests && $(PHP) classes/config.php
-	@$(CD) tests && $(PHP) classes/paths.php
+	@$(CD) tests && $(PHP) classes/path.php
+	@$(CD) tests && $(PHP) classes/event.php
 	@$(CD) tests && $(PHP) classes/cache.php
 	@$(CD) tests && $(PHP) classes/database.php
 
