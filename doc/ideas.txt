@@ -4,12 +4,16 @@ Classes
 Config
 ClassLoader
 Database
-    Driver
-    PdoDriver
+    Connector
+    PdoConnector
+    etc
     Grammar
     MysqlGrammar
     PgsqlGrammar
     SqliteGrammar
+    etc
+    Query
+    etc
 Cache
     Driver
     NullDriver
@@ -21,18 +25,62 @@ Cache
 Session
 Security
 Template
-Dispatcher
+Dispatcher (based on idea of a front end controller)
+    register('path', array(data))
+        callback can be a Closure or filename.
+    dispatch($path=null)
+        if path is null, use next component (if any, if non then error 404)
+        after a match is found, clear registered callbacks and call it,
+            setting the next component as the current component
+            This way, the callback can register new paths for that component if
+            desired
+        if no match found: error 404 (Trigger)
+
+    Dispatcher::current() (current segment)
+    Dispatcher::parent() (complete parent segment)
+    Dispatcher::path() (current segment to end)
+    Dispatcher::next() (next segment, set next to current)
+
+        in index.php/path/to/test/current/example
+            current() -> current
+            parent() -> path/to/test
+            path() -> current/example
 Browser
-Request
-Response
+    Request
+    Response
+        redirect
+        error404 (Default action for Trigger::fire('404')
 Util
+    load_php
+    load_ini
+    guid
 Exception
 Language
 Logger
 Captcha
 FormBuilder
-ShCode
-Temp
+ShCode (generic bbcode parser, parse into nested arrays)
+Server
+    Server information helper
+        front, host, http, https, etc
+Url
+    register('name', 'value')
+        if(not contains ':')
+            if(begins with /) use local server/port as start
+            else use local server/port and front end controller as start
+            if setting is secure, use https
+            (config information is server.front, servert.host, server.port.http, server.port.https)
+            If not specified, try to auto detect
+        else
+            absolute path
+    get('
+Trigger
+    A simple event hook
+    fire('name', 'optional parameters')
+        Call all hooks
+    hook('name', callback)
+        Get called when fired.
+        
 
 Database
 ========
