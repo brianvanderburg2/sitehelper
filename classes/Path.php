@@ -6,6 +6,9 @@
 
 namespace MrBavii\SiteHelper;
 
+/**
+ * Find files and directories in paths as well as map found files to a url
+ */
 class Path
 {
     protected static $paths = array();
@@ -13,6 +16,13 @@ class Path
     const FILTER_FILE=1;
     const FILTER_DIR=2;
 
+    /**
+     * Register a path for a path group.
+     *
+     * \param name The name of the path group
+     * \param path The file system path
+     * \url The public url that maps to the file system path
+     */
     public static function register($name, $path, $url=null)
     {
         if(!isset(static::$paths[$name]))
@@ -50,6 +60,15 @@ class Path
         return FALSE; // Should never get here
     }
 
+    /**
+     * Find all files and urls that match a path group.
+     *
+     * \param name The name of the path group
+     * \param path The path to find in the path group
+     * \param Filter for files or directories, by default all.
+     * \return An array containing the files and urls.  Each entry is itself an
+     *  arrayof the file and either the url or null if no url was mapped.
+     */
     public static function find($name, $path, $filter=null)
     {
         if(!isset(static::$paths[$name]))

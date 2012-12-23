@@ -115,12 +115,12 @@ class TestConfig extends UnitTestCase
 
     public function test_split_join()
     {
-        $this->assertTrue(Config::split('a.b.c') == array(Config::MAIN, 'a.b.c'));
+        $this->assertTrue(Config::split('a.b.c') == array('application', 'a.b.c'));
         $this->assertTrue(Config::split('something::a.b.c') == array('something', 'a.b.c'));
-        $this->assertTrue(Config::split('') == array(Config::MAIN, ''));
+        $this->assertTrue(Config::split('') == array('application', ''));
         $this->assertTrue(Config::split('other::') == array('other', ''));
         $this->assertTrue(Config::split('something::a.b.c') == array('something', 'a.b.c'));
-        $this->assertTrue(Config::split('a.b.c') == array(Config::MAIN, 'a.b.c'));
+        $this->assertTrue(Config::split('a.b.c') == array('application', 'a.b.c'));
         $this->assertTrue(Config::split('other::package.name::wild') == array('other', 'package.name::wild'));
 
         $this->assertTrue(Config::join('group', 'element') == 'group::element');

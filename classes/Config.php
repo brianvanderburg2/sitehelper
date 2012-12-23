@@ -8,8 +8,6 @@ namespace MrBavii\SiteHelper;
 
 class Config
 {
-    const MAIN = 'application';
-
     protected static $splits = array();
     protected static $groups = array();
 
@@ -172,7 +170,7 @@ class Config
         return $results;
     }
 
-    public static function split($name)
+    public static function split($name, $group='application')
     {
         if(isset(static::$splits[$name]))
         {
@@ -180,7 +178,7 @@ class Config
         }
 
         $p = explode('::', $name, 2);
-        return (static::$splits[$name] = (count($p) == 2) ? array($p[0], $p[1]) : array(static::MAIN, $p[0]));
+        return (static::$splits[$name] = (count($p) == 2) ? array($p[0], $p[1]) : array($group, $p[0]));
     }
 
     public static function join($group, $element)
