@@ -11,6 +11,8 @@ GIT=git
 TAR=tar
 XZ=xz
 MKDIR=mkdir
+RM=rm
+DOXYGEN=doxygen
 
 # Default targets
 .PHONY: check
@@ -30,10 +32,19 @@ tests: check
 	@$(CD) tests && $(PHP) classes/database.php
 
 # Build an archive of the current branch/tag
-.PHONY: archive
-archive: NAME:=sitehelper-$(shell $(GIT) describe --always)
-archive: check
+.PHONY: tarball
+tarball: NAME:=sitehelper-$(shell $(GIT) describe --always)
+tarball: check
 	@$(MKDIR) -p output
 	@$(GIT) archive --format=tar --prefix=$(NAME)/ HEAD | $(XZ) > output/$(NAME).tar.xz
 
+# Build documentation
+.PHONY: doc
+doc: check
+	@$(TEST) ! -d output/html || $(RM) -r output/html
+	@$(DOXYGEN) doc/doxygen/Doxyfile
 
+# Cleanup
+.phony: clean
+clean: check
+	@$(RM) -r output

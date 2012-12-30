@@ -6,6 +6,9 @@
 
 namespace MrBavii\SiteHelper;
 
+/**
+ * Configuration storage class
+ */
 class Config
 {
     protected static $splits = array();
@@ -15,6 +18,14 @@ class Config
     protected static $loaded_inis = array();
     protected static $loaded_configs = array();
 
+    /**
+     * Set a configuration item.
+     *
+     * @param name The name of the configuration item to set.  This can
+     *  be 'name', 'name.subname', 'groupname::name.subname'.  It is an
+     *  error to specify just a group name.
+     * @param value The value to set.
+     */
     public static function set($name, $value)
     {
         $p = static::find_parent($name);
@@ -22,6 +33,15 @@ class Config
         $p[0][$p[1]] = $value;
     }
 
+    /**
+     * Get a configuration item.
+     *
+     * @param name The name of the configuration item to set.  This can be in
+     * form 'name, 'name.subname', 'groupname::name.subname'.  It is an error
+     * to specify just a group name.
+     * @param def The default return value if name is not found.
+     * @return The value of the configuration item if self, else the default value.
+     */
     public static function get($name, $def=null)
     {
         $p = static::find_parent($name, FALSE);
@@ -36,6 +56,14 @@ class Config
         }
     }
 
+    /**
+     * Merge items into the array, keeping existing items.
+     *
+     * @param values The array of values to merge in.
+     * @param where Where to merge the items in.  This can be in form
+     *  'name.subname', 'groupname::name.subname', or even just 'groupname::'.
+     *  If empty the default group will be used.
+     */
     public static function merge($values, $where='')
     {
         $p = &static::find_array($where);
@@ -45,6 +73,15 @@ class Config
         }
     }
 
+    /**
+     * Merge items into the array, keeping existing items.  This
+     * works similar to merge, except nested arrays are merged recursively.
+     * If a value already set is an array but the value specified is not,
+     * then the configuration will be overwritten.
+     *
+     * @param values The array of values to merge in.
+     * @param where Where to merge the items in.
+     */
     public static function merge_recursive($values, $where='')
     {
         $p = &static::find_array($where);
@@ -133,6 +170,9 @@ class Config
         }
     }
 
+    /**
+     * @todo: document
+     */
     public static function parse($string, $sep=',', $eq='=')
     {
         $results = array();
@@ -170,6 +210,9 @@ class Config
         return $results;
     }
 
+    /**
+     * @todo: document
+     */
     public static function split($name, $group='application')
     {
         if(isset(static::$splits[$name]))
@@ -181,6 +224,9 @@ class Config
         return (static::$splits[$name] = (count($p) == 2) ? array($p[0], $p[1]) : array($group, $p[0]));
     }
 
+    /**
+     * @todo: document
+     */
     public static function join($group, $element)
     {
         return $group . '::' . $element;

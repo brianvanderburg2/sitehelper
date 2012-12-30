@@ -2,7 +2,44 @@ Classes
 =======
 
 Config
+    Delay load configuration if possible.
+    (How to deal with issue where Config::set or Config::merge is called before delay load?)
+        Idea, keep map of all delay loaded configs (group::topname)
+        When set is called, do delay_load on the name first
+            Both set and merge can set the root name as well: set('group::', ...)
+            so the delay load mechanism needs to get the values to set as well
+            call delay_load from set and merge
+            to avoid recursion, param parameter called 'load' to set and merge functions, by
+            default it is true, but when delay_load merges the config in, it will be false
+            delay_load(name, values)
+                toload = array()
+                (group, name) = split(name)
+                if(name == '')
+                {
+                    foreach(keys(values) as key)
+                    {
+                        toload[] = (group, key)
+                    }
+                }
+                else
+                {
+                    toload[] = (group, name)
+                }
+
+                foreach(toload as load)
+                {
+                    if(!loaded(load))
+                    {
+                        load config from filename(toload[0], toload[1])
+                    }
+                }
+
+
+            filename(group, name)
+                return str_replace('.', DIRECTORY_SEPARATOR, group) . DIRECTORY_SEPARATOR . name.split('.')[0];
+
 ClassLoader
+    register_map(dir, namespace, map)
 Database
     Connector
     PdoConnector
@@ -29,22 +66,14 @@ Dispatcher (based on idea of a front end controller)
     register('path', array(data))
         callback can be a Closure or filename.
     dispatch($path=null)
-        if path is null, use next component (if any, if non then error 404)
-        after a match is found, clear registered callbacks and call it,
-            setting the next component as the current component
-            This way, the callback can register new paths for that component if
-            desired
-        if no match found: error 404 (Trigger)
-
-    Dispatcher::current() (current segment)
-    Dispatcher::parent() (complete parent segment)
-    Dispatcher::path() (current segment to end)
-    Dispatcher::next() (next segment, set next to current)
-
-        in index.php/path/to/test/current/example
-            current() -> current
-            parent() -> path/to/test
-            path() -> current/example
+        use Request::path_info() if $path is null
+    (:all) (match all the rest of the url) (.*)
+    (:alpha) ([a-zA-Z]*)
+    (:num) ([0-9]*)
+    (:alnum) ([a-zA-Z0-9]*)
+    (:ident) ([a-zA-Z][a-zA-Z0-9_]*)
+    (:file) (match rest of url if the pattern is ((piece)(\.|(piece))*)(/(piece)(\.|(piece))*)*
+            piece is (a-zA-Z0-9_-)
 Browser
     Request
     Response
