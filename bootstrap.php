@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Register the classloader needed for SiteHelper
 
-namespace MrBavii\SiteHelper;
+namespace mrbavii\sitehelper;
 
 if(!defined(__NAMESPACE__."\\BOOTSTRAPPED"))
 {

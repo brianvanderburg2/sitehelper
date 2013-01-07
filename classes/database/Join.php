@@ -4,12 +4,12 @@
 // Author:      Brian Allen Vanderburg Ii
 // Purpose:     Handle join clauses
 
-namespace MrBavii\SiteHelper\Database;
+namespace mrbavii\sitehelper\database;
 
 class Join
 {
     protected $grammar = null;
-    public $where_clause = "";
+    public $sql = "";
 
     public function __construct($grammar)
     {
@@ -18,79 +18,79 @@ class Join
 
     public function where()
     {
-        $this->handle_where(func_get_args());
+        $this->handleWhere(func_get_args());
         return $this;
     }
     
-    public function or_where()
+    public function orWhere()
     {
-        $sql = $this->handle_or_where(func_get_args());
+        $sql = $this->handleOrWhere(func_get_args());
         return $this;
     }
 
-    public function handle_where($args)
+    public function handleWhere($args)
     {
-        if(strlen($this->where_clause) > 0)
+        if(strlen($this->sql) > 0)
         {
-            $this->where_clause .= ' AND ';
+            $this->sql .= ' AND ';
         }
 
-        $this->where_clause .= $this->format_where($args);
+        $this->sql .= $this->formatWhere($args);
     }
 
-    public function handle_or_where($args)
+    public function handleOrWhere($args)
     {
-        if(strlen($this->where_clause) > 0)
+        if(strlen($this->sql) > 0)
         {
-            $this->where_clause .= ' OR ';
+            $this->sql .= ' OR ';
         }
 
-        $this->where_clause .= $this->format_where($args);
+        $this->sql .= $this->formatWhere($args);
     }
 
-    protected function format_where($args)
+    protected function formatWhere($args)
     {
         switch(count($args))
         {
             case 1:
-                return $this->format_where_closure($args[0]);
+                return $this->formatWhereClosure($args[0]);
 
             case 3:
-                return $this->format_where_comp($args[0], $args[1], $args[2]);
+                return $this->formatWhereComp($args[0], $args[1], $args[2]);
 
             default:
                 throw new Exception('Invalid arguments');
         }
     }
 
-    protected function format_where_closure($callback)
+    protected function formatWhereClosure($callback)
     {
         $tmp = new Join($this->grammar);
         call_user_func($callback, $tmp);
-        return '(' . $tmp->where_clause . ')';
+        return '(' . $tmp->sql . ')';
     }
 
-    protected function format_where_comp($col1, $comp, $col2)
+    protected function formatWhereComp($col1, $comp, $col2)
     {
         switch($comp)
         {
             case '=':
-                return $this->grammar->quote_column($col1) . ' = ' . $this->grammar->quote_column($col2);
+                return $this->grammar->quoteColumn($col1) . ' = ' . $this->grammar->quoteColumn($col2);
 
             case '!=':
-                return $this->grammar->quote_column($col1) . ' != ' . $this->grammar->quote_column($col2);
+                return $this->grammar->quoteColumn($col1) . ' != ' . $this->grammar->quoteColumn($col2);
 
             case '<':
-                return $this->grammar->quote_column($col1) . ' < ' . $this->grammar->quote_column($col2);
+                return $this->grammar->quoteColumn($col1) . ' < ' . $this->grammar->quoteColumn($col2);
 
             case '>':
-                return $this->grammar->quote_column($col1) . ' > ' . $this->grammar->quote_column($col2);
+                return $this->grammar->quoteColumn($col1) . ' > ' . $this->grammar->quoteColumn($col2);
 
             case '<=':
-                return $this->grammar->quote_column($col1) . ' <= ' . $this->grammar->quote_column($col2);
+                return $this->grammar->quoteColumn($col1) . ' <= ' . $this->grammar->quoteColumn($col2);
 
             case '>=':
-                return $this->grammar->quote_column($col1) . ' >= ' . $this->grammar->quote_column($col2);
+                return $this->grammar->quoteColumn($col1) . ' >= ' . $this->grammar->quoteColumn($col2);
 
             default:
                 throw new Exception('Invalid arguments');

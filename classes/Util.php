@@ -4,11 +4,11 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Some utility functions
 
-namespace MrBavii\SiteHelper;
+namespace mrbavii\sitehelper;
 
 class Util
 {
-    public static function load_php($__filename__, $__params__=array(), $__require__=TRUE)
+    public static function loadPhp($__filename__, $__params__=array(), $__require__=TRUE)
     {
         extract($__params__);
         if($__require__)
@@ -20,7 +20,7 @@ class Util
         }
     }
 
-    public static function load_ini($filename, $params=array())
+    public static function loadIni($filename, $params=array())
     {
         // TODO: use ini_parse and allow params to be used as constants in ini
     }
@@ -34,11 +34,11 @@ class Util
         }
         else
         {
-            return static::internal_guid($namespace);
+            return static::internalGuid($namespace);
         }
     }
 
-    public static function internal_guid($namespace='')
+    public static function internalGuid($namespace='')
     {
         // This code comes from http://php.net/manual/en/function.uniqid.php
         // Curly brackets are not included
@@ -65,6 +65,38 @@ class Util
             substr($hash, 20, 12);
 
         return $guid;
+    }
+
+    public static function startsWith($str, $needle, $case=FALSE)
+    {
+        $len = strlen($needle);
+        if($len == 0)
+            return TRUE;
+
+        if($case)
+        {
+            return strncasecmp($str, $needle, $len) == 0;
+        }
+        else
+        {
+            return strncmp($str, $needle, $len) == 0;
+        }
+    }
+
+    public static function endsWith($str, $needle, $case=FALSE)
+    {
+        $len = strlen($needle);
+        if($len == 0)
+            return TRUE;
+
+        if($case)
+        {
+            return strcasecmp(substr($str, -$len), $needle) == 0;
+        }
+        else
+        {
+            return substr($str, -$len) == $needle;
+        }
     }
 }
 

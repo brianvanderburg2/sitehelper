@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Exception class for SiteHelper
 
-namespace MrBavii\SiteHelper;
+namespace mrbavii\sitehelper;
 
 class Exception extends \Exception
 {

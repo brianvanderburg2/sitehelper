@@ -4,16 +4,16 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Load files containing classes on demand.
 
-namespace MrBavii\SiteHelper;
+namespace mrbavii\sitehelper;
 
 class ClassLoader
 {
     protected static $loaders = array();
     protected static $installed = FALSE;
 
-    public static function register($ns, $dir, $sep=null, $ext=null)
+    public static function register($start, $dir, $ext=null)
     {
-        $loader = new _ClassLoaderEntry($ns, $dir, $sep, $ext);
+        $loader = new _ClassLoaderEntry($start, $dir, $ext);
         static::$loaders[] = $loader;
         return $loader;
     }
@@ -23,15 +23,15 @@ class ClassLoader
         if(!static::$installed)
         {
             static::$installed = TRUE;
-            spl_autoload_register(array(__NAMESPACE__."\\ClassLoader", 'load_class'));
+            spl_autoload_register(array(__NAMESPACE__."\\ClassLoader", 'loadClass'));
         }
     }
 
-    public static function load_class($classname)
+    public static function loadClass($classname)
     {
         foreach(static::$loaders as $loader)
         {
-            if($loader->load_class($classname))
+            if($loader->loadClass($classname))
             {
                 break;
             }
@@ -41,20 +41,14 @@ class ClassLoader
 
 class _ClassLoaderEntry
 {
-    protected $ns = null;
+    protected $start = null;
     protected $dir = null;
-    protected $sep = "\\";
     protected $ext = ".php";
 
-    public function __construct($ns, $dir, $sep=null, $ext=null)
+    public function __construct($start, $dir, $ext=null)
     {
-        $this->ns = $ns;
+        $this->start = $start;
         $this->dir = $dir;
-
-        if($sep !== null)
-        {
-            $this->sep = $sep;
-        }
 
         if($ext !== null)
         {
@@ -62,28 +56,19 @@ class _ClassLoaderEntry
         }
     }
 
-    public function load_class($classname)
+    public function loadClass($classname)
     {
         // Check we are loading only for the desired namespace
-        $check = $this->ns . $this->sep;
-        if(strlen($classname) <= strlen($check) || substr_compare($classname, $check, 0, strlen($check)) != 0)
+        $len = strlen($this->start);
+        if(strlen($classname) <= $len || substr_compare($classname, $this->start, 0, $len) != 0)
             return FALSE;
 
         // Remove the registered namespace portion
         $filename = $this->dir . DIRECTORY_SEPARATOR;
-        $classname = substr($classname, strlen($check));
+        $classname = substr($classname, $len);
 
-        // Any remaining namespace portions are used for finding the directory
-        $pos = strripos($classname, $this->sep);
-        if($pos !== FALSE)
-        {
-            $namespace = substr($classname, 0, $pos);
-            $classname = substr($classname, $pos + 1);
-            $filename .= str_replace($this->sep, DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
-        }
-
-        // Add class name and extension
-        $filename .= $classname . $this->ext;
+        // Any namespace portions are used for finding the class file
+        $filename .= str_replace(array('\\', '_'), DIRECTORY_SEPARATOR, $classname) . $this->ext;
 
         // Load the file and indicate that we handled it
         require($filename);

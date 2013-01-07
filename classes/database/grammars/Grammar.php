@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Base class for formatting and syntax to the database
 
-namespace MrBavii\SiteHelper\Database\Grammars;
+namespace mrbavii\sitehelper\database\grammars;
 
 abstract class Grammar
 {
@@ -22,15 +22,15 @@ abstract class Grammar
 
 
     // There are not used publicly, only by Table
-    abstract public function quote_column($col);
-    abstract public function quote_table($table);
-    abstract public function quote_value($value);
-    abstract public function format_isnull($col);
-    abstract public function format_isnotnull($col);
-    abstract public function format_islike($col, $like);
-    abstract public function format_isnotlike($col, $like);
-    abstract public function format_limit($limit, $offset);
-    abstract public function format_create_table($table, $columns, $constraints);
+    abstract public function quoteColumn($col);
+    abstract public function quoteTable($table);
+    abstract public function quoteValue($value);
+    abstract public function formatNull($col);
+    abstract public function formatNotNull($col);
+    abstract public function formatLike($col, $like);
+    abstract public function formatNotLike($col, $like);
+    abstract public function formatLimit($limit, $offset);
+    abstract public function formatCreateTable($table, $columns, $constraints);
 
 }
 

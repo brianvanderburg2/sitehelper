@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Connector for Sqlite3
 
-namespace MrBavii\SiteHelper\Database\Connectors;
+namespace mrbavii\sitehelper\database\connectors;
 
 class Sqlite3 extends Pdo
 {

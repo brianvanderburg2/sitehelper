@@ -1,6 +1,6 @@
 <?php
 
-use MrBavii\SiteHelper\Event;
+use mrbavii\sitehelper\Event;
 
 require_once("simpletest/autorun.php");
 require_once(__DIR__ . "/../../bootstrap.php");

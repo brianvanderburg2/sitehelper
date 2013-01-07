@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Base class for connecting to a cache
 
-namespace MrBavii\SiteHelper\Cache;
+namespace mrbavii\sitehelper\cache;
 
 abstract class Driver
 {

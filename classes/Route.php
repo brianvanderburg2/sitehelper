@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Route requests to specific functions based on the path
 
-namespace MrBavii\SiteHelper;
+namespace mrbavii\sitehelper;
 
 class Route
 {

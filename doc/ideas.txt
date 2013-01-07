@@ -1,6 +1,11 @@
 Classes
 =======
 
+TODO:
+    style changes:
+        lowerCamelCase for methods and functions, variable names
+
+
 Config
     Delay load configuration if possible.
     (How to deal with issue where Config::set or Config::merge is called before delay load?)

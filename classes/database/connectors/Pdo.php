@@ -4,8 +4,8 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Connector for PDO
 
-namespace MrBavii\SiteHelper\Database\Connectors;
-use MrBavii\SiteHelper\Database;
+namespace mrbavii\sitehelper\database\connectors;
+use mrbavii\sitehelper\database;
 
 class Pdo extends Connector
 {
@@ -30,7 +30,7 @@ class Pdo extends Connector
         }
         catch(\PDOException $e)
         {
-            throw new Database\Exception('Error connecting to database.', 0, $e);
+            throw new database\Exception('Error connecting to database.', 0, $e);
         }
     }
 
@@ -47,7 +47,7 @@ class Pdo extends Connector
         }
         catch(\PDOException $e)
         {
-            throw new Database\Exception('Transaction error.', 0, $e);
+            throw new database\Exception('Transaction error.', 0, $e);
         }
     }
 
@@ -59,7 +59,7 @@ class Pdo extends Connector
         }
         catch(\PDOException $e)
         {
-            throw new Database\Exception('Transaction error.', 0, $e);
+            throw new database\Exception('Transaction error.', 0, $e);
         }
     }
 
@@ -71,7 +71,7 @@ class Pdo extends Connector
         }
         catch(\PDOException $e)
         {
-            throw new Database\Exception('Transaction error.', 0, $e);
+            throw new database\Exception('Transaction error.', 0, $e);
         }
     }
     
@@ -83,7 +83,7 @@ class Pdo extends Connector
         }
         catch(\PDOException $e)
         {
-            throw new Database\Exception('SQL quote error.', 0, $e);
+            throw new database\Exception('SQL quote error.', 0, $e);
         }
     }
 
@@ -95,7 +95,7 @@ class Pdo extends Connector
         }
         catch(\PDOException $e)
         {
-            throw new Database\Exception('SQL execution error.', 0, $e);
+            throw new database\Exception('SQL execution error.', 0, $e);
         }
     }
 
@@ -104,11 +104,11 @@ class Pdo extends Connector
         try
         {
             $stmt = $this->pdo->query($sql);
-            return new Database\Queries\Pdo($stmt);
+            return new database\queries\Pdo($stmt);
         }
         catch(\PDOException $e)
         {
-            throw new Database\Exception('SQL query error.', 0, $e);
+            throw new database\Exception('SQL query error.', 0, $e);
         }
     }
     
@@ -120,7 +120,7 @@ class Pdo extends Connector
         }
         catch(\PDOException $e)
         {
-            throw new Database\Exception('SQL last inert id error.', 0, $e);
+            throw new database\Exception('SQL last inert id error.', 0, $e);
         }
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-use MrBavii\SiteHelper\Path;
+use mrbavii\sitehelper\Path;
 
 require_once("simpletest/autorun.php");
 require_once(__DIR__ . "/../../bootstrap.php");

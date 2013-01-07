@@ -4,17 +4,17 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Grammar for Sqlite
 
-namespace MrBavii\SiteHelper\Database\Grammars;
-use MrBavii\SiteHelper\Database;
+namespace mrbavii\sitehelper\database\grammars;
+use mrbavii\sitehelper\database;
 
 class Sqlite extends Grammar
 {
-    public function quote_column($col)
+    public function quoteColumn($col)
     {
         $p = explode('.', $col);
         if(count($p) == 2)
         {
-            return $this->quote_table($p[0]) . ".`{$p[1]}`";
+            return $this->quoteTable($p[0]) . ".`{$p[1]}`";
         }
         else
         {
@@ -22,47 +22,47 @@ class Sqlite extends Grammar
         }
     }
 
-    public function quote_table($table)
+    public function quoteTable($table)
     {
         return "`$table`";
     }
 
-    public function quote_value($value)
+    public function quoteValue($value)
     {
         return $this->connector->quote($value);
     }
 
-    public function format_isnull($col)
+    public function formatNull($col)
     {
-        return $this->quote_column($col) . ' ISNULL';
+        return $this->quoteColumn($col) . ' ISNULL';
     }
 
-    public function format_isnotnull($col)
+    public function formatNotNull($col)
     {
-        return $this->quote_column($col) . ' NOTNULL';
+        return $this->quoteColumn($col) . ' NOTNULL';
     }
 
-    protected function prepare_like($like)
+    protected function prepareLike($like)
     {
         $like = str_replace('\\', '\\\\', $like);
         $like = str_replace('%', '\\%', $like);
         $like = str_replace('_', '\\_', $like);
         $like = str_replace('*', '%', $like);
 
-        return $this->quote_value($like);
+        return $this->quoteValue($like);
     }
 
-    public function format_islike($col, $like)
+    public function formatLike($col, $like)
     {
-        return $this->quote_column($col) . ' LIKE ' . $this->prepare_like($like) . "ESCAPE '\\'";
+        return $this->quoteColumn($col) . ' LIKE ' . $this->prepareLike($like) . "ESCAPE '\\'";
     }
 
-    public function format_isnotlike($col, $like)
+    public function formatNotLike($col, $like)
     {
-        return 'NOT ' . $this->format_islik($col, $like);
+        return 'NOT ' . $this->formatLike($col, $like);
     }
 
-    public function format_limit($limit, $offset)
+    public function formatLimit($limit, $offset)
     {
         $sql = '';
 
@@ -81,7 +81,7 @@ class Sqlite extends Grammar
         return $sql;
     }
 
-    public function format_create_table($table, $columns, $constraints)
+    public function formatCreateTable($table, $columns, $constraints)
     {
         // Base create table statement
         $colsql = array();
@@ -90,7 +90,7 @@ class Sqlite extends Grammar
             $colsql[] = $this->coldef($name, $column, $constraints);
         }
 
-        $sql = 'CREATE TABLE ' . $this->quote_table($table) . ' (';
+        $sql = 'CREATE TABLE ' . $this->quoteTable($table) . ' (';
         $sql .= implode(', ', $colsql);
 
         // Uniques
@@ -99,7 +99,7 @@ class Sqlite extends Grammar
             $colsql = array();
             foreach($unique as $col)
             {
-                $colsql[] = $this->quote_column($col);
+                $colsql[] = $this->quoteColumn($col);
             }
             $sql .= ', UNIQUE (' . implode(', ', $colsql) . ')';
         }
@@ -107,8 +107,8 @@ class Sqlite extends Grammar
         // Foreign keys
         foreach($constraints['fkey'] as $col => $ref)
         {
-            $sql .= ', FOREIGN KEY (' . $this->quote_column($col) . ')';
-            $sql .= ' REFERENES ' . $this->quote_table($ref[0]) . ' (' . $this->quote_column($ref[1]) . ')';
+            $sql .= ', FOREIGN KEY (' . $this->quoteColumn($col) . ')';
+            $sql .= ' REFERENES ' . $this->quoteTable($ref[0]) . ' (' . $this->quoteColumn($ref[1]) . ')';
         }
 
         // Done
@@ -171,10 +171,10 @@ class Sqlite extends Grammar
 
         if(isset($constraints['default'][$name]))
         {
-            $typestr .= ' DEFAULT ' . $this->quote_value($constraints['default'][$name]);
+            $typestr .= ' DEFAULT ' . $this->quoteValue($constraints['default'][$name]);
         }
 
-        return $this->quote_column($name) . ' ' . $typestr;
+        return $this->quoteColumn($name) . ' ' . $typestr;
     }
 }
 

@@ -4,14 +4,14 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Configuration and connections for database access
 
-namespace MrBavii\SiteHelper;
-use MrBavii\SiteHelper\Config;
+namespace mrbavii\sitehelper;
+use mrbavii\sitehelper\Config;
 
 class Database
 {
     protected static $cache = array(); 
     protected static $drivers = array( 
-        'sqlite3' => array('\MrBavii\SiteHelper\Database\Connectors\Sqlite3', '\MrBavii\SiteHelper\Database\Grammars\Sqlite')
+        'sqlite3' => array('\mrbavii\sitehelper\database\connectors\Sqlite3', '\mrbavii\sitehelper\database\grammars\Sqlite')
     );
 
     public static function register($driver, $cfactory, $gfactory)

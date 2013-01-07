@@ -8,7 +8,7 @@
 // dropping tables as well as inserting, updating, deleting, and selecting
 // data from the tables.
 
-namespace MrBavii\SiteHelper\Database;
+namespace mrbavii\sitehelper\database;
 
 class Table
 {
@@ -18,7 +18,7 @@ class Table
     protected $table = null;
 
     protected $joins = array();
-    protected $where_obj = null;
+    protected $cond = null;
     protected $ordered = array();
 
     protected $offset = null;
@@ -35,7 +35,7 @@ class Table
         $this->prefix = $connector->prefix;
         $this->table = $table;
 
-        $this->where_obj = new Where($this->grammar);
+        $this->cond = new Where($this->grammar);
     }
     
     public function join($table)
@@ -44,10 +44,10 @@ class Table
         array_shift($args);
 
         $join = new Join($this->grammar);
-        $join->handle_where($args);
+        $join->handleWhere($args);
 
-        $this->joins[] = 'INNER JOIN ' . $this->grammar->quote_table($this->prefix . $table) . ' AS ' .
-                         $this->grammar->quote_table($table) . ' ON ' . $join->where_clause;
+        $this->joins[] = 'INNER JOIN ' . $this->grammar->quoteTable($this->prefix . $table) . ' AS ' .
+                         $this->grammar->quoteTable($table) . ' ON ' . $join->sql;
 
         return $this;
     }
@@ -55,25 +55,25 @@ class Table
 
     public function where()
     {
-        $this->where_obj->handle_where(func_get_args());
+        $this->cond->handleWhere(func_get_args());
         return $this;
     }
 
-    public function or_where()
+    public function orWhere()
     {
-        $this->where_obj->handle_or_where(func_get_args());
+        $this->cond>handleOrWhere(func_get_args());
         return $this;
     }
 
     public function order($col)
     {
-        $this->ordered[] = $this->grammar->quote_column($col);
+        $this->ordered[] = $this->grammar->quoteColumn($col);
         return $this;
     }
     
-    public function order_desc($col)
+    public function orderDesc($col)
     {
-        $this->ordered[] = $this->grammar->quote_column($col) . ' DESC';;
+        $this->ordered[] = $this->grammar->quoteColumn($col) . ' DESC';;
         return $this;
     }
 
@@ -280,10 +280,10 @@ class Table
 
     public function get($cols='*')
     {
-        return $this->connector->query($this->get_sql($cols));
+        return $this->connector->query($this->getSql($cols));
     }
 
-    public function get_sql($cols='*')
+    public function getSql($cols='*')
     {
         // Format column sql
         if(!is_array($cols))
@@ -302,26 +302,26 @@ class Table
             {
                 if(is_int($key))
                 {
-                    $colsql[] = $this->grammar->quote_column($value);
+                    $colsql[] = $this->grammar->quoteColumn($value);
                 }
                 else
                 {
-                    $colsql[] = $this->grammar->quote_column($key) . ' AS ' . $this->grammar->quote_column($value);
+                    $colsql[] = $this->grammar->quoteColumn($key) . ' AS ' . $this->grammar->quoteColumn($value);
                 }
             }
         }
 
         // Build select statement
-        $sql = 'SELECT ' . implode(', ', $colsql) . ' FROM ' . $this->grammar->quote_table($this->prefix . $this->table) . ' AS ' . $this->grammar->quote_table($this->table); 
+        $sql = 'SELECT ' . implode(', ', $colsql) . ' FROM ' . $this->grammar->quoteTable($this->prefix . $this->table) . ' AS ' . $this->grammar->quoteTable($this->table); 
 
         if(count($this->joins) > 0)
         {
             $sql .= ' '. implode(' ', $this->joins);
         }
 
-        if($this->where_obj->where_clause)
+        if($this->cond->sql)
         {
-            $sql .= ' WHERE ' . $this->where_obj->where_clause;
+            $sql .= ' WHERE ' . $this->cond->sql;
         }
 
         if(count($this->ordered))
@@ -331,7 +331,7 @@ class Table
 
         if($this->limit || $this->offset)
         {
-            $sql .=  ' ' . $this->grammar->format_limit($this->limit, $this->offset);
+            $sql .=  ' ' . $this->grammar->formatLimit($this->limit, $this->offset);
         }
 
         return $sql;
@@ -348,18 +348,18 @@ class Table
 
     public function increment($col, $count=1)
     {
-        return $this->connector->exec($this->increment_sql($col, $count));
+        return $this->connector->exec($this->incrementSql($col, $count));
     }
 
-    public function increment_sql($col, $count=1, $action='+')
+    public function incrementSql($col, $count=1, $action='+')
     {
-        $col = $this->grammar->quote_column($col);
+        $col = $this->grammar->quoteColumn($col);
         $count = (int)$count;
 
-        $sql = 'UPDATE '. $this->grammar->quote_table($this->prefix . $this->table) . "SET $col=$col$action$count";
-        if($this->where_obj->where_clause)
+        $sql = 'UPDATE '. $this->grammar->quoteTable($this->prefix . $this->table) . "SET $col=$col$action$count";
+        if($this->cond->sql)
         {
-            $sql .= ' ' . $this->where_obj->where_clause;
+            $sql .= ' ' . $this->cond->sql;
         }
 
         return $sql;
@@ -367,26 +367,26 @@ class Table
 
     public function decrement($col, $count=1)
     {
-        return $this->connector->exec($this->decrement_sql($col, $count));
+        return $this->connector->exec($this->decrementSql($col, $count));
     }
 
-    public function decrement_sql($col, $count=1)
+    public function decrementSql($col, $count=1)
     {
-        return $this->increment_sql($col, $count, '-');
+        return $this->incrementSql($col, $count, '-');
     }
 
     public function delete()
     {
-        return $this->connector->exec($this->delete_sql());
+        return $this->connector->exec($this->deleteSql());
     }
 
-    public function delete_sql()
+    public function deleteSql()
     {
-        $sql = 'DELETE FROM ' . $this->grammar->quote_table($this->prefix . $this->table);
+        $sql = 'DELETE FROM ' . $this->grammar->quoteTable($this->prefix . $this->table);
 
-        if(strlen($this->where_obj->where_clause) > 0)
+        if(strlen($this->cond->sql) > 0)
         {
-            $sql .= ' WHERE ' . $this->where_obj->where_clause;
+            $sql .= ' WHERE ' . $this->cond->sql;
         }
         else
         {
@@ -398,16 +398,16 @@ class Table
 
     public function insert($cols)
     {
-        return $this->connector->exec($this->insert_sql($cols));
+        return $this->connector->exec($this->insertSql($cols));
     }
 
-    public function insert_rowid($cols)
+    public function insertRowId($cols)
     {
         $this->insert($cols);
         return $this->connector->rowid();
     }
 
-    public function insert_sql($cols)
+    public function insertSql($cols)
     {
         $keys = array_keys($cols);
         $values = array_values($cols);
@@ -415,16 +415,16 @@ class Table
         $keysql = array();
         foreach($keys as $key)
         {
-            $keysql[] = $this->grammar->quote_column($key);
+            $keysql[] = $this->grammar->quoteColumn($key);
         }
 
         $valuesql = array();
         foreach($values as $value)
         {
-            $valuesql[] = $this->grammar->quote_value($value);
+            $valuesql[] = $this->grammar->quoteValue($value);
         }
 
-        $sql = 'INSERT INTO ' . $this->grammar->quote_table($this->prefix . $this->table);
+        $sql = 'INSERT INTO ' . $this->grammar->quoteTable($this->prefix . $this->table);
         $sql .= ' (' . implode(', ', $keysql) . ')';
         $sql .= ' VALUES (' . implode(', ', $valuesql) . ')';
 
@@ -433,21 +433,21 @@ class Table
 
     public function update($cols)
     {
-        return $this->connector->exec($this->update_sql($cols));
+        return $this->connector->exec($this->updateSql($cols));
     }
 
-    public function update_sql($cols)
+    public function updateSql($cols)
     {
         $colsql = array();
         foreach($cols as $col => $value)
         {
-            $colsql[] = $this->grammar->quote_column($col) . ' = ' . $this->grammar->quote_value($value);
+            $colsql[] = $this->grammar->quoteColumn($col) . ' = ' . $this->grammar->quoteValue($value);
         }
 
-        $sql = 'UPDATE ' . $this->grammar->quote_table($this->prefix . $this->table) . ' SET ' . implode(', ', $colsql);
-        if(strlen($this->where_obj->where_clause) > 0)
+        $sql = 'UPDATE ' . $this->grammar->quoteTable($this->prefix . $this->table) . ' SET ' . implode(', ', $colsql);
+        if(strlen($this->cond->sql) > 0)
         {
-            $sql .= ' WHERE ' . $this->where_obj->where_clause;
+            $sql .= ' WHERE ' . $this->cond->sql;
         }
 
         return $sql;
@@ -455,11 +455,11 @@ class Table
 
     public function create()
     {
-        return $this->connector->exec($this->create_sql());
+        return $this->connector->exec($this->createSql());
     }
 
-    public function create_sql()
+    public function createSql()
     {
-        return $this->grammar->format_create_table($this->prefix . $this->table, $this->columns, $this->constraints);
+        return $this->grammar->formatCreateTable($this->prefix . $this->table, $this->columns, $this->constraints);
     }
 }

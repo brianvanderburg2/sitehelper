@@ -4,8 +4,8 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Query object for PDO results
 
-namespace MrBavii\SiteHelper\Database\Queries;
-use MrBavii\SiteHelper\Database;
+namespace mrbavii\sitehelper\database\queries;
+use mrbavii\sitehelper\database;
 
 class Pdo extends Query
 {
@@ -30,7 +30,7 @@ class Pdo extends Query
         }
         catch(\PDOException $e)
         {
-            throw new Database\Exception('Error during fetch.', 0, $e);
+            throw new database\Exception('Error during fetch.', 0, $e);
         }
     }
 }

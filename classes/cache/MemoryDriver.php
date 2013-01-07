@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     A simple in-memory cache.  Items are lost at startup.
 
-namespace MrBavii\SiteHelper\Cache;
+namespace mrbavii\sitehelper\cache;
 
 class MemoryDriver extends Driver
 {

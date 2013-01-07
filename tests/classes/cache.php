@@ -1,6 +1,6 @@
 <?php
 
-use MrBavii\SiteHelper\Cache;
+use mrbavii\sitehelper\Cache;
 
 require_once("simpletest/autorun.php");
 require_once(__DIR__ . "/../../bootstrap.php");

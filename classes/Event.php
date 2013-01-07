@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     A simple event dispatcher/hook 
 
-namespace MrBavii\SiteHelper;
+namespace mrbavii\sitehelper;
 
 /**
  * An event dispatching class

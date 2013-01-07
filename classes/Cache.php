@@ -4,19 +4,19 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Configuration and connections for cache access
 
-namespace MrBavii\SiteHelper;
+namespace mrbavii\sitehelper;
 
 class Cache
 {
     protected static $cache = array(); 
     protected static $drivers = array(
-        'null' => '\MrBavii\SiteHelper\Cache\NullDriver',
-        'memcache' => '\MrBavii\SiteHelper\Cache\MemcacheDriver',
-        'memory' => '\MrBavii\SiteHelper\Cache\MemoryDriver',
-        'redis' => '\MrBavii\SiteHelper\Cache\RedisDriver',
-        'apc' => '\MrBavii\SiteHelper\Cache\ApcDriver',
-        'file' => '\MrBavii\SiteHelper\Cache\FileDriver',
-        'database' => '\MrBavii\SiteHelper\Cache\DatabaseDriver',
+        'null' => '\mrbavii\sitehelper\cache\NullDriver',
+        'memcache' => '\mrbavii\sitehelper\cache\MemcacheDriver',
+        'memory' => '\mrbavii\sitehelper\cache\MemoryDriver',
+        'redis' => '\mrbavii\sitehelper\cache\RedisDriver',
+        'apc' => '\mrbavii\sitehelper\cache\ApcDriver',
+        'file' => '\mrbavii\sitehelper\cache\FileDriver',
+        'database' => '\mrbavii\sitehelper\cache\DatabaseDriver',
     );
 
     public static function register($driver, $factory)

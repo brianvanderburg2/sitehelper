@@ -4,8 +4,8 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Base class for connecting to and executing queries on the database
 
-namespace MrBavii\SiteHelper\Database\Connectors;
-use MrBavii\SiteHelper\Database;
+namespace mrbavii\sitehelper\database\connectors;
+use mrbavii\sitehelper\database;
 
 abstract class Connector
 {
@@ -39,7 +39,7 @@ abstract class Connector
 
     public function table($name)
     {
-        return new Database\Table($this, $name);
+        return new database\Table($this, $name);
     }
 
     public function atomic($callback)

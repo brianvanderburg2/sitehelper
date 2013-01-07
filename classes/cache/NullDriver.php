@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose;     A null cache
 
-namespace MrBavii\SiteHelper\Cache;
+namespace mrbavii\sitehelper\cache;
 
 class NullDriver extends Driver
 {

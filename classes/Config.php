@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg Ii
 // Purpose:     A simple general purpose configuration class
 
-namespace MrBavii\SiteHelper;
+namespace mrbavii\sitehelper;
 
 /**
  * Configuration storage class
@@ -28,7 +28,7 @@ class Config
      */
     public static function set($name, $value)
     {
-        $p = static::find_parent($name);
+        $p = static::findParent($name);
 
         $p[0][$p[1]] = $value;
     }
@@ -44,7 +44,7 @@ class Config
      */
     public static function get($name, $def=null)
     {
-        $p = static::find_parent($name, FALSE);
+        $p = static::findParent($name, FALSE);
 
         if($p !== FALSE && isset($p[0][$p[1]]))
         {
@@ -66,7 +66,7 @@ class Config
      */
     public static function merge($values, $where='')
     {
-        $p = &static::find_array($where);
+        $p = &static::findArray($where);
         foreach($values as $name => $value)
         {
             $p[$name] = $value;
@@ -82,19 +82,19 @@ class Config
      * @param values The array of values to merge in.
      * @param where Where to merge the items in.
      */
-    public static function merge_recursive($values, $where='')
+    public static function mergeRecursive($values, $where='')
     {
-        $p = &static::find_array($where);
-        static::merge_helper($p, $values);
+        $p = &static::findArray($where);
+        static::mergeHelper($p, $values);
     }
 
-    protected static function merge_helper(&$array1, &$array2)
+    protected static function mergeHelper(&$array1, &$array2)
     {
         foreach($array2 as $name => $value)
         {
             if(isset($array1[$name]) && is_array($array1[$name]) && is_array($array2[$name]))
             {
-                static::merge_helper($array1[$name], $array2[$name]);
+                static::mergeHelper($array1[$name], $array2[$name]);
             }
             else
             {
@@ -103,7 +103,7 @@ class Config
         }
     }
 
-    protected static function find_parent($name, $make=TRUE)
+    protected static function findParent($name, $make=TRUE)
     {
         list($group, $name) = static::split($name);
         $parts = explode('.', $name);
@@ -145,9 +145,9 @@ class Config
         return array(&$target, $name);
     }
 
-    protected static function &find_array($name, $make=TRUE)
+    protected static function &findArray($name, $make=TRUE)
     {
-        $p = static::find_parent($name, $make);
+        $p = static::findParent($name, $make);
         if(strlen($p[1]) > 0)
         {
             if(!isset($p[0][$p[1]]) || !is_array($p[0][$p[1]]))

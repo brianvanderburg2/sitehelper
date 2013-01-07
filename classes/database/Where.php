@@ -4,12 +4,12 @@
 // Author:      Brian Allen Vanderburg Ii
 // Purpose:     Handle where clauses
 
-namespace MrBavii\SiteHelper\Database;
+namespace mrbavii\sitehelper\database;
 
 class Where
 {
     protected $grammar = null;
-    public $where_clause = "";
+    public $sql = "";
 
     public function __construct($grammar)
     {
@@ -18,107 +18,106 @@ class Where
 
     public function where()
     {
-        $this->handle_where(func_get_args());
+        $this->handleWhere(func_get_args());
         return $this;
     }
     
-    public function or_where()
+    public function orWhere()
     {
-        $sql = $this->handle_or_where(func_get_args());
+        $sql = $this->handleOrWhere(func_get_args());
         return $this;
     }
 
-    public function handle_where($args)
+    public function handleWhere($args)
     {
-        if(strlen($this->where_clause) > 0)
+        if(strlen($this->sql) > 0)
         {
-            $this->where_clause .= ' AND ';
+            $this->sql .= ' AND ';
         }
 
-        $this->where_clause .= $this->format_where($args);
+        $this->sql .= $this->formatWhere($args);
     }
 
-    public function handle_or_where($args)
+    public function handleOrWhere($args)
     {
-        if(strlen($this->where_clause) > 0)
+        if(strlen($this->sql) > 0)
         {
-            $this->where_clause .= ' OR ';
+            $this->sql .= ' OR ';
         }
 
-        $this->where_clause .= $this->format_where($args);
+        $this->sql .= $this->formatWhere($args);
     }
 
-    protected function format_where($args)
+    protected function formatWhere($args)
     {
         switch(count($args))
         {
             case 1:
-                return $this->format_where_closure($args[0]);
+                return $this->formatWhereClosure($args[0]);
 
             case 2:
-                return $this->format_where_null($args[0], $args[1]);
+                return $this->formatWhereNull($args[0], $args[1]);
 
             case 3:
-                return $this->format_where_comp($args[0], $args[1], $args[2]);
+                return $this->formatWhereComp($args[0], $args[1], $args[2]);
 
             default:
                 throw new Exception('Invalid arguments');
         }
     }
 
-    protected function format_where_closure($callback)
+    protected function formatWhereClosure($callback)
     {
         $tmp = new Where($this->grammar);
         call_user_func($callback, $tmp);
-        return '(' . $tmp->where_clause . ')';
+        return '(' . $tmp->sql . ')';
     }
 
-    protected function format_where_null($col, $comp)
+    protected function formatWhereNull($col, $comp)
     {
         switch($comp)
         {
             case 'null':
             case 'NULL':
-                return $this->grammar->format_isnull($col);
+                return $this->grammar->formatNull($col);
 
             case 'notnull':
             case 'NOTNULL':
-                return $this->grammar->format_isnotnull($col);
-
+                return $this->grammar->formatNotNull($col);
             default;
                 throw new Exception('Invalid arguments');
         }
     }
 
-    protected function format_where_comp($col, $comp, $value)
+    protected function formatWhereComp($col, $comp, $value)
     {
         switch($comp)
         {
             case '=':
-                return $this->grammar->quote_column($col) . ' = ' . $this->grammar->quote_value($value);
+                return $this->grammar->quoteColumn($col) . ' = ' . $this->grammar->quoteValue($value);
 
             case '!=':
-                return $this->grammar->quote_column($col) . ' != ' . $this->grammar->quote_value($value);
+                return $this->grammar->quoteColumn($col) . ' != ' . $this->grammar->quoteValue($value);
 
             case '<':
-                return $this->grammar->quote_column($col) . ' < ' . $this->grammar->quote_value($value);
+                return $this->grammar->quoteColumn($col) . ' < ' . $this->grammar->quoteValue($value);
 
             case '>':
-                return $this->grammar->quote_column($col) . ' > ' . $this->grammar->quote_value($value);
+                return $this->grammar->quoteColumn($col) . ' > ' . $this->grammar->quoteValue($value);
 
             case '<=':
-                return $this->grammar->quote_column($col) . ' <= ' . $this->grammar->quote_value($value);
+                return $this->grammar->quoteColumn($col) . ' <= ' . $this->grammar->quoteValue($value);
 
             case '>=':
-                return $this->grammar->quote_column($col) . ' >= ' . $this->grammar->quote_value($value);
+                return $this->grammar->quoteColumn($col) . ' >= ' . $this->grammar->quoteValue($value);
 
             case 'like':
             case 'LIKE':
-                return $this->grammar->format_islike($col, $value);
+                return $this->grammar->formatLike($col, $value);
             
             case 'notlike':
             case 'NOTLIKE':
-                return $this->grammar->format_isnotlike($col, $value);
+                return $this->grammar->formatNotLike($col, $value);
 
             default:
                 throw new Exception('Invalid arguments');

@@ -4,9 +4,9 @@
 // Author:      Brian Allen Vanderburg Ii
 // Purpose:     Database exceptions
 
-namespace MrBavii\SiteHelper\Database;
+namespace mrbavii\sitehelper\database;
 
-class Exception extends \MrBavii\SiteHelper\Exception
+class Exception extends \mrbavii\sitehelper\Exception
 {
 }
 

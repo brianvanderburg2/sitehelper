@@ -1,6 +1,6 @@
 <?php
 
-use MrBavii\SiteHelper\Config;
+use mrbavii\sitehelper\Config;
 
 require_once("simpletest/autorun.php");
 require_once(__DIR__ . "/../../bootstrap.php");
@@ -70,13 +70,13 @@ class TestConfig extends UnitTestCase
         Config::set('d.e.f', 100);
         Config::set('d.e.g', 200);
 
-        Config::merge_recursive(array('h' => 300, 'i' => 400), 'd.e');
-        Config::merge_recursive(array('f' => 600), 'd');
+        Config::mergeRecursive(array('h' => 300, 'i' => 400), 'd.e');
+        Config::mergeRecursive(array('f' => 600), 'd');
 
         $this->assertTrue(Config::get('d.e') == array('f' => 100, 'g' => 200, 'h' => 300, 'i' => 400));
         $this->assertTrue(Config::get('d.f') == 600);
 
-        Config::merge_recursive(array('e' => array('f' => 500)), 'd');
+        Config::mergeRecursive(array('e' => array('f' => 500)), 'd');
 
         $this->assertTrue(Config::get('d.e') == array('f' => 500, 'g' => 200, 'h' => 300, 'i' => 400));
         $this->assertTrue(Config::get('d.f') == 600);

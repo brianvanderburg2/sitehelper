@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Manage paths for various resources
 
-namespace MrBavii\SiteHelper;
+namespace mrbavii\sitehelper;
 
 /**
  * Find files and directories in paths as well as map found files to a url
@@ -40,7 +40,7 @@ class Path
         static::$paths[$name][] = array($path, $url);
     }
 
-    protected static function check_filter($path, $filter)
+    protected static function checkFilter($path, $filter)
     {
         switch($filter)
         {
@@ -83,7 +83,7 @@ class Path
         foreach(static::$paths[$name] as $entry)
         {
             $full_path = $entry[0] . $path;
-            if(static::check_filter($full_path, $filter))
+            if(static::checkFilter($full_path, $filter))
             {
                 $full_url = ($entry[1] === null) ? null : $entry[1] . $url;
                 $results[] = array($full_path, $full_url);

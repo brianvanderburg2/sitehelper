@@ -4,7 +4,7 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     A simple file cache driver
 
-namespace MrBavii\SiteHelper\Cache;
+namespace mrbavii\sitehelper\cache;
 
 class FileDriver extends Driver
 {
