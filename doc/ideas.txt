@@ -3,8 +3,13 @@ Classes
 
 TODO:
     style changes:
-        lowerCamelCase for methods and functions, variable names
-
+        lowerCamelCase for methods and functions, and member variable names
+            ClassLoader::loadClass, Database::isConnected
+    Table -> Split into QueryBuilder and Table (Maybe, maybe not)
+    Namespace changes:
+        rename to upper case
+    Class loader:
+        option to use convert to lowercase (dirname, filenmae, both)
 
 Config
     Delay load configuration if possible.

@@ -19,24 +19,22 @@ class Database
         static::$drivers[$driver] = array($cfactory, $gfactory);
     }
 
-    public static function connection($name='')
+    public static function connection($name=null)
     {
-        // Normalize the name
-        list($group, $element) = Config::split($name);
-        if(strlen($element) == 0)
+        // Get the name if needed
+        if($name === null)
         {
-            $element = Config::get(Config::join($group, 'database.default'));
-            if($element === null)
+            $name = Config::get('database.default');
+            if($name === null)
             {
                 throw new Exception('No default database');
             }
         }
-        $name = Config::join($group, $element);
 
         // Connect if not already
         if(!isset(static::$cache[$name]))
         {
-            $settings = Config::get(Config::join($group, 'database.connections.' . $element));
+            $settings = Config::get('database.connections.' . $name);
             if($settings === null)
             {
                 throw new Exception('No database settings: ' . $name);

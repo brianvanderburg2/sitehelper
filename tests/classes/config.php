@@ -80,20 +80,6 @@ class TestConfig extends UnitTestCase
 
         $this->assertTrue(Config::get('d.e') == array('f' => 500, 'g' => 200, 'h' => 300, 'i' => 400));
         $this->assertTrue(Config::get('d.f') == 600);
-
-        Config::set('alpha::a', 100);
-        Config::set('alpha::b', 200);
-
-        Config::merge(array('c' => 100, 'd' => 400), 'alpha::');
-        
-        $this->assertTrue(Config::get('alpha::a') == 100);
-        $this->assertTrue(Config::get('alpha::b') == 200);
-        $this->assertTrue(Config::get('alpha::c') == 100);
-        $this->assertTrue(Config::get('alpha::d') == 400);
-        
-        Config::merge(array('c' => 100, 'd' => 400), 'alpha::a');
-
-        $this->assertTrue(Config::get('alpha::a') == array('c' => 100, 'd' => 400));
     }
 
     public function test_parse()
@@ -111,18 +97,5 @@ class TestConfig extends UnitTestCase
 
         $this->assertTrue(Config::parse($p1, ',', '=') == $p1r);
         $this->assertTrue(Config::parse($p2, ';', ':') == $p2r);
-    }
-
-    public function test_split_join()
-    {
-        $this->assertTrue(Config::split('a.b.c') == array('application', 'a.b.c'));
-        $this->assertTrue(Config::split('something::a.b.c') == array('something', 'a.b.c'));
-        $this->assertTrue(Config::split('') == array('application', ''));
-        $this->assertTrue(Config::split('other::') == array('other', ''));
-        $this->assertTrue(Config::split('something::a.b.c') == array('something', 'a.b.c'));
-        $this->assertTrue(Config::split('a.b.c') == array('application', 'a.b.c'));
-        $this->assertTrue(Config::split('other::package.name::wild') == array('other', 'package.name::wild'));
-
-        $this->assertTrue(Config::join('group', 'element') == 'group::element');
     }
 }

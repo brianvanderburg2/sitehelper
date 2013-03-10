@@ -13,7 +13,7 @@ class TestDatabase extends UnitTestCase
     public function setUp()
     {
         Config::merge(array('test' => array('driver' => 'sqlite3', 'prefix' => 'p')), 'database.connections');
-        Config::merge(array('test' => array('driver' => 'sqlite3', 'prefix' => 'p')), 'blah::database.connections');
+        Config::merge(array('test2' => array('driver' => 'sqlite3', 'prefix' => 'p')), 'database.connections');
     }
 
     public function tearDown()
@@ -41,12 +41,6 @@ class TestDatabase extends UnitTestCase
         $db2 = Database::connection('test');
         $this->assertTrue($db2 instanceof db\connectors\Sqlite3);
         $this->assertTrue($db2->grammar instanceof db\grammars\Sqlite);
-
-        // Test group name
-        $db3 = Database::connection('blah::test');
-        
-        $this->assertTrue($db3 instanceof db\connectors\Sqlite3);
-        $this->assertTrue($db3->grammar instanceof db\grammars\Sqlite);
     }
 
     public function test_sql()

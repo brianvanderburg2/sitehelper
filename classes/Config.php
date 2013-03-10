@@ -12,7 +12,7 @@ namespace mrbavii\sitehelper;
 class Config
 {
     protected static $splits = array();
-    protected static $groups = array();
+    protected static $data = array();
 
     protected static $loaded_files = array();
     protected static $loaded_inis = array();
@@ -22,8 +22,8 @@ class Config
      * Set a configuration item.
      *
      * @param name The name of the configuration item to set.  This can
-     *  be 'name', 'name.subname', 'groupname::name.subname'.  It is an
-     *  error to specify just a group name.
+     *  be 'name',  or 'name.subname'.  Setting a named item will replace
+     *  all exising subnames.
      * @param value The value to set.
      */
     public static function set($name, $value)
@@ -36,9 +36,8 @@ class Config
     /**
      * Get a configuration item.
      *
-     * @param name The name of the configuration item to set.  This can be in
-     * form 'name, 'name.subname', 'groupname::name.subname'.  It is an error
-     * to specify just a group name.
+     * @param name The name of the configuration item to get.  This can be in
+     * form 'name, or 'name.subname'.
      * @param def The default return value if name is not found.
      * @return The value of the configuration item if self, else the default value.
      */
@@ -61,8 +60,7 @@ class Config
      *
      * @param values The array of values to merge in.
      * @param where Where to merge the items in.  This can be in form
-     *  'name.subname', 'groupname::name.subname', or even just 'groupname::'.
-     *  If empty the default group will be used.
+     *  'name' or 'name.subname'. If empty the root will be used.
      */
     public static function merge($values, $where='')
     {
@@ -105,26 +103,12 @@ class Config
 
     protected static function findParent($name, $make=TRUE)
     {
-        list($group, $name) = static::split($name);
         $parts = explode('.', $name);
         $name = array_pop($parts);
 
-        // Make sure the group exists
-        if(!isset(static::$groups[$group]))
-        {
-            if($make)
-            {
-                static::$groups[$group] = array();
-            }
-            else
-            {
-                return FALSE;
-            }
-        }
-
         // If the name part is empty, then parts will be empty and so will name
         // Will return the root array for the group and an empty name
-        $target = &static::$groups[$group];
+        $target = &static::$data;
         foreach($parts as $part)
         {
             if(!isset($target[$part]) || !is_array($target[$part]))
@@ -208,28 +192,6 @@ class Config
         }
 
         return $results;
-    }
-
-    /**
-     * @todo: document
-     */
-    public static function split($name, $group='application')
-    {
-        if(isset(static::$splits[$name]))
-        {
-            return static::$splits[$name];
-        }
-
-        $p = explode('::', $name, 2);
-        return (static::$splits[$name] = (count($p) == 2) ? array($p[0], $p[1]) : array($group, $p[0]));
-    }
-
-    /**
-     * @todo: document
-     */
-    public static function join($group, $element)
-    {
-        return $group . '::' . $element;
     }
 }
 
