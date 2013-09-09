@@ -1,15 +1,79 @@
 Classes
 =======
+sendfile examples
+
+
+SendFile($filename)
+{
+
+    Already headers and $filesize
+
+
+    $partial = Request::getRange($start, $end, $filesize);
+    // This will determine if there is a partial download, and
+    // also set $start and $end accordingly even if there is not one
+
+
+    ...
+
+    The backend:
+    header('Accept-Ranges: bytes'); // If the backend supports partial contents
+
+    if($partial)
+    {
+        Response::setRange($start, $end, $filesize)
+        ...
+    }
+
+    This means the function called by server.sendfile will need the following:
+
+    function($filename, $filesize, $start, $end, $partial);
+
+    If it does not support partial downloads, it can just ignore $start,$end,$partial
+}
+Configuration Items:
+
+server.mimetypes = array("ending" => "content-type", ...);
+server.sendfile = function($filename) { ... };
+
+Request::getRange($range, $filesize)
+    Return TRUE if a partial request, otherwise FALSE
+    If TRUE, $range is array($start, $end)
+
+Response::setRange($start, $end, $filesize)
+
+
+if(Request::getRange($range, $filesize))
+{
+    sendFile($filename, array($range[0], $range[1], $filesize));
+}
+else
+{
+    sendFile($filename);
+}
+
+sendFile($filename, $range=null)
+{
+    If we support ranges:
+    if($range)
+        Response::setRange($...
+}
+
 
 TODO:
     style changes:
-        lowerCamelCase for methods and functions, and member variable names
-            ClassLoader::loadClass, Database::isConnected
+        lowerCamelCase for methods and functions
+        variable_names_like_this
     Table -> Split into QueryBuilder and Table (Maybe, maybe not)
-    Namespace changes:
-        rename to upper case
-    Class loader:
-        option to use convert to lowercase (dirname, filenmae, both)
+    Database:
+        On connecting, set isolation level to maximum (serializable)
+        Foreign keys:
+            on delete/update
+                cascade
+                set default
+                set null
+                restricted
+                no action
 
 Config
     Delay load configuration if possible.

@@ -10,76 +10,31 @@ class TestConfig extends UnitTestCase
 {
     public function setUp()
     {
+        Config::group('application', array('name1' => 1000, 'name2' => array('a' => 1, 'b' => 2)));
+        Config::group('user', array('name1' => 4000, 'name3' => 6000));
     }
 
     public function tearDown()
     {
     }
 
-    public function test_set_get()
+    public function test_get()
     {
-        Config::set('testc1', 100);
-        Config::set('testc2', array(1, 2, 3));
-        Config::set('testc3', 10);
-        Config::set('testc4', 20);
+        $this->assertTrue(Config::get('name1') == 4000);
+        $this->assertTrue(Config::get('name1', null, 'user') == 4000);
+        $this->assertTrue(Config::get('name1', null, 'application') == 1000);
+        $this->assertTrue(Config::get('name1', null, 'application,user') == 1000);
 
+        $this->assertTrue(Config::get('name2') == array('a' => 1, 'b' => 2));
+        $this->assertTrue(Config::get('name2.a') == 1);
+        $this->assertTrue(Config::get('name2.b') == 2);
+        $this->assertTrue(Config::get('name2', null, 'user') == null);
+        $this->assertTrue(Config::get('name2', null, 'application') == array('a' => 1, 'b' => 2));
+        $this->assertTrue(Config::get('name2', null, 'application,user') == array('a' => 1, 'b' => 2));
 
-        $this->assertTrue(Config::get('testc2') == array(1, 2, 3));
-        $this->assertTrue(Config::get('testc3') == 10);
-        $this->assertTrue(Config::get('testc4') == 20);
-
-        $this->assertTrue(Config::get('testc5', 500) == 500);
-        $this->assertTrue(Config::get('testc5', 600) == 600);
-
-        Config::set('a.b.c', 1000);
-        Config::set('a.b.d', 2000);
-
-        $this->assertTrue(Config::get('a.b.c') == 1000);
-        $this->assertTrue(Config::get('a.b.d') == 2000);
-        $this->assertTrue(Config::get('a.b') == array('c' => 1000, 'd' => 2000));
-
-        Config::set('a.b', 12);
-        
-        $this->assertTrue(Config::get('a.b.c') === null);
-        $this->assertTrue(Config::get('a.b.d') === null);
-        $this->assertTrue(Config::get('a.b') == 12);
-
-        Config::set('a.b.e', 2020);
-
-        $this->assertTrue(Config::get('a.b') == array('e' => 2020));
-        $this->assertTrue(Config::get('a.b.e') == 2020);
-    }
-
-    public function test_merge()
-    {
-        Config::set('d.e.f', 100);
-        Config::set('d.e.g', 200);
-
-        Config::merge(array('h' => 300, 'i' => 400), 'd.e');
-        Config::merge(array('f' => 600), 'd');
-
-        $this->assertTrue(Config::get('d.e') == array('f' => 100, 'g' => 200, 'h' => 300, 'i' => 400));
-        $this->assertTrue(Config::get('d.f') == 600);
-
-        Config::merge(array('e' => array('f' => 500)), 'd');
-
-        $this->assertTrue(Config::get('d.e') == array('f' => 500));
-        $this->assertTrue(Config::get('d.f') == 600);
-        
-        Config::set('d', 0);
-        Config::set('d.e.f', 100);
-        Config::set('d.e.g', 200);
-
-        Config::mergeRecursive(array('h' => 300, 'i' => 400), 'd.e');
-        Config::mergeRecursive(array('f' => 600), 'd');
-
-        $this->assertTrue(Config::get('d.e') == array('f' => 100, 'g' => 200, 'h' => 300, 'i' => 400));
-        $this->assertTrue(Config::get('d.f') == 600);
-
-        Config::mergeRecursive(array('e' => array('f' => 500)), 'd');
-
-        $this->assertTrue(Config::get('d.e') == array('f' => 500, 'g' => 200, 'h' => 300, 'i' => 400));
-        $this->assertTrue(Config::get('d.f') == 600);
+        $this->assertTrue(Config::get('name3') == 6000);
+        $this->assertTrue(Config::get('name3', null, 'user') == 6000);
+        $this->assertTrue(Config::get('name3', 700, 'application') == 700);
     }
 
     public function test_parse()
