@@ -13,20 +13,22 @@ class Server
     public static function getFileType($filename, $use_extension=TRUE)
     {
         // First try any configured file extensios
-        if($use_extension && ($types = Config::get('server.filetypes')) !== null)
+        if($use_extension && ($results = Config::get('server.filetypes', TRUE)) !== null)
         {
-            foreach($types as $ending => $type)
+            foreach($results as $types)
             {
-                $len = strlen($ending);
-                if($len == 0)
+                foreach($types as $ending => $type)
                 {
-                    return $type;
+                    $len = strlen($ending);
+                    if($len == 0)
+                    {
+                        return $type;
+                    }
+                    else if(substr($filename, -$len) == $ending)
+                    {
+                        return $type;
+                    }
                 }
-                else if(substr($filename, -$len) == $ending)
-                {
-                    return $type;
-                }
-            }
         }
 
         // Determine from file contents
@@ -52,6 +54,8 @@ class Server
         // TODO: Clear buffer disable compression, maybe disable time limit
         while(@ob_end_clean());
         @error_reporting(0);
+
+        // Session::flush();
 
         // Handle if-modified-since and set Last-Modified
         $content_mtime = filemtime($filename);
@@ -135,7 +139,7 @@ class Server
     {
         // If a handler is configured to do this, then use the handler
         // It is up to the handler to set the Range headers as supported
-        $handler = Config::get('server.sendfile');
+        $handler = Config::last('server.sendfile');
         if($handler !== null)
         {
             $handler($filename, $offset, $length, $filesize);
@@ -180,7 +184,5 @@ class Server
 
         return $sent;
     }
-
-
 }
 

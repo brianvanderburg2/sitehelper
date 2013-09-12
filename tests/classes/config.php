@@ -10,8 +10,8 @@ class TestConfig extends UnitTestCase
 {
     public function setUp()
     {
-        Config::group('application', array('name1' => 1000, 'name2' => array('a' => 1, 'b' => 2)));
-        Config::group('user', array('name1' => 4000, 'name3' => 6000));
+        Config::add(array('name1' => 1000, 'name2' => array('a' => 1, 'b' => 2)));
+        Config::add(array('name1' => 4000, 'name3' => 6000));
     }
 
     public function tearDown()
@@ -20,21 +20,13 @@ class TestConfig extends UnitTestCase
 
     public function test_get()
     {
-        $this->assertTrue(Config::get('name1') == 4000);
-        $this->assertTrue(Config::get('name1', null, 'user') == 4000);
-        $this->assertTrue(Config::get('name1', null, 'application') == 1000);
-        $this->assertTrue(Config::get('name1', null, 'application,user') == 1000);
+        $this->assertTrue(Config::get('name1') == array(1000, 4000));
+        $this->assertTrue(Config::first('name1') == 1000);
+        $this->assertTrue(Config::last('name1') == 4000);
 
-        $this->assertTrue(Config::get('name2') == array('a' => 1, 'b' => 2));
-        $this->assertTrue(Config::get('name2.a') == 1);
-        $this->assertTrue(Config::get('name2.b') == 2);
-        $this->assertTrue(Config::get('name2', null, 'user') == null);
-        $this->assertTrue(Config::get('name2', null, 'application') == array('a' => 1, 'b' => 2));
-        $this->assertTrue(Config::get('name2', null, 'application,user') == array('a' => 1, 'b' => 2));
-
-        $this->assertTrue(Config::get('name3') == 6000);
-        $this->assertTrue(Config::get('name3', null, 'user') == 6000);
-        $this->assertTrue(Config::get('name3', 700, 'application') == 700);
+        $this->assertTrue(Config::get('name2') == array(array('a' => 1, 'b' => 2)));
+        $this->assertTrue(Config::get('name2.a') == array(1));
+        $this->assertTrue(Config::get('name2.b') == array(2));
     }
 
     public function test_parse()

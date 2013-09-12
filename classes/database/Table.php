@@ -274,7 +274,7 @@ class Table
             throw new Exception('Constraint must apply to a column.');
         }
 
-        $this->constriants['default'][$col] = $value;
+        $this->constraints['default'][$col] = $value;
         return $this;
     }
 
@@ -453,13 +453,14 @@ class Table
         return $sql;
     }
 
-    public function create()
+    public function create($ifnotexists=FALSE)
     {
-        return $this->connector->exec($this->createSql());
+        return $this->connector->exec($this->createSql($ifnotexists));
     }
 
-    public function createSql()
+    public function createSql($ifnotexists=FALSE)
     {
-        return $this->grammar->formatCreateTable($this->prefix . $this->table, $this->columns, $this->constraints);
+        return $this->grammar->formatCreateTable($this->prefix . $this->table, $this->columns, $this->constraints, $ifnotexists);
     }
 }
+

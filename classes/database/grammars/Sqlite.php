@@ -54,7 +54,7 @@ class Sqlite extends Grammar
 
     public function formatLike($col, $like)
     {
-        return $this->quoteColumn($col) . ' LIKE ' . $this->prepareLike($like) . "ESCAPE '\\'";
+        return $this->quoteColumn($col) . ' LIKE ' . $this->prepareLike($like) . " ESCAPE '\\'";
     }
 
     public function formatNotLike($col, $like)
@@ -81,7 +81,7 @@ class Sqlite extends Grammar
         return $sql;
     }
 
-    public function formatCreateTable($table, $columns, $constraints)
+    public function formatCreateTable($table, $columns, $constraints, $ifnotexists)
     {
         // Base create table statement
         $colsql = array();
@@ -90,7 +90,8 @@ class Sqlite extends Grammar
             $colsql[] = $this->coldef($name, $column, $constraints);
         }
 
-        $sql = 'CREATE TABLE ' . $this->quoteTable($table) . ' (';
+        $ifnotexists = ($ifnotexists ? ' IF NOT EXISTS ' : '');
+        $sql = 'CREATE TABLE ' . $ifnotexists . $this->quoteTable($table) . ' (';
         $sql .= implode(', ', $colsql);
 
         // Uniques
@@ -108,7 +109,7 @@ class Sqlite extends Grammar
         foreach($constraints['fkey'] as $col => $ref)
         {
             $sql .= ', FOREIGN KEY (' . $this->quoteColumn($col) . ')';
-            $sql .= ' REFERENES ' . $this->quoteTable($ref[0]) . ' (' . $this->quoteColumn($ref[1]) . ')';
+            $sql .= ' REFERENCES ' . $this->quoteTable($ref[0]) . ' (' . $this->quoteColumn($ref[1]) . ')';
         }
 
         // Done
@@ -124,7 +125,7 @@ class Sqlite extends Grammar
         switch($type)
         {
             case 'rowid':
-                $typestr = 'INTEGER PRIMARY KEY AUTO INCREMENT';
+                $typestr = 'INTEGER PRIMARY KEY AUTOINCREMENT';
                 if($constraints['pkey'] == $name)
                 {
                     $constraints['pkey'] = '';

@@ -23,6 +23,7 @@ class Sqlite3 extends Pdo
         $settings['dsn'] = 'sqlite:' . $filename;
 
         parent::connect($settings);
+        static::exec('PRAGMA foreign_keys = ON');
     }
 }
 

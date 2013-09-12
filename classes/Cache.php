@@ -29,13 +29,13 @@ class Cache
         // Get the driver if needed
         if($driver === null)
         {
-            $driver = Config::get('cache.driver', 'memory');
+            $driver = Config::last('cache.driver', 'memory');
         }
 
         // Connect if not already
         if(!isset(static::$cache[$driver]))
         {
-            $settings = Config::get('cache.' . $driver, array());
+            $settings = Config::last('cache.' . $driver, array());
             $settings['driver'] = $driver;
 
             static::$cache[$driver] = static::connect($settings);

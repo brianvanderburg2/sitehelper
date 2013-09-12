@@ -20,11 +20,6 @@ class Util
         }
     }
 
-    public static function loadIni($filename, $params=array())
-    {
-        // TODO: use ini_parse and allow params to be used as constants in ini
-    }
-
     public static function guid($namespace='')
     {
         // TODO: use uuid_create also if available

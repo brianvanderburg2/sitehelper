@@ -13,6 +13,7 @@ if(!defined(__NAMESPACE__."\\BOOTSTRAPPED"))
     require_once(__DIR__ . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'ClassLoader.php');
 
     ClassLoader::install();
-    ClassLoader::register(__NAMESPACE__ . '\\', __DIR__ . DIRECTORY_SEPARATOR . 'classes');
+    ClassLoader::register('mrbavii\\sitehelper\\', __DIR__ . DIRECTORY_SEPARATOR . 'classes');
+    ClassLoader::register('mrbavii\\sitestuff\\', __DIR__ . DIRECTORY_SEPARATOR . 'stuff');
 }
 

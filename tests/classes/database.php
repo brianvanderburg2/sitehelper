@@ -17,7 +17,7 @@ class TestDatabase extends UnitTestCase
             'test2' => array('driver' => 'sqlite3', 'prefix' => 'p')
         )));
 
-        Config::group('application', $config);
+        Config::add($config);
     }
 
     public function tearDown()
@@ -39,7 +39,7 @@ class TestDatabase extends UnitTestCase
         $this->assertTrue($db->grammar instanceof db\grammars\Sqlite);
 
         // Reset config and test Database cache
-        Config::group('application', array());
+        Config::clear();
         $this->assertTrue(Config::get('database.connections') == array());
 
         $db2 = Database::connection('test');
@@ -54,16 +54,20 @@ class TestDatabase extends UnitTestCase
 
         // We use the sqlite3 driver to test the Table sql code
         $sql = $db->table('users')->getSql();
-        $this->assertTrue($sql == "SELECT * FROM `pusers` AS `users`");
+        $shouldbe = "SELECT * FROM `pusers` AS `users`";
+        $this->assertTrue($sql == $shouldbe);
 
         $sql = $db->table('users')->getSql('a,b,c');
-        $this->assertTrue($sql = "SELECT `a`, `b`, `c` FROM `pusers` AS `users`");
-
-        $sql = $db->table('users')->join('groups', 'users.gid', '=', 'groups.id')->where('users.uid', '=', 100)->order('users.name')->orderDesc('users.postcount')->skip(10)->take(10)->getSql(array('users.name' => 'uname', 'groups.name' => 'gname'));
-        $this->assertTrue($sql = "SELECT `users`.`name` AS `uname`, `groups`.`name` as `gname` FROM `pusers` as `users` INNER JOIN `pgroups` AS `groups` ON `users`.`gid` = `groups`.`id` WHERE `users`.`uid` = 100 ORDER BY `users`.`name`, `users`.`postcount` DESC LIMIT 10 OFFSET 10");
+        $shouldbe = "SELECT `a`, `b`, `c` FROM `pusers` AS `users`";
+        $this->assertTrue($sql == $shouldbe);
+        
+        $sql = $db->table('users')->join('groups', 'users.gid', '=', 'groups.id')->where('users.uid', '=', '100')->order('users.name')->orderDesc('users.postcount')->skip(10)->take(10)->getSql(array('users.name' => 'uname', 'groups.name' => 'gname'));
+        $shouldbe = "SELECT `users`.`name` AS `uname`, `groups`.`name` AS `gname` FROM `pusers` AS `users` INNER JOIN `pgroups` AS `groups` ON `users`.`gid` = `groups`.`id` WHERE `users`.`uid` = '100' ORDER BY `users`.`name`, `users`.`postcount` DESC LIMIT 10 OFFSET 10";
+        $this->assertTrue($sql == $shouldbe);
 
         $sql = $db->table('users')->where('name', 'like', '\\%jo_sh*')->getSql();
-        $this->assertTrue($sql = "SELECT * FROM `pusers` AS `users` WHERE `name` LIKE '\\\\\\%jo\\_sh%' ESCAPE '\\'");
+        $shouldbe = "SELECT * FROM `pusers` AS `users` WHERE `name` LIKE '\\\\\\%jo\\_sh%' ESCAPE '\\'";
+        $this->assertTrue($sql == $shouldbe);
     }
 
 }

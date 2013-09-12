@@ -30,7 +30,7 @@ abstract class Grammar
     abstract public function formatLike($col, $like);
     abstract public function formatNotLike($col, $like);
     abstract public function formatLimit($limit, $offset);
-    abstract public function formatCreateTable($table, $columns, $constraints);
+    abstract public function formatCreateTable($table, $columns, $constraints, $ifnotexists);
 
 }
 

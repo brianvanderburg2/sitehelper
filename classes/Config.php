@@ -13,60 +13,78 @@ class Config
 {
     protected static $data = array();
 
-    protected static $loaded_files = array();
-    protected static $loaded_inis = array();
-    protected static $loaded_configs = array();
-
     /**
      * Get a configuration item.
      *
      * @param name The name of the configuration item to get.  This can be in
      * form 'name, or 'name.subname'.
-     * @param def The default return value if name is not found.
-     * @param order The order that the groups are searched.
-     * @return The value of the configuration item if self, else the default value.
+     * @return All matching configuration items in an array, or an empty array if no matching items.
      */
-    public static function get($name, $def=null, $order="user,application")
+    public static function get($name, $reverse=FALSE)
     {
-        $group_names = explode(',', $order);
-        foreach($group_names as $group_name)
+        $results = array();
+
+        for($i = 0; $i < count(static::$data); $i++)
         {
-            $p = static::findParent($name, $group_name);
+            $p = static::findParent($name, $i);
 
             if($p !== FALSE && isset($p[0][$p[1]]))
             {
-                return $p[0][$p[1]];
+                $results[] = $p[0][$p[1]];
             }
         }
 
-        return $def;
+        return $reverse ? array_reverse($results) : $results;
+    }
+
+    public static function first($name, $def=null)
+    {
+        $results = static::get($name);
+
+        return (count($results) > 0) ? $results[0] : $def;
+    }
+
+    public static function last($name, $def=null)
+    {
+        $results = static::get($name);
+        $count = count($results);
+
+        return ($count > 0) ? $results[$count - 1] : $def;
     }
 
     /**
-     * Set a configuration group.
+     * Add a group of configuration.
      *
-     * @param name The name of the group to set
      * @param config THe configuration data for that group.
      */
-    public static function group($name, $config)
+    public static function add($config)
     {
-        static::$data[$name] = $config;
+        static::$data[] = $config;
     }
 
-    protected static function findParent($name, $group)
+    /**
+     * Clear configuration
+     * This is only used for tests.
+     */
+    public static function clear()
+    {
+        static::$data = array();
+    }
+
+    protected static function findParent($name, $index)
     {
         $parts = explode('.', $name);
         $name = array_pop($parts);
 
-        // Does the group exist
-        if(!isset(static::$data[$group]))
+        // Does the index exist
+        if(!isset(static::$data[$index]))
         {
             return FALSE;
         }
 
         // If the name part is empty, then parts will be empty and so will name
         // Will return the root array for the group and an empty name
-        $target = &static::$data[$group];
+        $target = &static::$data[$index];
         foreach($parts as $part)
         {
             if(!isset($target[$part]) || !is_array($target[$part]))

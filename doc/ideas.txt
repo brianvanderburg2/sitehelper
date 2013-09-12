@@ -1,3 +1,128 @@
+SiteHelper\
+    bootstrap.php
+    lib\ (third party PHP libraries)
+    clases\ (core classes) mrbavii\sitehelper
+    system\ (Stuff classes) mrbavii\sitestuff
+        One main public class, all others used internally:
+        Stuff
+
+        Stuff::config(...) Configuration settings
+        Stuff::execute();
+
+    Entry point would be used:
+
+    entry.php
+        require bootstrap (sets up both classloaders)
+        use mrbavii\sitestuff\Stuff
+
+        Stuff::config("database stuff, etc")
+        Stuff::execute()
+
+
+    Usage:
+        entry.php/admin (show an admin page)
+        entry.php/styles/core.css (feed through cached core files)
+        entry.php/scripts/core.js (feeds through cached script files, and call sitestuff.setup('path/to/entry.php');
+        
+    core.js
+        jquery.js
+        sitestuff.js
+
+    
+    sitestuff (load modules to use from external pages)
+
+    sitestuff.module('comments');
+
+    sitstuff.comments.load('div_id', 'comments_dbid')
+
+
+
+SiteHelper (SiteHelper PHP Scripts)
+===================================
+
+This code provides some PHP objects that can be used in a web application. It
+also provides a simple web application, which is the entire point of the code.
+This application is entirely AJAX based, the PHP backend only handles the
+requests and sends back a response. The PHP portion also provides access to
+public portion.
+
+Layout
+------
+bootstrap.php
+actions/ (Where the actions for the simple web app are at)
+classes/ (SiteHelper classes)
+doc/
+lib/
+public/
+tests/
+
+
+sitehelper.extend('methodname', function(...) {
+    ....
+});
+
+
+
+
+Actions
+-------
+/styles (concatonate and send through all the styles, create a cache file in the data directory)
+/scripts (concatonate and send through all the scripts, create a cache file in the data directory)
+    This will also set up a special script which will set a variable that indicates the entry point.
+    The cache file will calcluated with the MD5 sum of the entry point, to ensur a changed entry
+    point will result in a new file.
+
+These can be prefixed with the "module" that needs to be loaded, so that it will only load the scripts
+required for that:
+
+
+Example external usage:
+
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/path/to/entry.php/public/core.css" />
+    <script type="text/javascript" language=JavaScript" src="/path/to/entry.php/public/core.js" />
+</head>
+<body>
+    ...
+    sitehelper.loadComments('divid', 'commentid');
+    sitehelper.getEntryPoint(); // This would return /path/to/entry.php
+    sitehelper.getEntryPoint('something/else/to/do'); // This would return /path/to/entry.php/something/else/to/do
+</body>
+</html>
+
+(The public.php script will tream a requst for "core.css" and "core.js" specially,  It will
+automatically build the desired "core" file and send it out:
+
+core.css:
+    ?
+core.js:
+    jquery.js
+    sitehelper.js
+    sitehelper.setup($_SERVER['SCRIPT_NAME']);
+
+Direct example user:
+
+http://www.something.com/entry.php/(something)
+
+The actions could already call SiteHelper::getEntry() to load the correct javascript files
+
+
+
+Application Setup
+-----------------
+SiteHelper::config(array(
+    "sitehelper.datadir" => "/path/to/external/data/directory",
+    "sitehelper.entry" => $_SERVER['SCRIPT_NAME'], // Normally automatically deduced
+    "server.sendfile" = function($filename, $partial, $start, $end, $filesize){ ... };
+    "database" => array(
+        "connections" => array(
+            "sitehelper" => array("driver" => 'sqlite3', 'filename" = '/path/to/data/file.sqlite3')
+        )
+    )
+));
+
+
 Classes
 =======
 sendfile examples
