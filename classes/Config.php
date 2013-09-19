@@ -7,7 +7,7 @@
 namespace mrbavii\sitehelper;
 
 /**
- * Configuration storage class
+ * Configuration storage class.
  */
 class Config
 {
@@ -20,7 +20,7 @@ class Config
      * form 'name, or 'name.subname'.
      * @return All matching configuration items in an array, or an empty array if no matching items.
      */
-    public static function get($name, $reverse=FALSE)
+    public static function get($name)
     {
         $results = array();
 
@@ -34,7 +34,7 @@ class Config
             }
         }
 
-        return $reverse ? array_reverse($results) : $results;
+        return $results;
     }
 
     public static function first($name, $def=null)
@@ -55,7 +55,7 @@ class Config
     /**
      * Add a group of configuration.
      *
-     * @param config THe configuration data for that group.
+     * @param config The configuration data for that group.
      */
     public static function add($config)
     {

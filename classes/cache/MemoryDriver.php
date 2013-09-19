@@ -10,6 +10,10 @@ class MemoryDriver extends Driver
 {
     protected $data = array();
 
+    public function connect($settings)
+    {
+    }
+
     public function set($name, $value, $lifetime=null)
     {
         $this->data[$name] = $value;

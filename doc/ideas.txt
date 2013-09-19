@@ -2,7 +2,7 @@ SiteHelper\
     bootstrap.php
     lib\ (third party PHP libraries)
     clases\ (core classes) mrbavii\sitehelper
-    system\ (Stuff classes) mrbavii\sitestuff
+    stuff\ (Stuff classes) mrbavii\sitestuff
         One main public class, all others used internally:
         Stuff
 
@@ -18,22 +18,8 @@ SiteHelper\
         Stuff::config("database stuff, etc")
         Stuff::execute()
 
-
-    Usage:
-        entry.php/admin (show an admin page)
-        entry.php/styles/core.css (feed through cached core files)
-        entry.php/scripts/core.js (feeds through cached script files, and call sitestuff.setup('path/to/entry.php');
-        
-    core.js
-        jquery.js
-        sitestuff.js
-
-    
-    sitestuff (load modules to use from external pages)
-
-    sitestuff.module('comments');
-
-    sitstuff.comments.load('div_id', 'comments_dbid')
+    SiteStuff only provides an API, it does not generate any HTML or send
+    any javascript or css.  Results are returned with JSON.
 
 
 
@@ -57,61 +43,9 @@ public/
 tests/
 
 
-sitehelper.extend('methodname', function(...) {
-    ....
-});
-
-
-
-
-Actions
--------
-/styles (concatonate and send through all the styles, create a cache file in the data directory)
-/scripts (concatonate and send through all the scripts, create a cache file in the data directory)
-    This will also set up a special script which will set a variable that indicates the entry point.
-    The cache file will calcluated with the MD5 sum of the entry point, to ensur a changed entry
-    point will result in a new file.
-
-These can be prefixed with the "module" that needs to be loaded, so that it will only load the scripts
-required for that:
-
-
-Example external usage:
-
-<html>
-<head>
-    <link type="text/css" rel="stylesheet" href="/path/to/entry.php/public/core.css" />
-    <script type="text/javascript" language=JavaScript" src="/path/to/entry.php/public/core.js" />
-</head>
-<body>
-    ...
-    sitehelper.loadComments('divid', 'commentid');
-    sitehelper.getEntryPoint(); // This would return /path/to/entry.php
-    sitehelper.getEntryPoint('something/else/to/do'); // This would return /path/to/entry.php/something/else/to/do
-</body>
-</html>
-
-(The public.php script will tream a requst for "core.css" and "core.js" specially,  It will
-automatically build the desired "core" file and send it out:
-
-core.css:
-    ?
-core.js:
-    jquery.js
-    sitehelper.js
-    sitehelper.setup($_SERVER['SCRIPT_NAME']);
-
-Direct example user:
-
-http://www.something.com/entry.php/(something)
-
-The actions could already call SiteHelper::getEntry() to load the correct javascript files
-
-
-
 Application Setup
 -----------------
-SiteHelper::config(array(
+SiteStuff::config(array(
     "sitehelper.datadir" => "/path/to/external/data/directory",
     "sitehelper.entry" => $_SERVER['SCRIPT_NAME'], // Normally automatically deduced
     "server.sendfile" = function($filename, $partial, $start, $end, $filesize){ ... };
@@ -122,6 +56,7 @@ SiteHelper::config(array(
     )
 ));
 
+SiteStuff::execute();
 
 Classes
 =======
@@ -190,8 +125,9 @@ TODO:
         lowerCamelCase for methods and functions
         variable_names_like_this
     Table -> Split into QueryBuilder and Table (Maybe, maybe not)
+    Table -> Split into Table and Builder (builder does the create stuff)
     Database:
-        On connecting, set isolation level to maximum (serializable)
+        On connecting, set isolation level to maximum (serializable) and enable foreign keys
         Foreign keys:
             on delete/update
                 cascade
@@ -200,115 +136,50 @@ TODO:
                 restricted
                 no action
 
-Config
-    Delay load configuration if possible.
-    (How to deal with issue where Config::set or Config::merge is called before delay load?)
-        Idea, keep map of all delay loaded configs (group::topname)
-        When set is called, do delay_load on the name first
-            Both set and merge can set the root name as well: set('group::', ...)
-            so the delay load mechanism needs to get the values to set as well
-            call delay_load from set and merge
-            to avoid recursion, param parameter called 'load' to set and merge functions, by
-            default it is true, but when delay_load merges the config in, it will be false
-            delay_load(name, values)
-                toload = array()
-                (group, name) = split(name)
-                if(name == '')
-                {
-                    foreach(keys(values) as key)
-                    {
-                        toload[] = (group, key)
-                    }
-                }
-                else
-                {
-                    toload[] = (group, name)
-                }
-
-                foreach(toload as load)
-                {
-                    if(!loaded(load))
-                    {
-                        load config from filename(toload[0], toload[1])
-                    }
-                }
-
-
-            filename(group, name)
-                return str_replace('.', DIRECTORY_SEPARATOR, group) . DIRECTORY_SEPARATOR . name.split('.')[0];
-
 ClassLoader
     register_map(dir, namespace, map)
 Database
-    Connector
-    PdoConnector
-    etc
-    Grammar
-    MysqlGrammar
-    PgsqlGrammar
-    SqliteGrammar
-    etc
-    Query
-    etc
+    SQLite2 and SQLite3
+    MySQL
+    PostgreSQL
+    maybe others
 Cache
     Driver
-    NullDriver
+    NullDriver (cache always returns empty)
+    Memory (use internal array, only kept for the current request)
     MemcacheDriver
     RedisDriver
     ApcDriver
-    FileDriver
-    SqliteDriver
+    FileDriver (store cache in a file)
+    SqliteDriver (store cache in a file, but uses a database for all items)
+    DatabaseDriver (stores cache in a named database)
 Session
+    Php (PHP based sessions, pretty much unlimited data size)
+    Sqlite (Store session data in a database, there is a limit on data size depending on approache)
+        Single row per session: id, timestamp, etc, serialized data
+        Multiple rows per session, two tables
+            Session (id, timestampe, information)
+            Values (id, session, name, serialized value)
 Security
-Template
-Dispatcher (based on idea of a front end controller)
-    register('path', array(data))
-        callback can be a Closure or filename.
-    dispatch($path=null)
-        use Request::path_info() if $path is null
-    (:all) (match all the rest of the url) (.*)
-    (:alpha) ([a-zA-Z]*)
-    (:num) ([0-9]*)
-    (:alnum) ([a-zA-Z0-9]*)
-    (:ident) ([a-zA-Z][a-zA-Z0-9_]*)
-    (:file) (match rest of url if the pattern is ((piece)(\.|(piece))*)(/(piece)(\.|(piece))*)*
-            piece is (a-zA-Z0-9_-)
+Action
 Browser
     Request
     Response
-        redirect
-        error404 (Default action for Trigger::fire('404')
 Util
     load_php
     load_ini
     guid
 Exception
-Language
 Logger
 Captcha
-FormBuilder
+    Basic
+    PickByShape
+    PickByColor
 ShCode (generic bbcode parser, parse into nested arrays)
 Server
     Server information helper
         front, host, http, https, etc
-Url
-    register('name', 'value')
-        if(not contains ':')
-            if(begins with /) use local server/port as start
-            else use local server/port and front end controller as start
-            if setting is secure, use https
-            (config information is server.front, servert.host, server.port.http, server.port.https)
-            If not specified, try to auto detect
-        else
-            absolute path
-    get('
-Trigger
-    A simple event hook
-    fire('name', 'optional parameters')
-        Call all hooks
-    hook('name', callback)
-        Get called when fired.
-        
+    sendfile
 
 Database
 ========
@@ -404,5 +275,5 @@ License
 
 License under MIT.  1st, we are making this based on some code from the Laravel framework.
 We are actually making it our own, but using Laravel as an example for some ideas and whatnots.
-To avoid issues, and since Laravel is MIT licensed, we will also use the MIT license.
+But to avoid issues, and since Laravel is MIT licensed, we will also use the MIT license.
 

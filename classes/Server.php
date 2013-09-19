@@ -12,8 +12,8 @@ class Server
      */
     public static function getFileType($filename, $use_extension=TRUE)
     {
-        // First try any configured file extensios
-        if($use_extension && ($results = Config::get('server.filetypes', TRUE)) !== null)
+        // First try any configured file extensions
+        if($use_extension && ($results = Config::get('server.filetypes')) !== null)
         {
             foreach($results as $types)
             {

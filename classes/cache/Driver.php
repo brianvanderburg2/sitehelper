@@ -8,8 +8,12 @@ namespace mrbavii\sitehelper\cache;
 
 abstract class Driver
 {
-    public function __construct($settings) { }
+    public function __construct($settings)
+    {
+        $this->connect($settings);
+    }
 
+    abstract public function connect($settigs);
     abstract public function set($name, $value, $lifetime=null);
     abstract public function get($name, $def=null);
     abstract public function remove($name);

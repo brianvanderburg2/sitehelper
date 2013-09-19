@@ -8,6 +8,7 @@ namespace mrbavii\sitehelper\cache;
 
 class NullDriver extends Driver
 {
+    public function connect($settings) { }
     public function set($name, $value, $lifetime=null) {}
     public function get($name, $def=null) { return $def; }
     public function remove($name) {}

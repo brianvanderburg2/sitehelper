@@ -3,12 +3,21 @@
 namespace mrbavii\sitestuff;
 use \mrbavii\sitehelper as sh;
 
+/**
+ * Main entry point for the "stuff"
+ */
 class SiteStuff
 {
-    public static function config($config=array())
+    public static function config($user=array())
     {
-        // TODO: Load "app" config if any is needed
-        sh\Config::group('user', $config);
+        // Add user config first since they are used in order that they are added
+        require __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
+
+        sh\Config::add($user);
+        sh\Config::add($config);
+
+        // Register event listeners
+        sh\Event::listen('404', function(){ Action::
     }
 
     public static function execute($pathinfo=null)
@@ -22,38 +31,11 @@ class SiteStuff
             }
             else
             {
-                $pathinfo = '';
+                $pathinfo = '/index';
             }
         }
 
-        // Break into parts and check
-        $parts = explode('/', $pathinfo);
-        array_shift($parts);
-
-        foreach($parts as $part)
-        {
-            if(!preg_match("#^[a-zA-Z0-9][a-zA-Z0-9_\\.]*$#", $part))
-            {
-                die("Not Found"); // TODO: Use Event instead
-            }
-        }
-
-        // Find the action and execute it
-        $path = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'actions';
-        
-        while(count($parts) > 0)
-        {
-            $path = $path . DIRECTORY_SEPARATOR . array_shift($parts);
-            $file = $path . '.php';
-
-            if(file_exists($file))
-            {
-                sh\Util::loadPhp($file, array('params' => $parts), TRUE);
-                exit();
-            }
-        }
-
-        die("Not Found"); // TODO: Use Event instead
+        Action::execute(substr($pathinfo, 1));
     }
 }
 

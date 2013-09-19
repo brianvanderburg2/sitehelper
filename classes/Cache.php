@@ -8,7 +8,7 @@ namespace mrbavii\sitehelper;
 
 class Cache
 {
-    protected static $cache = array(); 
+    protected static $instance = null; 
     protected static $drivers = array(
         'null' => '\mrbavii\sitehelper\cache\NullDriver',
         'memcache' => '\mrbavii\sitehelper\cache\MemcacheDriver',
@@ -24,24 +24,19 @@ class Cache
         static::$drivers[$driver] = $factory;
     }
 
-    public static function driver($driver=null)
+    public static function instance()
     {
-        // Get the driver if needed
-        if($driver === null)
+        if(isset(static::$instance))
         {
-            $driver = Config::last('cache.driver', 'memory');
+            return static::$instance;
         }
 
-        // Connect if not already
-        if(!isset(static::$cache[$driver]))
-        {
-            $settings = Config::last('cache.' . $driver, array());
-            $settings['driver'] = $driver;
+        // Get driver name and settings
+        $driver = Config::first('cache.driver', 'memory');
+        $settings = Config::first('cache.' . $driver, array());
+        $settings['driver'] = $driver;
 
-            static::$cache[$driver] = static::connect($settings);
-        }
-
-        return static::$cache[$driver];
+        return (static::$instance = static::connect($settings));
     }
 
     public static function connect($settings)
@@ -73,5 +68,37 @@ class Cache
             throw new Exception('Unknown cache driver: ' . $driver);
         }
     }
+
+    // Quick access functions
+    public static function set($name, $value, $lifetime=null)
+    {
+        return static::instance()->set($name, $value, $lifetime);
+    }
+
+    public static function get($name, $def=null)
+    {
+        return static::instance()->get($name, $def);
+    }
+
+    public static function remove($name)
+    {
+        return static::instance()->remove($name);
+    }
+
+    public static function connected()
+    {
+        return static::instance()->connnected();
+    }
+
+    public static function remember($name, $value, $lifetime=null)
+    {
+        return static::instance()->remember($name, $value, $lifetime);
+    }
+    
+    public static function has($name)
+    {
+        return static::instance()->has($name);
+    }
+
 }
 

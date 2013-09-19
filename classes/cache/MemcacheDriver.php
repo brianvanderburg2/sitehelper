@@ -8,7 +8,7 @@ namespace mrbavii\sitehelper\cache;
 
 class MemcacheDriver extends Driver
 {
-    public function __construct($settings)
+    public function connect($settings)
     {
     }
 

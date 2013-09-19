@@ -10,7 +10,7 @@ class FileDriver extends Driver
 {
     protected $rootdir = null;
 
-    public function __construct($settings)
+    public function connect($settings)
     {
         if(isset($settings['rootdir']))
         {
