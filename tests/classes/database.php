@@ -5,7 +5,7 @@ use mrbavii\sitehelper\Database;
 use mrbavii\sitehelper\Config;
 
 require_once('simpletest/autorun.php');
-require(__DIR__ . '/../../bootstrap.php');
+require(__DIR__ . '/helpers.inc');
 
 
 class TestDatabase extends UnitTestCase
@@ -39,7 +39,7 @@ class TestDatabase extends UnitTestCase
         $this->assertTrue($db->grammar instanceof db\grammars\Sqlite);
 
         // Reset config and test Database cache
-        Config::clear();
+        MyConfig::noconfig();
         $this->assertTrue(Config::get('database.connections') == array());
 
         $db2 = Database::connection('test');

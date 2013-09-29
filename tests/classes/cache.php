@@ -4,14 +4,14 @@ use mrbavii\sitehelper\Cache;
 use mrbavii\sitehelper\Config;
 
 require_once("simpletest/autorun.php");
-require_once(__DIR__ . "/../../bootstrap.php");
+require_once(__DIR__ . "/helpers.inc");
 
 class TestCache extends UnitTestCase
 {
     public function setUp()
     {
-        Config::clear();
-        Config::add(array('cache' => array('driver' => 'memory')));
+        MyConfig::noconfig();
+        MyConfig::add(array('cache' => array('driver' => 'memory')));
     }
 
     public function tearDown()
@@ -20,7 +20,7 @@ class TestCache extends UnitTestCase
 
     public function test_instance()
     {
-        $handle = Cache::instance();
+        $handle = MyCache::instance();
 
         $handle->set('name', 100);
         $this->assertTrue($handle->has('name') === TRUE);
@@ -31,7 +31,7 @@ class TestCache extends UnitTestCase
     {
         $settings = array('driver' => 'null');
 
-        $handle = Cache::connect($settings);
+        $handle = MyCache::connect($settings);
 
         $handle->set('name', 100);
         $this->assertTrue($handle->has('name') === FALSE);
@@ -42,7 +42,7 @@ class TestCache extends UnitTestCase
     {
         $settings = array('driver' => 'memory');
 
-        $handle = Cache::connect($settings);
+        $handle = MyCache::connect($settings);
         $handle->set('name', 100);
         $this->assertTrue($handle->has('name') === TRUE);
         $this->assertTrue($handle->get('name') == 100);
@@ -50,8 +50,8 @@ class TestCache extends UnitTestCase
 
     public function test_direct()
     {
-        Cache::set('name', 'Bob');
-        Cache::set('age', 21);
+        MyCache::set('name', 'Bob');
+        MyCache::set('age', 21);
 
         $this->assertTrue(Cache::has('name') == TRUE);
         $this->assertTrue(Cache::get('name') == 'Bob');

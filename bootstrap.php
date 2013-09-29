@@ -10,10 +10,10 @@ if(!defined(__NAMESPACE__."\\BOOTSTRAPPED"))
 {
     define(__NAMESPACE__."\\BOOTSTRAPPED", TRUE);
 
-    require_once(__DIR__ . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'ClassLoader.php');
+    require_once(__DIR__ . '/classes/ClassLoader.php');
 
     ClassLoader::install();
-    ClassLoader::register('mrbavii\\sitehelper\\', __DIR__ . DIRECTORY_SEPARATOR . 'classes');
-    ClassLoader::register('mrbavii\\sitestuff\\', __DIR__ . DIRECTORY_SEPARATOR . 'stuff');
+    ClassLoader::register('mrbavii\\sitehelper\\', __DIR__ . '/classes');
+    ClassLoader::register('mrbavii\\sitestuff\\', __DIR__ . '/stuff');
 }
 

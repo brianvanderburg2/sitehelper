@@ -27,7 +27,7 @@ class Captcha
 
         // Get driver and settings
         $driver = Config::first('captcha.driver', 'basic');
-        $settings = Config::first('captcha' . $driver, array());
+        $settings = Config::first('captcha.' . $driver, array());
         $settings['driver'] = $driver;
 
         return (static::$instance = static::connect($settings));
@@ -44,7 +44,7 @@ class Captcha
             throw new Exception('No captcha driver');
         }
 
-        if(isset(static::$drivers['$driver']))
+        if(isset(static::$drivers[$driver]))
         {
             $factory = static::$drivers[$driver];
 

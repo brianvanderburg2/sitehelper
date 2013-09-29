@@ -62,15 +62,6 @@ class Config
         static::$data[] = $config;
     }
 
-    /**
-     * Clear configuration
-     * This is only used for tests.
-     */
-    public static function clear()
-    {
-        static::$data = array();
-    }
-
     protected static function findParent($name, $index)
     {
         $parts = explode('.', $name);

@@ -4,7 +4,7 @@ namespace mrbavii\sitehelper;
 
 class Action
 {
-    public static function execute($action, $params)
+    public static function execute($action, $params=array())
     {
         // The action may contain parts that are not safe for the file
         // system, so we have to test each part when looking for the file.
@@ -13,9 +13,16 @@ class Action
         {
             throw new Exception('No action path specified');
         }
+        
+        // Check if we started with '/', such as with path info
+        if($action[0] == '/')
+        {
+            $action = substr($action, 1);
+        }
 
         // Look through each part
         $parts = explode('/', $action);
+
 
         $subpath = '';
         while(count($parts) > 0)
@@ -23,12 +30,12 @@ class Action
             $part = array_shift($parts);
 
             // Make sure part is safe as a file name
-            if(!preg_match("#^[a-zA-Z0-9][a-zA-Z0-9_\\.]*$#", $part))
+            if(!Security::checkPathComponent($part))
             {
                 Event::fire('404');
                 exit();
             }
-            $subpath = $subpath . DIRECTORY_SEPARTOR . $part;
+            $subpath = $subpath . DIRECTORY_SEPARATOR . $part;
 
             // Look through each path
             foreach($paths as $path)

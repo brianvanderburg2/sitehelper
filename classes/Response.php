@@ -88,8 +88,25 @@ class Response extends Browser
             // If url does not begin with '/' like '/path/to/file' use entry
             if($url[0] != '/')
             {
+                // Add to REQUEST_URI
+                $prefix = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-                $url = $_SERVER['SCRIPT_NAME'] . '/' . $url;
+                $tprefix = rtrim($prefix, '/');
+                if($tprefix == $prefix)
+                {
+                    // We did not trim stuff off any '/', so assume there wasn't any at the end
+                    $pos = strrpos($prefix, '/');
+                    if($pos !== FALSE)
+                    {
+                        $prefix = substr($prefix, 0, $pos + 1);
+                    }
+                    else
+                    {
+                        $prefix = '/';
+                    }
+                }
+
+                $url = $prefix . $url;
             }
 
             $url = $proto . $server . $url;

@@ -16,8 +16,14 @@ class Util
             return require $__filename__;
         }
         else
+        {
             return include $__filename__;
         }
+    }
+
+    public static function loadIni($filename)
+    {
+        return parse_ini_file($filename, TRUE);
     }
 
     public static function guid($namespace='')

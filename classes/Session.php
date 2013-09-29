@@ -10,7 +10,7 @@ class Session
 {
     protected static $instance = null;
     protected static $drivers = array(
-        'php' => '\mrbavii\sitehelper\session\PhpDriver.php'
+        'php' => '\mrbavii\sitehelper\session\PhpDriver'
     );
 
     public static function register($driver, $factory)
@@ -27,7 +27,7 @@ class Session
 
         // Get driver name and settings
         $driver = Config::first('session.driver', 'php');
-        $settings = Config::first('session' . $driver, array());
+        $settings = Config::first('session.' . $driver, array());
         $settings['driver'] = $driver;
 
         return (static::$instance = static::connect($settings));
@@ -44,7 +44,7 @@ class Session
             throw new Exception('No session driver');
         }
 
-        if(isset(static::$drivers['$driver']))
+        if(isset(static::$drivers[$driver]))
         {
             $factory = static::$drivers[$driver];
 
