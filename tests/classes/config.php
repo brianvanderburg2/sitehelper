@@ -10,8 +10,8 @@ class TestConfig extends UnitTestCase
 {
     public function setUp()
     {
-        Config::add(array('name1' => 1000, 'name2' => array('a' => 1, 'b' => 2)));
-        Config::add(array('name1' => 4000, 'name3' => 6000));
+        Config::set(array('name1' => 1000, 'name2' => array('a' => 1, 'b' => 2)));
+        Config::set('name2.c', 4001);
     }
 
     public function tearDown()
@@ -20,13 +20,12 @@ class TestConfig extends UnitTestCase
 
     public function test_get()
     {
-        $this->assertTrue(Config::get('name1') == array(1000, 4000));
-        $this->assertTrue(Config::first('name1') == 1000);
-        $this->assertTrue(Config::last('name1') == 4000);
+        $this->assertTrue(Config::get('name1') == 1000);
 
-        $this->assertTrue(Config::get('name2') == array(array('a' => 1, 'b' => 2)));
-        $this->assertTrue(Config::get('name2.a') == array(1));
-        $this->assertTrue(Config::get('name2.b') == array(2));
+        $this->assertTrue(Config::get('name2') == array('a' => 1, 'b' => 2, 'c' => 4001));
+        $this->assertTrue(Config::get('name2.a') == 1);
+        $this->assertTrue(Config::get('name2.b') == 2);
+        $this->assertTrue(Config::get('name2.c') == 4001);
     }
 
     public function test_parse()

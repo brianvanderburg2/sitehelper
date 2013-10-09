@@ -26,8 +26,8 @@ class Session
         }
 
         // Get driver name and settings
-        $driver = Config::first('session.driver', 'php');
-        $settings = Config::first('session.' . $driver, array());
+        $driver = Config::get('session.driver', 'php');
+        $settings = Config::get('session.' . $driver, array());
         $settings['driver'] = $driver;
 
         return (static::$instance = static::connect($settings));

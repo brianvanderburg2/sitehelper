@@ -24,7 +24,7 @@ class Database
         // Get the name if needed
         if($name === null)
         {
-            $name = Config::first('database.default');
+            $name = Config::get('database.default');
             if($name === null)
             {
                 throw new Exception('No default database');
@@ -34,7 +34,7 @@ class Database
         // Connect if not already
         if(!isset(static::$cache[$name]))
         {
-            $settings = Config::first('database.connections.' . $name);
+            $settings = Config::get('database.connections.' . $name);
             if($settings === null)
             {
                 throw new Exception('No database settings: ' . $name);

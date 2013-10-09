@@ -32,8 +32,8 @@ class Cache
         }
 
         // Get driver name and settings
-        $driver = Config::first('cache.driver', 'memory');
-        $settings = Config::first('cache.' . $driver, array());
+        $driver = Config::get('cache.driver', 'memory');
+        $settings = Config::get('cache.' . $driver, array());
         $settings['driver'] = $driver;
 
         return (static::$instance = static::connect($settings));

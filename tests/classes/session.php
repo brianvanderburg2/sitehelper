@@ -37,8 +37,8 @@ class TestSession extends UnitTestCase
     public function test_session1()
     {
         MyConfig::noconfig();
-        MyConfig::add(array('session' => array('driver' => 'php')));
-        MyConfig::add(array('session' => array('php' => array('timed' => array('duration' => 100)))));
+        MyConfig::set(array('session' => array('driver' => 'php')));
+        MyConfig::set('session.php', array('timed' => array('duration' => 100)));
 
         $name = MySession::createTimed('100');
         MySession::setTimed($name, 100);
@@ -50,8 +50,8 @@ class TestSession extends UnitTestCase
         MySession::noinstance();
         MyConfig::noconfig();
         sleep(2);
-        MyConfig::add(array('session' => array('driver' => 'php')));
-        MyConfig::add(array('session' => array('php' => array('timed' => array('duration' => 0)))));
+        MyConfig::set(array('session' => array('driver' => 'php')));
+        MyConfig::set('session.php', array('timed' => array('duration' => 0)));
 
         $this->assertTrue(MySession::getTimed($name) === null);
 

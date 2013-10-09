@@ -12,31 +12,65 @@ class Server
      */
     public static function getFileType($filename, $use_extension=TRUE)
     {
+
         // First try any configured file extensions
-        if($use_extension && ($results = Config::get('server.filetypes')) !== null)
+        if($use_extension && ($types = Config::get('server.filetypes')) !== null)
         {
-            foreach($results as $types)
+            foreach($types as $ending => $type)
             {
-                foreach($types as $ending => $type)
+                $len = strlen($ending);
+                if(substr($filename, -$len) == $ending)
                 {
-                    $len = strlen($ending);
-                    if($len == 0)
-                    {
-                        return $type;
-                    }
-                    else if(substr($filename, -$len) == $ending)
-                    {
-                        return $type;
-                    }
+                    return $type;
                 }
+            }
         }
 
         // Determine from file contents
-        $finfo = new \finfo(FILEINFO_MIME);
-        $type = $finfo->file($filename, FILEINFO_MIME_TYPE);
-        unset($finfo);
+        $magic = Config::get('server.magicfile');
+        if($magic !== null)
+        {
+            $finfo = new \finfo(FILEINFO_MIME, $magic);
+        }
+        else
+        {
+            $finfo = new \finfo(FILEINFO_MIME);
+        }
 
-        return $type;
+        if($finfo)
+        {
+            $type = $finfo->file($filename, FILEINFO_MIME_TYPE);
+            if($type !== FALSE)
+            {
+                return $type;
+            }
+        }
+
+        // Return default type if unable to determine file type
+        return Config::get('server.filetype', 'application/octet-stream');
+    }
+
+    /**
+     * Map a URI path to a file based on an alias
+     */
+    public static function getAlias($uripath)
+    {
+        $aliases = Config::get('server.alias');
+        if($aliases === null)
+        {
+            return FALSE;
+        }
+
+        foreach($aliases as $prefix => $path)
+        {
+            if(Util::startsWith($uripath, $prefix))
+            {
+                return $path . substr($uripath, strlen($prefix));
+            }
+        }
+
+        // Not found
+        return FALSE;
     }
 
     /**
@@ -101,7 +135,7 @@ class Server
                 $offset = 0;
             }
 
-            if(!empty($matches[2])
+            if(!empty($matches[2]))
             {
                 $length = abs(intval($matches[2])) - $offset + 1;
 
@@ -139,7 +173,7 @@ class Server
     {
         // If a handler is configured to do this, then use the handler
         // It is up to the handler to set the Range headers as supported
-        $handler = Config::last('server.sendfile');
+        $handler = Config::get('server.sendfile');
         if($handler !== null)
         {
             $handler($filename, $offset, $length, $filesize);

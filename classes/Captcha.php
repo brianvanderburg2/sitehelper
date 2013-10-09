@@ -26,8 +26,8 @@ class Captcha
         }
 
         // Get driver and settings
-        $driver = Config::first('captcha.driver', 'basic');
-        $settings = Config::first('captcha.' . $driver, array());
+        $driver = Config::get('captcha.driver', 'basic');
+        $settings = Config::get('captcha.' . $driver, array());
         $settings['driver'] = $driver;
 
         return (static::$instance = static::connect($settings));

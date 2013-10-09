@@ -20,67 +20,60 @@ class Config
      * form 'name, or 'name.subname'.
      * @return All matching configuration items in an array, or an empty array if no matching items.
      */
-    public static function get($name)
+    public static function get($name, $defval=null)
     {
-        $results = array();
 
-        for($i = 0; $i < count(static::$data); $i++)
+        $p = static::findParent($name, FALSE);
+
+        if($p !== FALSE && isset($p[0][$p[1]]))
         {
-            $p = static::findParent($name, $i);
-
-            if($p !== FALSE && isset($p[0][$p[1]]))
-            {
-                $results[] = $p[0][$p[1]];
-            }
+            return $p[0][$p[1]];
         }
-
-        return $results;
-    }
-
-    public static function first($name, $def=null)
-    {
-        $results = static::get($name);
-
-        return (count($results) > 0) ? $results[0] : $def;
-    }
-
-    public static function last($name, $def=null)
-    {
-        $results = static::get($name);
-        $count = count($results);
-
-        return ($count > 0) ? $results[$count - 1] : $def;
+        else
+        {
+            return $defval;
+        }
     }
 
     /**
-     * Add a group of configuration.
+     * Set configuration.
      *
-     * @param config The configuration data for that group.
+     * @param name_or_value The configuration item to set, or the entire config if value is not specified
+     * @param value The value to set the configuration item to.
      */
-    public static function add($config)
+    public static function set($name_or_value, $value=null)
     {
-        static::$data[] = $config;
+        if($value === null)
+        {
+            static::$data = $name_or_value;
+        }
+        else
+        {
+            $p = static::findParent($name_or_value, TRUE);
+            $p[0][$p[1]] = $value;
+        }
     }
 
-    protected static function findParent($name, $index)
+    protected static function findParent($name, $create=FALSE)
     {
         $parts = explode('.', $name);
         $name = array_pop($parts);
 
-        // Does the index exist
-        if(!isset(static::$data[$index]))
-        {
-            return FALSE;
-        }
-
         // If the name part is empty, then parts will be empty and so will name
         // Will return the root array for the group and an empty name
-        $target = &static::$data[$index];
+        $target = &static::$data;
         foreach($parts as $part)
         {
             if(!isset($target[$part]) || !is_array($target[$part]))
             {
-                return FALSE;
+                if($create)
+                {
+                    $target[$part] = array();
+                }
+                else
+                {
+                    return FALSE;
+                }
             }
 
             $target = &$target[$part];

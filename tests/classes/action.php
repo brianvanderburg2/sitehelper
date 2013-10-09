@@ -6,7 +6,7 @@ use mrbavii\sitehelper as sh;
 if(php_sapi_name() == 'cli-server')
 {
     MyConfig::noconfig();
-    MyConfig::add(array('path' => array('actions' => __DIR__ . '/action')));
+    MyConfig::set(array('path' => array('actions' => array(__DIR__ . '/action'))));
     if(isset($_SERVER['PATH_INFO']))
     {
         sh\Action::execute($_SERVER['PATH_INFO']);

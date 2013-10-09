@@ -17,7 +17,7 @@ class TestDatabase extends UnitTestCase
             'test2' => array('driver' => 'sqlite3', 'prefix' => 'p')
         )));
 
-        Config::add($config);
+        Config::set($config);
     }
 
     public function tearDown()
