@@ -18,6 +18,8 @@
 // listing.footer     - Footer file to include if sending raw
 // listing.stylesheet - Send a stylesheet link
 // listing.showhidden - Show hidden files
+// listing.precision  - Precision for size display, default is 2
+// listing.date       - Date format, default: 'Y-M-d H:m:s'
 //
 // Also depends on Server configuration values such as filetypes and aliases
 
@@ -32,6 +34,8 @@ class DirListing
     protected static $footer;
     protected static $raw;
     protected static $stylesheet;
+    protected static $precision;
+    protected static $date;
 
     public static function show($uripath=null)
     {
@@ -42,6 +46,8 @@ class DirListing
         static::$footer = Config::get('listing.footer', FALSE);
         static::$stylesheet = Config::get('listing.stylesheet', FALSE);
         static::$showhidden = Config::get('listing.showhidden', FALSE);
+        static::$precision = Config::get('listing.precision', 2);
+        static::$date = Config::get('listing.date', 'Y-M-d H:m:s');
 
         // Basic setup
         if($uripath === null)
@@ -71,7 +77,7 @@ class DirListing
             while(($entry = readdir($handle)) !== FALSE)
             {
                 // Don't show '.', '..', and maybe not hidden items
-                if($entry == '.' || $item == '..')
+                if($entry == '.' || $entry == '..')
                 {
                     continue;
                 }
@@ -103,21 +109,52 @@ class DirListing
                 }
             }
 
-            fclose($handle);
+            closedir($handle);
         }
+
+        // Sort the arrays
+        $sortkey = isset($_GET['sort']) && in_array($_GET['sort'], array('n', 's', 'm', 't')) ? $_GET['sort'] : 'n';
+        $sortorder = isset($_GET['order']) ? SORT_DESC : SORT_ASC;
+        $sortflags = ($sortkey == 's' || $sortkey == 'm') ? SORT_NUMERIC : SORT_STRING;
+
+        $sortkeys = array();
+        foreach($folderlist as $folder)
+        {
+            $sortkeys[] = $folder[$sortkey];
+        }
+        array_multisort($sortkeys, $sortorder, $sortflags, $folderlist);
+        
+        $sortkeys = array();
+        foreach($filelist as $file)
+        {
+            $sortkeys[] = $file[$sortkey];
+        }
+        array_multisort($sortkeys, $sortorder, $sortflags, $filelist);
 
         // Send out the stuff
         static::sendHeader($uripath, $path);
+
+        $headlinks = array();
+        foreach(array('n', 's', 'm', 't') as $item)
+        {
+            $link = $uripath . '?sort=' . $item;
+            if($sortkey == $item && !isset($_GET['order']))
+            {
+                $link .= '&order=desc';
+            }
+
+            $headlinks[$item] = htmlspecialchars($link);
+        }
 
         print <<<OPENTABLE
 <table cellpadding="0" cellspacing="0">
     <thead>
         <tr>
             <th class="i">&nbsp;</th>
-            <th class="n">Name</th>
-            <th class="m">Modified</th>
-            <th class="s">Size</th>
-            <th class="t">Type</th>
+            <th class="n"><a href="{$headlinks['n']}">Name</a></th>
+            <th class="m"><a href="{$headlinks['m']}">Modified</a></th>
+            <th class="s"><a href="{$headlinks['s']}">Size</a></th>
+            <th class="t"><a href="{$headlinks['t']}">Type</a></th>
         </tr>
     </thead>
     <tbody>
@@ -203,13 +240,20 @@ FOOTING;
     {
         $link = htmlspecialchars($link);
         $name = htmlspecialchars($name);
-        $modified = ($modified !== FALSE) ? date('Y-M-d H:m:s', $modified) : '&nbsp;';
-        $size = ($size !== FALSE) ? static::formatBytes($size, 2) : '&nbsp;';
+        $modified = ($modified !== FALSE) ? date(static::$date, $modified) : '&nbsp;';
+        $size = ($size !== FALSE) ? static::formatBytes($size) : '&nbsp;';
+
+        list($btype) = explode('/', $type);
+        $btype .= '/';
 
         $icons = static::$icons;
         if(isset($icons[$type]))
         {
             $icon = $icons[$type];
+        }
+        elseif(isset($icons[$btype]))
+        {
+            $icon = $icons[$btype];
         }
         elseif(isset($icons['#UNKNOWN#']))
         {
@@ -229,12 +273,15 @@ FOOTING;
             $icon = '&nbsp;';
         }
 
+
         if($type == '#DIRECTORY#' || $type == '#PARENT#')
         {
-            $type = 'Directory';
+            $desc = 'Directory';
         }
-
-        $type = htmlspecialchars($type);
+        else
+        {
+            $desc = htmlspecialchars($type);
+        }
 
         $even = $even ? 'e' : 'o';
 
@@ -244,12 +291,12 @@ FOOTING;
         <td class="n"><a href="$link">$name</a></td>
         <td class="m">$modified</td>
         <td class="s">$size</td>
-        <td class="t">$type</td>
+        <td class="t">$desc</td>
     </tr>
 ENTRY;
     }
 
-    protected static function formatBytes($size, $precision=0)
+    protected static function formatBytes($size)
     {
         static $sizes = array('YB', 'ZB', 'EB', 'PB', 'TB', 'GB', 'MB', 'KB', 'B');
 
@@ -259,7 +306,7 @@ ENTRY;
             $size /= 1024;
         }
 
-        return sprintf('%.' . $precision . 'f', $size) . $sizes[$total];
+        return sprintf('%.' . static::$precision . 'f', $size) . $sizes[$total];
     }
 }
 

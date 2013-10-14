@@ -30,11 +30,11 @@ class Server
         $magic = Config::get('server.magicfile');
         if($magic !== null)
         {
-            $finfo = new \finfo(FILEINFO_MIME, $magic);
+            $finfo = new \finfo(FILEINFO_SYMLINK, $magic);
         }
         else
         {
-            $finfo = new \finfo(FILEINFO_MIME);
+            $finfo = new \finfo(FILEINFO_SYMLINK);
         }
 
         if($finfo)
