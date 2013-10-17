@@ -8,6 +8,27 @@ namespace mrbavii\sitehelper;
 class Server
 {
     /**
+     * Determine the PATH_INFO of a request
+     */
+    public static function getPathInfo($calc=FALSE)
+    {
+        if($calc || !array_key_exists('PATH_INFO', $_SERVER))
+        {
+            $pathinfo = substr($_SERVER['REQUEST_URI'], strlen($_SERVER['SCRIPT_NAME']));
+            if(($pos = strpos($pathinfo, '?' . $_SERVER['QUERY_STRING'])) !== FALSE)
+            {
+                $pathinfo = substr($pathinfo, 0, $pos);
+            }
+
+            return $pathinfo;   
+        }
+        else
+        {
+            return $_SERVER['PATH_INFO'];
+        }
+    }
+
+    /**
      * Determine the file type of a file
      */
     public static function getFileType($filename, $use_extension=TRUE)
