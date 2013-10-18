@@ -19,7 +19,7 @@
 // listing.stylesheet - Send a stylesheet link
 // listing.showhidden - Show hidden files
 // listing.precision  - Precision for size display, default is 2
-// listing.date       - Date format, default: 'Y-M-d H:m:s'
+// listing.date       - Date format, default: 'Y-M-d H:i:s'
 //
 // Also depends on Server configuration values such as filetypes and aliases
 
@@ -47,7 +47,7 @@ class DirListing
         static::$stylesheet = Config::get('listing.stylesheet', FALSE);
         static::$showhidden = Config::get('listing.showhidden', FALSE);
         static::$precision = Config::get('listing.precision', 2);
-        static::$date = Config::get('listing.date', 'Y-M-d H:m:s');
+        static::$date = Config::get('listing.date', 'Y-M-d H:i:s');
 
         // Basic setup
         if($uripath === null)
