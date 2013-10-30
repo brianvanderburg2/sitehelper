@@ -3,7 +3,7 @@ override SHELL:=/bin/bash
 override SHELLOPTS:=errexit:pipefail
 export SHELLOPTS
 
-# Test settings, keep in sync with test/classes/helpers.inc
+# Test settings, keep in sync with test/helper/helpers.inc
 TESTHOST = 0.0.0.0
 TESTPORT = 8023
 
@@ -22,7 +22,7 @@ DOXYGEN=doxygen
 # Default targets
 .PHONY: check
 check:
-	@$(TEST) -f bootstrap.php -a -d classes
+	@$(TEST) -f bootstrap.php -a -d helper
 
 # Run tests independently instead of a main test file running all the test.
 # This allows for testing each components separately without any side effects
@@ -32,17 +32,17 @@ tests: offline-tests online-tests
 
 .PHONY: offline-tests
 offline-tests: check
-	@$(CD) tests && $(PHP) classes/classloader.php
-	@$(CD) tests && $(PHP) classes/config.php
-	@$(CD) tests && $(PHP) classes/path.php
-	@$(CD) tests && $(PHP) classes/event.php
-	@$(CD) tests && $(PHP) classes/cache.php
-	@$(CD) tests && $(PHP) classes/database.php
-	@$(CD) tests && $(PHP) classes/session.php
+	@$(CD) tests && $(PHP) helper/classloader.php
+	@$(CD) tests && $(PHP) helper/config.php
+	@$(CD) tests && $(PHP) helper/path.php
+	@$(CD) tests && $(PHP) helper/event.php
+	@$(CD) tests && $(PHP) helper/cache.php
+	@$(CD) tests && $(PHP) helper/database.php
+	@$(CD) tests && $(PHP) helper/session.php
 
 .PHONY: online-tests
 online-tests: check
-	@$(CD) tests && $(PHP) classes/action.php
+	@$(CD) tests && $(PHP) helper/action.php
 
 .PHONY: webserver
 webserver: check

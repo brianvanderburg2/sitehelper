@@ -4,16 +4,16 @@
 // Author:      Brian Allen Vanderburg II
 // Purpose:     Register the classloader needed for SiteHelper
 
-namespace mrbavii\sitehelper;
+use mrbavii\helper\ClassLoader;
 
-if(!defined(__NAMESPACE__."\\BOOTSTRAPPED"))
+if(!defined("__MRBAVII_SITEHELPER__"))
 {
-    define(__NAMESPACE__."\\BOOTSTRAPPED", TRUE);
+    define("__MRBAVII_SITEHELPER__", TRUE);
 
-    require_once(__DIR__ . '/classes/ClassLoader.php');
+    require_once(__DIR__ . '/helper/ClassLoader.php');
 
     ClassLoader::install();
-    ClassLoader::register('mrbavii\\sitehelper\\', __DIR__ . '/classes');
-    ClassLoader::register('mrbavii\\sitestuff\\', __DIR__ . '/stuff');
+    ClassLoader::register('mrbavii\\helper\\', __DIR__ . '/helper');
+    ClassLoader::register('mrbavii\\forum\\', __DIR__ . '/forum');
 }
 
