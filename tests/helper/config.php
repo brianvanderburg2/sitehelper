@@ -11,7 +11,7 @@ class TestConfig extends UnitTestCase
     public function setUp()
     {
         Config::set(array('name1' => 1000, 'name2' => array('a' => 1, 'b' => 2)));
-        Config::set('name2.c', 4001);
+        Config::merge(array('name2.c' => 4001));
     }
 
     public function tearDown()

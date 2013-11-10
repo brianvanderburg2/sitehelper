@@ -22,12 +22,25 @@ class Config
      */
     public static function get($name, $defval=null)
     {
-
-        $p = static::findParent($name, FALSE);
-
-        if($p !== FALSE && isset($p[0][$p[1]]))
+        $parts = explode('.', $name);
+        $name = array_pop($parts);
+        
+        $target = &static::$data;
+        foreach($parts as $part)
         {
-            return $p[0][$p[1]];
+            if(array_key_exists($part, $target) && is_array($target[$part]))
+            {
+                $target = &$target[$part];
+            }
+            else
+            {
+                return $defval;
+            }
+        }
+
+        if(array_key_exists($name, $target))
+        {
+            return $target[$name];
         }
         else
         {
@@ -38,48 +51,60 @@ class Config
     /**
      * Set configuration.
      *
-     * @param name_or_value The configuration item to set, or the entire config if value is not specified
-     * @param value The value to set the configuration item to.
+     * @param config The configuration to set.
      */
-    public static function set($name_or_value, $value=null)
+    public static function set($config)
     {
-        if($value === null)
-        {
-            static::$data = $name_or_value;
-        }
-        else
-        {
-            $p = static::findParent($name_or_value, TRUE);
-            $p[0][$p[1]] = $value;
-        }
+        static::$data = array();
+        static::merge($config);
     }
 
-    protected static function findParent($name, $create=FALSE)
+    /**
+     * Merge in configuration recursively.
+     *
+     * @param config The configuration to merge.
+     */
+    public static function merge($config)
     {
-        $parts = explode('.', $name);
-        $name = array_pop($parts);
+        static::merge_helper(static::$data, $config);
+    }
 
-        // If the name part is empty, then parts will be empty and so will name
-        // Will return the root array for the group and an empty name
-        $target = &static::$data;
-        foreach($parts as $part)
+    protected static function merge_helper(&$target, &$source)
+    {
+        foreach($source as $key => $value)
         {
-            if(!isset($target[$part]) || !is_array($target[$part]))
+            if(is_int($key))
             {
-                if($create)
+                $target[] = $value;
+            }
+            else
+            {
+                $parts = explode('.', $key);
+                $key = array_pop($parts);
+
+                foreach($parts as $part)
                 {
-                    $target[$part] = array();
+                    if(array_key_exists($part, $target) && is_array($target[$part]))
+                    {
+                        $target = &$target[$part];
+                    }
+                    else
+                    {
+                        $target[$part] = array();
+                        $target = &$target[$part];
+                    }
+                }
+
+                if(is_array($value) && array_key_exists($key, $target) && is_array($target[$key]))
+                {
+                    static::merge_helper($target[$key], $value);
                 }
                 else
                 {
-                    return FALSE;
+                    $target[$key] = $value;
                 }
             }
-
-            $target = &$target[$part];
         }
-        
-        return array(&$target, $name);
     }
 
     /**
