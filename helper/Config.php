@@ -63,6 +63,30 @@ class Config
      * Merge in configuration recursively.
      *
      * @param config The configuration to merge.
+     *
+     * Any items in config may be named with a dot '.', and will automatically
+     * be parsed into sub-arrays for configuration.
+     *
+     * Example:
+     *
+     * array(
+     *     'database.connections' => array(
+     *         'main' => array('driver' => 'sqlite3'),
+     *         'main2.driver' => 'sqlite3'
+     *     )
+     * )
+     *
+     * Will be treated as:
+     *
+     * array(
+     *     'database' => array(
+     *         'connections' => array(
+     *             'main' => array('driver' => 'sqlite3'),
+     *             'main2' => array('driver' => sqlite3')
+     *         )
+     *     )
+     * )
+     *            
      */
     public static function merge($config)
     {
@@ -81,27 +105,36 @@ class Config
             {
                 $parts = explode('.', $key);
                 $key = array_pop($parts);
+                $tmptarget = &$target;
 
                 foreach($parts as $part)
                 {
-                    if(array_key_exists($part, $target) && is_array($target[$part]))
+                    if(array_key_exists($part, $target) && is_array($tmptarget[$part]))
                     {
-                        $target = &$target[$part];
+                        $tmptarget = &$tmptarget[$part];
                     }
                     else
                     {
-                        $target[$part] = array();
-                        $target = &$target[$part];
+                        $tmptarget[$part] = array();
+                        $tmptarget = &$tmptarget[$part];
                     }
                 }
 
-                if(is_array($value) && array_key_exists($key, $target) && is_array($target[$key]))
+                if(is_array($value))
                 {
-                    static::merge_helper($target[$key], $value);
+                    if(array_key_exists($key, $tmptarget) && is_array($tmptarget[$key]))
+                    {
+                        static::merge_helper($tmptarget[$key], $value);
+                    }
+                    else
+                    {
+                        $tmptarget[$key] = array();
+                        static::merge_helper($tmptarget[$key], $value);
+                    }
                 }
                 else
                 {
-                    $target[$key] = $value;
+                    $tmptarget[$key] = $value;
                 }
             }
         }
