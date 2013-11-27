@@ -109,7 +109,7 @@ class Config
 
                 foreach($parts as $part)
                 {
-                    if(array_key_exists($part, $target) && is_array($tmptarget[$part]))
+                    if(array_key_exists($part, $tmptarget) && is_array($tmptarget[$part]))
                     {
                         $tmptarget = &$tmptarget[$part];
                     }
