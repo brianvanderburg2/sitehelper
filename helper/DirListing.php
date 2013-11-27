@@ -12,14 +12,14 @@
 
 // Configuration:
 //
-// listing.icons      - array of 'content-type' => 'icon url', can also include '#DIRECTORY#', '#PARENT#', '#UNKNOWN#'
-// listing.raw        - if TRUE, only send the table, not the opening and closing HTML
-// listing.header     - Header file to include if sending raw
-// listing.footer     - Footer file to include if sending raw
-// listing.stylesheet - Send a stylesheet link
-// listing.showhidden - Show hidden files
-// listing.precision  - Precision for size display, default is 2
-// listing.date       - Date format, default: 'Y-M-d H:i:s'
+// dirlisting.icons      - array of 'content-type' => 'icon url', can also include '#DIRECTORY#', '#PARENT#', '#UNKNOWN#'
+// dirlisting.raw        - if TRUE, only send the table, not the opening and closing HTML
+// dirlisting.header     - Header file to include if sending raw
+// dirlisting.footer     - Footer file to include if sending raw
+// dirlisting.stylesheet - Send a stylesheet link
+// dirlisting.showhidden - Show hidden files
+// dirlisting.precision  - Precision for size display, default is 2
+// dirlisting.date       - Date format, default: 'Y-M-d H:i:s'
 //
 // Also depends on Server configuration values such as filetypes and aliases
 
@@ -40,14 +40,14 @@ class DirListing
     public static function show($uripath=null)
     {
         // Get our info
-        static::$icons = Config::get('listing.icons', array());
-        static::$raw = Config::get('listing.raw', FALSE);
-        static::$header = Config::get('listing.header', FALSE);
-        static::$footer = Config::get('listing.footer', FALSE);
-        static::$stylesheet = Config::get('listing.stylesheet', FALSE);
-        static::$showhidden = Config::get('listing.showhidden', FALSE);
-        static::$precision = Config::get('listing.precision', 2);
-        static::$date = Config::get('listing.date', 'Y-M-d H:i:s');
+        static::$icons = Config::get('dirlisting.icons', array());
+        static::$raw = Config::get('dirlisting.raw', FALSE);
+        static::$header = Config::get('dirlisting.header', FALSE);
+        static::$footer = Config::get('dirlisting.footer', FALSE);
+        static::$stylesheet = Config::get('dirlisting.stylesheet', FALSE);
+        static::$showhidden = Config::get('dirlisting.showhidden', FALSE);
+        static::$precision = Config::get('dirlisting.precision', 2);
+        static::$date = Config::get('dirlisting.date', 'Y-M-d H:i:s');
 
         // Basic setup
         if($uripath === null)

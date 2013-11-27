@@ -1,7 +1,7 @@
 <?php
 
 // File:        Config.php
-// Author:      Brian Allen Vanderburg Ii
+// Author:      Brian Allen Vanderburg II
 // Purpose:     A simple general purpose configuration class
 
 namespace mrbavii\helper;
