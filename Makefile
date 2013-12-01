@@ -30,7 +30,6 @@ offline-tests: check
 
 .PHONY: online-tests
 online-tests: check
-	@cd tests && php helper/action.php
 
 .PHONY: webserver
 webserver: check

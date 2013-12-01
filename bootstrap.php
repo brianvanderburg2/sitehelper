@@ -5,6 +5,7 @@
 // Purpose:     Register the classloader needed for SiteHelper
 
 use mrbavii\helper\ClassLoader;
+use mrbavii\helper\Action;
 
 if(!defined("__MRBAVII_SITEHELPER__"))
 {
@@ -15,5 +16,7 @@ if(!defined("__MRBAVII_SITEHELPER__"))
     ClassLoader::install();
     ClassLoader::register('mrbavii\\helper\\', __DIR__ . '/helper');
     ClassLoader::register('mrbavii\\forum\\', __DIR__ . '/forum');
+
+    Action::register('mrbavii.helper', __DIR__ . '/helper/actions');
 }
 

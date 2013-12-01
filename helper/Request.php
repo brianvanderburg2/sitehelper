@@ -34,5 +34,26 @@ class Request extends Browser
 
         return $method;
     }
+
+    /**
+     * Determine the PATH_INFO
+     */
+    public static function getPathInfo($calc=FALSE)
+    {
+        if($calc || !array_key_exists('PATH_INFO', $_SERVER))
+        {
+            $pathinfo = substr($_SERVER['REQUEST_URI'], strlen($_SERVER['SCRIPT_NAME']));
+            if(($pos = strpos($pathinfo, '?' . $_SERVER['QUERY_STRING'])) !== FALSE)
+            {
+                $pathinfo = substr($pathinfo, 0, $pos);
+            }
+
+            return $pathinfo;   
+        }
+        else
+        {
+            return $_SERVER['PATH_INFO'];
+        }
+    }
 }
 
