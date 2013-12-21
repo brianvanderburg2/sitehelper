@@ -54,7 +54,7 @@ class Response extends Browser
     public static function redirect($url, $code=303)
     {
         // No colon means using current domain
-        $pos = strpos($url, ':')
+        $pos = strpos($url, ':');
         if($pos === FALSE)
         {
             if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
