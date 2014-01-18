@@ -22,7 +22,6 @@ tests: offline-tests online-tests
 offline-tests: check
 	@cd tests && php helper/classloader.php
 	@cd tests && php helper/config.php
-	@cd tests && php helper/path.php
 	@cd tests && php helper/event.php
 	@cd tests && php helper/cache.php
 	@cd tests && php helper/database.php

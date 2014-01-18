@@ -10,8 +10,7 @@ class TestCache extends UnitTestCase
 {
     public function setUp()
     {
-        MyConfig::noconfig();
-        MyConfig::set(array('cache' => array('driver' => 'memory')));
+        Config::merge(array('cache' => array('driver' => 'memory')));
     }
 
     public function tearDown()

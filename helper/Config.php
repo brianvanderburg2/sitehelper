@@ -49,17 +49,6 @@ class Config
     }
 
     /**
-     * Set configuration.
-     *
-     * @param config The configuration to set.
-     */
-    public static function set($config)
-    {
-        static::$data = array();
-        static::merge($config);
-    }
-
-    /**
      * Merge in configuration recursively.
      *
      * @param config The configuration to merge.

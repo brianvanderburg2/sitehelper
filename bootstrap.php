@@ -5,7 +5,7 @@
 // Purpose:     Register the classloader needed for SiteHelper
 
 use mrbavii\helper\ClassLoader;
-use mrbavii\helper\Action;
+use mrbavii\helper\Config;
 
 if(!defined("__MRBAVII_SITEHELPER__"))
 {
@@ -13,10 +13,14 @@ if(!defined("__MRBAVII_SITEHELPER__"))
 
     require_once(__DIR__ . '/helper/ClassLoader.php');
 
+    // Register class loaders
     ClassLoader::install();
     ClassLoader::register('mrbavii\\helper\\', __DIR__ . '/helper');
     ClassLoader::register('mrbavii\\forum\\', __DIR__ . '/forum');
 
-    Action::register('mrbavii.helper', __DIR__ . '/helper/actions');
+    // Set up default configuration
+    Config::merge(array(
+        'action.mrbavii.helper.path' => __DIR__ . '/helper/actions'
+    ));
 }
 

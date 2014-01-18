@@ -5,7 +5,7 @@ use mrbavii\helper\Database;
 use mrbavii\helper\Config;
 
 require_once('simpletest/autorun.php');
-require(__DIR__ . '/helpers.inc');
+require_once(__DIR__ . '/helpers.inc');
 
 
 class TestDatabase extends UnitTestCase
@@ -17,7 +17,7 @@ class TestDatabase extends UnitTestCase
             'test2' => array('driver' => 'sqlite3', 'prefix' => 'p')
         )));
 
-        Config::set($config);
+        Config::merge($config);
     }
 
     public function tearDown()
@@ -39,8 +39,8 @@ class TestDatabase extends UnitTestCase
         $this->assertTrue($db->grammar instanceof db\grammars\Sqlite);
 
         // Reset config and test Database cache
-        MyConfig::noconfig();
-        $this->assertTrue(Config::get('database.connections') == array());
+        Config::merge(array('database' => null));
+        $this->assertTrue(Config::get('database') === null);
 
         $db2 = Database::connection('test');
         $this->assertTrue($db2 instanceof db\connectors\Sqlite3);

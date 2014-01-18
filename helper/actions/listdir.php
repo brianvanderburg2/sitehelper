@@ -38,17 +38,17 @@ class DirListing
     protected static $precision;
     protected static $date;
 
-    public static function show($uripath=null)
+    public static function show($uripath=null, $config=array())
     {
         // Get our info
-        static::$icons = Config::get('action.mrbavii.helper.listdir.icons', array());
-        static::$raw = Config::get('action.mrbavii.helper.listdir.raw', FALSE);
-        static::$header = Config::get('action.mrbavii.helper.listdir.header', FALSE);
-        static::$footer = Config::get('action.mrbavii.helper.listdir.footer', FALSE);
-        static::$stylesheet = Config::get('action.mrbavii.helper.listdir.stylesheet', FALSE);
-        static::$showhidden = Config::get('action.mrbavii.helper.listdir.showhidden', FALSE);
-        static::$precision = Config::get('action.mrbavii.helper.listdir.precision', 2);
-        static::$date = Config::get('action.mrbavii.helper.listdir.date', 'Y-M-d H:i:s');
+        static::$icons = isset($config['icons']) ? $config['icons'] : array();
+        static::$raw = isset($config['raw']) ? $config['raw'] : FALSE;
+        static::$header = isset($config['header']) ? $config['header'] : FALSE;
+        static::$footer = isset($config['footer']) ? $config['footer'] : FALSE;
+        static::$stylesheet = isset($config['stylesheet']) ? $config['stylesheet'] : FALSE;
+        static::$showhidden = isset($config['showhidden']) ? $config['showhidden'] : FALSE;
+        static::$precision = isset($config['precision']) ? $config['precision'] : 2;
+        static::$date = isset($config['date']) ? $config['date'] : 'Y-M-d h:i:s';
 
         // Basic setup
         if($uripath === null)
@@ -309,5 +309,5 @@ ENTRY;
     }
 }
 
-DirListing::show();
+DirListing::show(null, $config);
 

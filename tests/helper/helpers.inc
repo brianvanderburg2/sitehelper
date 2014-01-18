@@ -14,11 +14,6 @@ class MyCache extends helper\Cache
     public static function noinstance() { static::$instance = null; }
 }
 
-class MyConfig extends helper\Config
-{
-    public static function noconfig() { static::$data = array(); }
-}
-
 class MyCaptcha extends helper\Captcha
 {
     public static function noinstance() { static::$instance = null; }

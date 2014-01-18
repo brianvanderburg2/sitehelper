@@ -1,5 +1,7 @@
 <?php
 
+use mrbavii\helper\Config;
+
 require_once(__DIR__ . "/helpers.inc");
 
 if(!defined('MRBAVII_SITEHELPER_TEST_SERVER'))
@@ -36,8 +38,8 @@ class TestSession extends UnitTestCase
 
     public function test_session1()
     {
-        MyConfig::set(array('session' => array('driver' => 'php')));
-        MyConfig::merge(array('session.php' => array('timed' => array('duration' => 100))));
+        Config::merge(array('session' => array('driver' => 'php')));
+        Config::merge(array('session.php' => array('timed' => array('duration' => 100))));
 
         $name = MySession::createTimed('100');
         MySession::setTimed($name, 100);
@@ -47,7 +49,7 @@ class TestSession extends UnitTestCase
         $this->assertTrue(MySession::getTimed($name) == 100);
 
         MySession::noinstance();
-        MyConfig::merge(array('session.php.timed.duration' => 0));
+        Config::merge(array('session.php.timed.duration' => 0));
         sleep(2);
         $this->assertTrue(MySession::getTimed($name) === null);
     }
