@@ -9,11 +9,13 @@ namespace mrbavii\helper\database;
 class Join
 {
     protected $grammar = null;
+    protected $method = null;
     public $sql = "";
 
-    public function __construct($grammar)
+    public function __construct($grammar, $method='INNER JOIN')
     {
         $this->grammar = $grammar;
+        $this->method = $method;
     }
 
     public function where()

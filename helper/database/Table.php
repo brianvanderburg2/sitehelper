@@ -37,21 +37,9 @@ class Table
 
         $this->cond = new Where($this->grammar);
     }
-    
-    public function join($table)
-    {
-        $args = func_get_args();
-        array_shift($args);
 
-        $join = new Join($this->grammar);
-        $join->handleWhere($args);
-
-        $this->joins[] = 'INNER JOIN ' . $this->grammar->quoteTable($this->prefix . $table) . ' AS ' .
-                         $this->grammar->quoteTable($table) . ' ON ' . $join->sql;
-
-        return $this;
-    }
-
+    // WHERE (used in SELECT, UPDATE, and DELETE)
+    //------------------------------------------------------------------------
 
     public function where()
     {
@@ -64,6 +52,23 @@ class Table
         $this->cond>handleOrWhere(func_get_args());
         return $this;
     }
+    
+    // SELECT
+    //------------------------------------------------------------------------
+
+    protected function handleJoin($table, $col1, $col2, $method)
+    {
+        $this->joins[] = $method . ' ' . $this->grammar->quoteTable($this->prefix . $table) . ' AS ' .
+                         $this->grammar->quoteTable($table) . ' ON ' . $this->grammar->quoteColumn($col1) .
+                         ' = ' . $this->grammar->quoteColumn($col2);
+        return $this;
+    }
+    
+    public function join($table, $col1, $col2)
+    {
+        return $this->handleJoin($table, $col1, $col2, 'INNER JOIN');
+    }
+
 
     public function order($col)
     {
@@ -88,6 +93,193 @@ class Table
         $this->limit = $count;
         return $this;
     }
+    
+    public function get($cols='*')
+    {
+        return $this->connector->query($this->getSql($cols));
+    }
+
+    public function getSql($cols='*')
+    {
+        // Format column sql
+        if(!is_array($cols))
+        {
+            $cols = explode(',', $cols);
+        }
+        
+        $colsql = array();
+        foreach($cols as $key => $value)
+        {
+            if($value == '*')
+            {
+                $colsql[] = '*';
+            }
+            else
+            {
+                if(is_int($key))
+                {
+                    $colsql[] = $this->grammar->quoteColumn($value);
+                }
+                else
+                {
+                    $colsql[] = $this->grammar->quoteColumn($key) . ' AS ' . $this->grammar->quoteColumn($value);
+                }
+            }
+        }
+
+        // Build select statement
+        $sql = 'SELECT ' . implode(', ', $colsql) . ' FROM ' . $this->grammar->quoteTable($this->prefix . $this->table) . ' AS ' . $this->grammar->quoteTable($this->table); 
+
+        if(count($this->joins) > 0)
+        {
+            $sql .= ' '. implode(' ', $this->joins);
+        }
+
+        if($this->cond->sql)
+        {
+            $sql .= ' WHERE ' . $this->cond->sql;
+        }
+
+        if(count($this->ordered))
+        {
+            $sql .= ' ORDER BY ' . implode(', ', $this->ordered);
+        }
+
+        if($this->limit || $this->offset)
+        {
+            $sql .=  ' ' . $this->grammar->formatLimit($this->limit, $this->offset);
+        }
+
+        return $sql;
+    }
+
+    public function first($cols='*')
+    {
+        $query = $this->get($cols);
+        $result = $query->next();
+        $query = null;
+
+        return $result;
+    }
+
+    // INSERT
+    //------------------------------------------------------------------------
+    
+    public function insert($cols)
+    {
+        return $this->connector->exec($this->insertSql($cols));
+    }
+
+    public function insertRowId($cols)
+    {
+        $this->insert($cols);
+        return $this->connector->rowid();
+    }
+
+    public function insertSql($cols)
+    {
+        $keys = array_keys($cols);
+        $values = array_values($cols);
+
+        $keysql = array();
+        foreach($keys as $key)
+        {
+            $keysql[] = $this->grammar->quoteColumn($key);
+        }
+
+        $valuesql = array();
+        foreach($values as $value)
+        {
+            $valuesql[] = $this->grammar->quoteValue($value);
+        }
+
+        $sql = 'INSERT INTO ' . $this->grammar->quoteTable($this->prefix . $this->table);
+        $sql .= ' (' . implode(', ', $keysql) . ')';
+        $sql .= ' VALUES (' . implode(', ', $valuesql) . ')';
+
+        return $sql;
+    }
+
+    // UDPATE
+    //------------------------------------------------------------------------
+    
+    public function update($cols)
+    {
+        return $this->connector->exec($this->updateSql($cols));
+    }
+
+    public function updateSql($cols)
+    {
+        $colsql = array();
+        foreach($cols as $col => $value)
+        {
+            $colsql[] = $this->grammar->quoteColumn($col) . ' = ' . $this->grammar->quoteValue($value);
+        }
+
+        $sql = 'UPDATE ' . $this->grammar->quoteTable($this->prefix . $this->table) . ' SET ' . implode(', ', $colsql);
+        if(strlen($this->cond->sql) > 0)
+        {
+            $sql .= ' WHERE ' . $this->cond->sql;
+        }
+
+        return $sql;
+    }
+
+    public function increment($col, $count=1)
+    {
+        return $this->connector->exec($this->incrementSql($col, $count));
+    }
+
+    public function incrementSql($col, $count=1, $action='+')
+    {
+        $col = $this->grammar->quoteColumn($col);
+        $count = (int)$count;
+
+        $sql = 'UPDATE '. $this->grammar->quoteTable($this->prefix . $this->table) . "SET $col=$col$action$count";
+        if($this->cond->sql)
+        {
+            $sql .= ' ' . $this->cond->sql;
+        }
+
+        return $sql;
+    }
+
+    public function decrement($col, $count=1)
+    {
+        return $this->connector->exec($this->decrementSql($col, $count));
+    }
+
+    public function decrementSql($col, $count=1)
+    {
+        return $this->incrementSql($col, $count, '-');
+    }
+
+    // DELETE
+    //------------------------------------------------------------------------
+    
+    public function delete()
+    {
+        return $this->connector->exec($this->deleteSql());
+    }
+
+    public function deleteSql()
+    {
+        $sql = 'DELETE FROM ' . $this->grammar->quoteTable($this->prefix . $this->table);
+
+        if(strlen($this->cond->sql) > 0)
+        {
+            $sql .= ' WHERE ' . $this->cond->sql;
+        }
+        else
+        {
+            $sql .= ' WHERE 1 = 1';
+        }
+
+        return $sql;
+    }
+
+    // CREATE
+    //------------------------------------------------------------------------
 
     protected function column($name, $data, $store=TRUE)
     {
@@ -276,181 +468,6 @@ class Table
 
         $this->constraints['default'][$col] = $value;
         return $this;
-    }
-
-    public function get($cols='*')
-    {
-        return $this->connector->query($this->getSql($cols));
-    }
-
-    public function getSql($cols='*')
-    {
-        // Format column sql
-        if(!is_array($cols))
-        {
-            $cols = explode(',', $cols);
-        }
-        
-        $colsql = array();
-        foreach($cols as $key => $value)
-        {
-            if($value == '*')
-            {
-                $colsql[] = '*';
-            }
-            else
-            {
-                if(is_int($key))
-                {
-                    $colsql[] = $this->grammar->quoteColumn($value);
-                }
-                else
-                {
-                    $colsql[] = $this->grammar->quoteColumn($key) . ' AS ' . $this->grammar->quoteColumn($value);
-                }
-            }
-        }
-
-        // Build select statement
-        $sql = 'SELECT ' . implode(', ', $colsql) . ' FROM ' . $this->grammar->quoteTable($this->prefix . $this->table) . ' AS ' . $this->grammar->quoteTable($this->table); 
-
-        if(count($this->joins) > 0)
-        {
-            $sql .= ' '. implode(' ', $this->joins);
-        }
-
-        if($this->cond->sql)
-        {
-            $sql .= ' WHERE ' . $this->cond->sql;
-        }
-
-        if(count($this->ordered))
-        {
-            $sql .= ' ORDER BY ' . implode(', ', $this->ordered);
-        }
-
-        if($this->limit || $this->offset)
-        {
-            $sql .=  ' ' . $this->grammar->formatLimit($this->limit, $this->offset);
-        }
-
-        return $sql;
-    }
-
-    public function first($cols='*')
-    {
-        $query = $this->get($cols);
-        $result = $query->next();
-        $query = null;
-
-        return $result;
-    }
-
-    public function increment($col, $count=1)
-    {
-        return $this->connector->exec($this->incrementSql($col, $count));
-    }
-
-    public function incrementSql($col, $count=1, $action='+')
-    {
-        $col = $this->grammar->quoteColumn($col);
-        $count = (int)$count;
-
-        $sql = 'UPDATE '. $this->grammar->quoteTable($this->prefix . $this->table) . "SET $col=$col$action$count";
-        if($this->cond->sql)
-        {
-            $sql .= ' ' . $this->cond->sql;
-        }
-
-        return $sql;
-    }
-
-    public function decrement($col, $count=1)
-    {
-        return $this->connector->exec($this->decrementSql($col, $count));
-    }
-
-    public function decrementSql($col, $count=1)
-    {
-        return $this->incrementSql($col, $count, '-');
-    }
-
-    public function delete()
-    {
-        return $this->connector->exec($this->deleteSql());
-    }
-
-    public function deleteSql()
-    {
-        $sql = 'DELETE FROM ' . $this->grammar->quoteTable($this->prefix . $this->table);
-
-        if(strlen($this->cond->sql) > 0)
-        {
-            $sql .= ' WHERE ' . $this->cond->sql;
-        }
-        else
-        {
-            $sql .= ' WHERE 1 = 1';
-        }
-
-        return $sql;
-    }
-
-    public function insert($cols)
-    {
-        return $this->connector->exec($this->insertSql($cols));
-    }
-
-    public function insertRowId($cols)
-    {
-        $this->insert($cols);
-        return $this->connector->rowid();
-    }
-
-    public function insertSql($cols)
-    {
-        $keys = array_keys($cols);
-        $values = array_values($cols);
-
-        $keysql = array();
-        foreach($keys as $key)
-        {
-            $keysql[] = $this->grammar->quoteColumn($key);
-        }
-
-        $valuesql = array();
-        foreach($values as $value)
-        {
-            $valuesql[] = $this->grammar->quoteValue($value);
-        }
-
-        $sql = 'INSERT INTO ' . $this->grammar->quoteTable($this->prefix . $this->table);
-        $sql .= ' (' . implode(', ', $keysql) . ')';
-        $sql .= ' VALUES (' . implode(', ', $valuesql) . ')';
-
-        return $sql;
-    }
-
-    public function update($cols)
-    {
-        return $this->connector->exec($this->updateSql($cols));
-    }
-
-    public function updateSql($cols)
-    {
-        $colsql = array();
-        foreach($cols as $col => $value)
-        {
-            $colsql[] = $this->grammar->quoteColumn($col) . ' = ' . $this->grammar->quoteValue($value);
-        }
-
-        $sql = 'UPDATE ' . $this->grammar->quoteTable($this->prefix . $this->table) . ' SET ' . implode(', ', $colsql);
-        if(strlen($this->cond->sql) > 0)
-        {
-            $sql .= ' WHERE ' . $this->cond->sql;
-        }
-
-        return $sql;
     }
 
     public function create($ifnotexists=FALSE)

@@ -1,7 +1,7 @@
 <?php
 
 // File:        Where.php
-// Author:      Brian Allen Vanderburg Ii
+// Author:      Brian Allen Vanderburg II
 // Purpose:     Handle where clauses
 
 namespace mrbavii\helper\database;
@@ -27,7 +27,7 @@ class Where
         $sql = $this->handleOrWhere(func_get_args());
         return $this;
     }
-
+    
     public function handleWhere($args)
     {
         if(strlen($this->sql) > 0)
@@ -89,35 +89,37 @@ class Where
         }
     }
 
-    protected function formatWhereComp($col, $comp, $value)
+    protected function formatWhereComp($left, $comp, $right)
     {
+        $vleft = new sql\Value($left);
+        $vright = new sql\Value($right);
         switch($comp)
         {
             case '=':
-                return $this->grammar->quoteColumn($col) . ' = ' . $this->grammar->quoteValue($value);
+                return $vleft->sql($this->grammar) . ' = ' . $vright->sql($this->grammar);
 
             case '!=':
-                return $this->grammar->quoteColumn($col) . ' != ' . $this->grammar->quoteValue($value);
+                return $vleft->sql($this->grammar) . ' != ' . $vright->sql($this->grammar);
 
             case '<':
-                return $this->grammar->quoteColumn($col) . ' < ' . $this->grammar->quoteValue($value);
+                return $vleft->sql($this->grammar) . ' < ' . $vright->sql($this->grammar);
 
             case '>':
-                return $this->grammar->quoteColumn($col) . ' > ' . $this->grammar->quoteValue($value);
+                return $vleft->sql($this->grammar) . ' > ' . $vright->sql($this->grammar);
 
             case '<=':
-                return $this->grammar->quoteColumn($col) . ' <= ' . $this->grammar->quoteValue($value);
+                return $vleft->sql($this->grammar) . ' <= ' . $vright->sql($this->grammar);
 
             case '>=':
-                return $this->grammar->quoteColumn($col) . ' >= ' . $this->grammar->quoteValue($value);
+                return $vleft->sql($this->grammar) . ' >= ' . $vright->sql($this->grammar);
 
             case 'like':
             case 'LIKE':
-                return $this->grammar->formatLike($col, $value);
+                return $this->grammar->formatLike($left, $right);
             
             case 'notlike':
             case 'NOTLIKE':
-                return $this->grammar->formatNotLike($col, $value);
+                return $this->grammar->formatNotLike($left, $right);
 
             default:
                 throw new Exception('Invalid arguments');

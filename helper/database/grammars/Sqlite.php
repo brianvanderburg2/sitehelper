@@ -29,7 +29,14 @@ class Sqlite extends Grammar
 
     public function quoteValue($value)
     {
-        return $this->connector->quote($value);
+        if(is_int($value))
+        {
+            return (string)$value;
+        }
+        else
+        {
+            return $this->connector->quote($value);
+        }
     }
 
     public function formatNull($col)
