@@ -19,7 +19,7 @@ class Action
             $path .= '/' . str_replace('.', '/', $action) . '.php';
 
             // Determine the config for the action
-            $params['config'] = Config::get('action.' . $group . '.' . $action);
+            $params['config'] = Config::get('action.' . $group . '.' . $action . '.config');
             
             return Util::loadPhp($path, $params, TRUE);
         }
