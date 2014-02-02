@@ -26,6 +26,7 @@ offline-tests: check
 	@cd tests && php helper/cache.php
 	@cd tests && php helper/database.php
 	@cd tests && php helper/session.php
+	@cd tests && php helper/template.php
 
 .PHONY: online-tests
 online-tests: check
