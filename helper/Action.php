@@ -7,10 +7,10 @@ class Action
     public static function execute($group, $action, $params=array())
     {
         // Determine the path to the action
-        $path = Config::get('action.' . $group . '.path');
+        $path = Config::get("action.${group}.path");
         if($path === null)
         {
-            throw new Exception('Unknown action group: ' . $group);
+            throw new Exception("Unknown action group: ${group}");
         }
         else
         {
@@ -19,7 +19,7 @@ class Action
             $path .= '/' . str_replace('.', '/', $action) . '.php';
 
             // Determine the config for the action
-            $params['config'] = Config::get('action.' . $group . '.' . $action . '.config');
+            $params['config'] = Config::get("action.${group}.${action}.config");
             
             return Util::loadPhp($path, $params, TRUE);
         }
