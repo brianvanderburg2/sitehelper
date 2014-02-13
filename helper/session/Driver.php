@@ -13,20 +13,24 @@ abstract class Driver
 {
     const timed_key = '_mrbavii_sitehelper_timed_';
     protected $timed_duration = 600;
+    protected $settings = null;
 
     public function __construct($settings)
     {
+        $this->settings = $settings;
+
         if(isset($settings['timed']['duration']))
         {
             $this->timed_duration = $settings['timed']['duration'];
         }
-
-        $this->connect($settings);
-
-        $this->cleanupTimed();
     }
 
-    protected function cleanupTimed()
+    public function __destruct()
+    {
+        $this->disconnect();
+    }
+
+    public function cleanupTimed()
     {
         // Remove any timed variables that are expired
         $timestamp = time() - intval($this->timed_duration);
@@ -49,7 +53,9 @@ abstract class Driver
         }
     }
 
-    abstract public function connect($settings);
+    abstract public function connect();
+    abstract public function disconnect();
+
     abstract public function destroy();
 
     public function createValue($value=null)

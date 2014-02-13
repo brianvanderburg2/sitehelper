@@ -10,19 +10,28 @@ class PhpDriver extends Driver
 {
     protected $prefix = '';
 
-    public function connect($settings)
+    public function __construct($settings)
     {
         if(isset($settings['prefix']))
         {
             $this->prefix = $settings['prefix'];
         }
 
+        parent::__construct($settings);
+    }
+
+    public function connect()
+    {
         // Try to avoid calling session_start if started automatically
         if(!isset($_SESSION) || session_id() == '')
         {
             session_start();
             $_SESSION[$this->prefix . '_MRBAVII_SITEHELPER_'] = TRUE;
         }
+    }
+
+    public function disconnect()
+    {
     }
 
     public function destroy()

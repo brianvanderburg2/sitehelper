@@ -50,12 +50,16 @@ class Session
 
             if($factory instanceof \Closure)
             {
-                return $factory($settings);
+                $instance = $factory($settings);
             }
             else
             {
-                return new $factory($settings);
+                $instance = new $factory($settings);
             }
+
+            $instance->connect();
+            $instance->cleanupTimed();
+            return $instance;
         }
         else
         {
