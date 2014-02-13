@@ -47,12 +47,21 @@ class Cache
     }
 
     /**
-     * Return an instance of the cache driver
+     * Return an instance of the cache driver or set the active instance.
      *
-     * \return An instance of the configured cache driver.
+     * \param $instance An instance to set, or FALSE to get an instance.
+     * \return An instance of the configured cache driver, or the previous instance
+     *  when setting an instance.
      */
-    public static function instance()
+    public static function instance($instance=FALSE)
     {
+        if($instance !== FALSE)
+        {
+            $tmp = static::$instance;
+            static::$instance = $instance;
+            return $tmp;
+        }
+
         if(isset(static::$instance))
         {
             return static::$instance;

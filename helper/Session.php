@@ -18,8 +18,15 @@ class Session
         static::$drivers[$driver] = $factory;
     }
 
-    public static function instance()
+    public static function instance($instance=FALSE)
     {
+        if($instance !== FALSE)
+        {
+            $tmp = static::$instance;
+            static::$instance = $instance;
+            return $tmp;
+        }
+
         if(isset(static::$instance))
         {
             return static::$instance;
