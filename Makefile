@@ -39,14 +39,14 @@ webserver: check
 # Build an archive of the current branch/tag
 .PHONY: tarball
 tarball: NAME:=sitehelper-$(shell date +%Y%m%d)-$(shell git describe --always)
-tarball: check
+tarball: check doc
 	@mkdir -p output
 	@git archive --format=tar --prefix=$(NAME)/ HEAD | xz > output/$(NAME).tar.xz
 
 # Build documentation
 .PHONY: doc
 doc: check
-	@test ! -d output/html || rm -r output/html
+	@test ! -d doc/html || rm -r doc/html
 	@doxygen doc/doxygen/Doxyfile
 
 # Cleanup

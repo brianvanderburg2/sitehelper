@@ -21,6 +21,87 @@ SiteHelper\
     SiteStuff only provides an API, it does not generate any HTML or send
     any javascript or css.  Results are returned with JSON.
 
+Permissions Helpers (Also need basic user and group helpers)
+============================================================
+
+
+    abstract class Permissions
+    {
+        protected static abstract function mergeSiblings($brother, $sister);
+        protected static abstract function mergeParent($parent, $child);
+
+        protected static function preGet($user, $object) { return FALSE; }
+        protected static function postGet($user, $object, $perms) { return TRUE; }
+        public abstract function get($user, $object);
+    }
+
+    class ForumPermissions extends Permissions
+    {
+        static $permtable = 'forum_permissions';
+        static $permtable_oid = 'forum';
+        static $permtable_gid = 'group';
+        static $objtable = 'forums';
+        static $objtable_oid = 'id';
+        static $objtable_parent = 'parent';
+        static $objtable_inherit = 'inherit'
+        static $columns = array('canread', 'canreply', 'cancreate', 'canattach', 'attachsize');
+
+        protected static function mergeSiblings($brother, $sister)
+        {
+            $results = array();
+            foreach(static::$columns as $col)
+            {
+                if($col == 'attachsize')
+                {
+                    $results[$col] = max($brother[$col], $sister[$col]);
+                }
+                else
+                {
+                    if($bother[$col] == d || $sister[$col] == deny)
+                    {
+                        $results[$col] = deny;
+                    }
+                    else if(brother[$col] == allow || $siter[$col] == allow)
+                    {
+                        $results[$col] = allow;
+                    }
+                    else
+                    {
+                        $results[$col] = default;
+                    }
+                }
+            }
+
+            return $results;
+        }
+
+        protected static function mergeParent($parent, $child)
+        {
+            $results = array();
+            foreach(static::$columns as $col)
+            {
+                if($col == 'attachsize')
+                {
+                    $result[$col] = $child[$col];
+                }
+                else
+                {
+                    if($child[col] == deny || $child[$col] == allow)
+                    {
+                        $result[$col] = $child[$col];
+                    }
+                    else
+                    {
+                        $result[$col] = $parent[$col];
+                    }
+                }
+            }
+
+            return $results;
+        }
+    }
+
+
 
 
 SiteHelper (SiteHelper PHP Scripts)

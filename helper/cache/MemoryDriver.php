@@ -6,6 +6,14 @@
 
 namespace mrbavii\helper\cache;
 
+/**
+ * \addtogroup helper_cache_drivers
+ * \section helper_cache_drivers_memory memory
+ *
+ * This driver stores items in a per-request cache using a PHP array.  There is no
+ * configuration for this driver.
+ */
+
 class MemoryDriver extends Driver
 {
     protected $data = array();

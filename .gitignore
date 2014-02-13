@@ -1,4 +1,5 @@
 .*.swp
 tests/simpletest
+doc/html
 output
 

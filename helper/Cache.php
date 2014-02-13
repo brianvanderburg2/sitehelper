@@ -6,6 +6,22 @@
 
 namespace mrbavii\helper;
 
+/**
+ * \defgroup helper_cache_drivers Cache Drivers
+ */
+
+/**
+ * A basic caching class
+ *
+ * \section helper_cache_config Configuration
+ *
+ * - cache.driver\n
+ *   The name of the driver to use for the default cache instance.
+ * - cache.<driver>\n
+ *   Configuration for the specific cache driver.
+ *
+ * \sa helper_cache_drivers
+ */
 class Cache
 {
     protected static $instance = null; 
@@ -19,11 +35,22 @@ class Cache
         'database' => '\mrbavii\helper\cache\DatabaseDriver',
     );
 
+    /**
+     * Register a custom cache driver
+     *
+     * \param $driver The name of the driver.
+     * \param $factory The class name or callback function used to create the cache driver.
+     */
     public static function register($driver, $factory)
     {
         static::$drivers[$driver] = $factory;
     }
 
+    /**
+     * Return an instance of the cache driver
+     *
+     * \return An instance of the configured cache driver.
+     */
     public static function instance()
     {
         if(isset(static::$instance))
