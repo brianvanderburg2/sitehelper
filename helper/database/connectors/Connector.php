@@ -52,7 +52,6 @@ abstract class Connector
 
     abstract public function connect();
     abstract public function disconnect();
-    abstract public function connected();
 
     abstract public function begin();
     abstract public function commit();

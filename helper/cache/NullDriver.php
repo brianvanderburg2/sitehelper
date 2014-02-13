@@ -19,7 +19,6 @@ class NullDriver extends Driver
 {
     public function connect() { }
     public function disconnect() { }
-    public function connected() { return TRUE; }
 
     public function set($name, $value, $lifetime=null) {}
     public function get($name, $def=null) { return $def; }

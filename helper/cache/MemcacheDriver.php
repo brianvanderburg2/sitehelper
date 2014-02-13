@@ -8,9 +8,6 @@ namespace mrbavii\helper\cache;
 
 class MemcacheDriver extends Driver
 {
-    public function connect($settings)
-    {
-    }
 
 }
 

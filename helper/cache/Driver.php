@@ -45,13 +45,6 @@ abstract class Driver
     abstract public function disconnect();
     
     /**
-     * Check cache connection.
-     *
-     * \return TRUE if the driver is connected to the cached, otherwise FALSE.
-     */
-    abstract public function connected();
-
-    /**
      * Set a cached value.
      *
      * \param $name The name of the value.

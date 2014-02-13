@@ -26,11 +26,6 @@ class MemoryDriver extends Driver
     {
     }
     
-    public function connected()
-    {
-        return TRUE;
-    }
-
     public function set($name, $value, $lifetime=null)
     {
         $this->data[$name] = $value;

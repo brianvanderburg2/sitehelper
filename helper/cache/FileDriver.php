@@ -10,14 +10,20 @@ class FileDriver extends Driver
 {
     protected $rootdir = null;
 
-    public function connect($settings)
+    public function connect()
     {
+        $settings = $this->settings;
         if(isset($settings['rootdir']))
         {
             $rootdir = $settings['rootdir'];
             if(is_writable($rootdir))
                 $this->rootdir = $rootdir;
         }
+    }
+
+    public function disconnect()
+    {
+        $this->rootdir = null;
     }
 
     public function set($name, $value, $lifetime=null);
@@ -37,11 +43,6 @@ class FileDriver extends Driver
         {
             unlink($filename);
         }
-    }
-
-    public function connected()
-    {
-        return $this->rootdir !== null;
     }
 
     protected function filename($name)

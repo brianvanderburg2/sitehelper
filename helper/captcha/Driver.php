@@ -18,7 +18,6 @@ abstract class Driver
 
     abstract public function connect();
     abstract public function disconnect();
-    abstract public function connected();
 
     abstract public function create();
     abstract public function display($data);

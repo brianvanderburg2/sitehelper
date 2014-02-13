@@ -41,11 +41,6 @@ class Pdo extends Connector
         $this->pdo = null;
     }
 
-    public function connected()
-    {
-        return $this->pdo !== null;
-    }
-
     public function begin()
     {
         try
