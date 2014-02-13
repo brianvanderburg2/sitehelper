@@ -5,7 +5,6 @@
 // Purpose:     Handle expressions in SQL
 
 namespace mrbavii\helper\database\sql;
-
 use mrbavii\helper\database\Sql;
 use mrbavii\helper\database\Exception;
 
