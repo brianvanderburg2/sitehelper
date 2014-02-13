@@ -18,8 +18,17 @@ class MemoryDriver extends Driver
 {
     protected $data = array();
 
-    public function connect($settings)
+    public function connect()
     {
+    }
+
+    public function disconnect()
+    {
+    }
+    
+    public function connected()
+    {
+        return TRUE;
     }
 
     public function set($name, $value, $lifetime=null)
@@ -37,9 +46,5 @@ class MemoryDriver extends Driver
         unset($this->data[$name]);
     }
 
-    public function connected()
-    {
-        return TRUE;
-    }
 }
 

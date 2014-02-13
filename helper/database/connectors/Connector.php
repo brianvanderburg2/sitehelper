@@ -11,25 +11,15 @@ abstract class Connector
 {
     public $grammar = null;
     public $prefix = '';
+    protected $settings = null;
 
-    public function __construct($settings, $gfactory)
+    public function __construct($settings)
     {
-        if($gfactory instanceof \Closure)
-        {
-            $this->grammar = $gfactory($this);
-        }
-        else
-        {
-            $this->grammar = new $gfactory($this);
-        }
-
+        $this->settings = $settings;
         if(isset($settings['prefix']))
         {
             $this->prefix = $settings['prefix'];
-            unset($settings['prefix']);
         }
-
-        $this->connect($settings);
     }
 
     public function __destruct()
@@ -60,8 +50,9 @@ abstract class Connector
         $this->commit();
     }
 
-    abstract public function connect($settings);
+    abstract public function connect();
     abstract public function disconnect();
+    abstract public function connected();
 
     abstract public function begin();
     abstract public function commit();

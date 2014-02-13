@@ -11,8 +11,10 @@ class Pdo extends Connector
 {
     protected $pdo = null;
 
-    public function connect($settings)
+    public function connect()
     {
+        $settings = $this->settings;
+
         try
         {
             $this->pdo = new \PDO(
@@ -37,6 +39,11 @@ class Pdo extends Connector
     public function disconnect()
     {
         $this->pdo = null;
+    }
+
+    public function connected()
+    {
+        return $this->pdo !== null;
     }
 
     public function begin()

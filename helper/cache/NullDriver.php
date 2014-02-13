@@ -17,10 +17,12 @@ namespace mrbavii\helper\cache;
 
 class NullDriver extends Driver
 {
-    public function connect($settings) { }
+    public function connect() { }
+    public function disconnect() { }
+    public function connected() { return TRUE; }
+
     public function set($name, $value, $lifetime=null) {}
     public function get($name, $def=null) { return $def; }
     public function remove($name) {}
-    public function connected() { return TRUE; }
 }
 

@@ -11,17 +11,45 @@ namespace mrbavii\helper\cache;
  */
 abstract class Driver
 {
-    public function __construct($settings)
-    {
-        $this->connect($settings);
-    }
+    /**
+     * The settings used to construct the driver.
+     */
+    protected $settings = null;
 
     /**
-     * Create a new connection to the driver.
+     * Construct an instance of a driver.
      *
      * \param $settings The settings to pass to the driver.
      */
-    abstract public function connect($settings);
+    public function __construct($settings)
+    {
+        $this->settings = $settings;
+    }
+
+    /**
+     * Destruct the driver instance
+     */
+    public function __destruct()
+    {
+        $this->disconnect();
+    }
+
+    /**
+     * Connect to the cache.
+     */
+    abstract public function connect();
+
+    /**
+     * Disconnect from the driver.
+     */
+    abstract public function disconnect();
+    
+    /**
+     * Check cache connection.
+     *
+     * \return TRUE if the driver is connected to the cached, otherwise FALSE.
+     */
+    abstract public function connected();
 
     /**
      * Set a cached value.
@@ -47,13 +75,6 @@ abstract class Driver
      * \param $name The name of the value to remove from the cache.
      */
     abstract public function remove($name);
-
-    /**
-     * Check cache connection.
-     *
-     * \return TRUE if the driver is connected to the cached, otherwise FALSE.
-     */
-    abstract public function connected();
 
     /**
      * Remember a value if it does not already exist.

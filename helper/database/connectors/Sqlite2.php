@@ -2,14 +2,17 @@
 
 // File:        Sqlite2.php
 // Author:      Brian Allen Vanderburg II
-// Purpose:     Connector for Sqlite3
+// Purpose:     Connector for Sqlite2
 
 namespace mrbavii\helper\database\connectors;
+use mrbavii\helper\database\grammars;
 
 class Sqlite2 extends Pdo
 {
-    public function connect($settings)
+    public function __construct($settings)
     {
+        $this->grammar = new grammars\Sqlite($this);
+
         if(isset($settings['filename']))
         {
             $filename = $settings['filename'];
@@ -21,8 +24,7 @@ class Sqlite2 extends Pdo
         }
 
         $settings['dsn'] = 'sqlite2:' . $filename;
-
-        parent::connect($settings);
+        parent::__construct($settings);
     }
 }
 

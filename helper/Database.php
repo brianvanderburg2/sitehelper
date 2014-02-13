@@ -10,12 +10,13 @@ class Database
 {
     protected static $cache = array(); 
     protected static $drivers = array( 
-        'sqlite3' => array('\mrbavii\helper\database\connectors\Sqlite3', '\mrbavii\helper\database\grammars\Sqlite')
+        'sqlite2' => '\mrbavii\helper\database\connectors\Sqlite2',
+        'sqlite3' => '\mrbavii\helper\database\connectors\Sqlite3'
     );
 
-    public static function register($driver, $cfactory, $gfactory)
+    public static function register($driver, $factory)
     {
-        static::$drivers[$driver] = array($cfactory, $gfactory);
+        static::$drivers[$driver] = $factory;
     }
 
     public static function connection($name=null)
@@ -58,19 +59,20 @@ class Database
 
         if(isset(static::$drivers[$driver]))
         {
-            list($cfactory, $gfactory) = static::$drivers[$driver];
+            $factory = static::$drivers[$driver];
 
             // Create connector
-            if($cfactory instanceof \Closure)
+            if($factory instanceof \Closure)
             {
-                $connector = $cfactory($settings, $gfactory);
+                $instance = $factory($settings);
             }
             else
             {
-                $connector = new $cfactory($settings, $gfactory);
+                $instance = new $factory($settings);
             }
 
-            return $connector;
+            $instance->connect();
+            return $instance;
 
         }
         else
