@@ -20,7 +20,9 @@ if(!defined("__MRBAVII_SITEHELPER__"))
 
     // Set up default configuration
     Config::merge(array(
-        'action.mrbavii.helper.path' => __DIR__ . '/helper/actions'
+        'action.mrbavii.helper' => array(
+            'listdir.callback' => '\\mrbavii\\helper\\actions\\ListDir::show'
+        )
     ));
 }
 

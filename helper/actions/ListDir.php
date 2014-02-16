@@ -10,24 +10,24 @@
 // when building a raw listing.  These files are included as PHP, so can
 // contain PHP code.
 
-// Configuration under action.mrbavii.helper:
+// Action configuration:
 //
-// listdir.icons      - array of 'content-type' => 'icon url', can also include '#DIRECTORY#', '#PARENT#', '#UNKNOWN#'
-// listdir.raw        - if TRUE, only send the table, not the opening and closing HTML
-// listdir.header     - Header file to include if sending raw
-// listdir.footer     - Footer file to include if sending raw
-// listdir.stylesheet - Send a stylesheet link
-// listdir.showhidden - Show hidden files
-// listdir.precision  - Precision for size display, default is 2
-// listdir.date       - Date format, default: 'Y-M-d H:i:s'
+// icons      - array of 'content-type' => 'icon url', can also include '#DIRECTORY#', '#PARENT#', '#UNKNOWN#'
+// raw        - if TRUE, only send the table, not the opening and closing HTML
+// header     - Header file to include if sending raw
+// footer     - Footer file to include if sending raw
+// stylesheet - Send a stylesheet link
+// showhidden - Show hidden files
+// precision  - Precision for size display, default is 2
+// date       - Date format, default: 'Y-M-d H:i:s'
 //
 // Also depends on Server configuration values such as filetypes and aliases
 
-namespace mrbavii\helper\actions\listdir;
+namespace mrbavii\helper\actions;
 use mrbavii\helper\Config;
 use mrbavii\helper\Server;
 
-class DirListing
+class ListDir
 {
     protected static $showhidden;
     protected static $icons;
@@ -38,7 +38,7 @@ class DirListing
     protected static $precision;
     protected static $date;
 
-    public static function show($uripath=null, $config=array())
+    public static function show($config, $params)
     {
         // Get our info
         static::$icons = isset($config['icons']) ? $config['icons'] : array();
@@ -51,7 +51,11 @@ class DirListing
         static::$date = isset($config['date']) ? $config['date'] : 'Y-M-d h:i:s';
 
         // Basic setup
-        if($uripath === null)
+        if(isset($params['uripath']))
+        {
+            $uripath = $params['uripath'];
+        }
+        else
         {
             list($uripath) = explode('?', $_SERVER['REQUEST_URI']);
             $uripath = rawurldecode($uripath);
@@ -308,6 +312,4 @@ ENTRY;
         return sprintf('%.' . static::$precision . 'f', $size) . $sizes[$total];
     }
 }
-
-DirListing::show(null, $config);
 
