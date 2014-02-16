@@ -39,7 +39,7 @@ webserver: check
 # Build an archive of the current branch/tag
 .PHONY: tarball
 tarball: NAME:=sitehelper-$(shell date +%Y%m%d)-$(shell git describe --always)
-tarball: check doc
+tarball: check 
 	@mkdir -p output
 	@git archive --format=tar --prefix=$(NAME)/ HEAD | xz > output/$(NAME).tar.xz
 
