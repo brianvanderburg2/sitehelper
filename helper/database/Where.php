@@ -61,6 +61,9 @@ class Where
             case 3:
                 return $this->formatWhereComp($args[0], $args[1], $args[2]);
 
+            case 4:
+                return $this->formatWhereBetween($args[0], $args[1], $args[2], $args[3]);
+
             default:
                 throw new Exception('Invalid arguments');
         }
@@ -89,37 +92,61 @@ class Where
         }
     }
 
-    protected function formatWhereComp($left, $comp, $right)
+    protected function formatWhereComp($col, $comp, $right)
     {
-        $vleft = new sql\Value($left);
-        $vright = new sql\Value($right);
+        $grammar = $this->grammar;
+        $vcol = $grammar->quoteColumn($col);
+        $vright = Sql::value($right);
         switch($comp)
         {
             case '=':
-                return $vleft->sql($this->grammar) . ' = ' . $vright->sql($this->grammar);
+                return $vcol . ' = ' . $vright->sql($grammar);
 
             case '!=':
-                return $vleft->sql($this->grammar) . ' != ' . $vright->sql($this->grammar);
+            case '<>':
+                return $vcol . ' <> ' . $vright->sql($grammar);
 
             case '<':
-                return $vleft->sql($this->grammar) . ' < ' . $vright->sql($this->grammar);
+                return $vcol . ' < ' . $vright->sql($grammar);
 
             case '>':
-                return $vleft->sql($this->grammar) . ' > ' . $vright->sql($this->grammar);
+                return $vcol . ' > ' . $vright->sql($grammar);
 
             case '<=':
-                return $vleft->sql($this->grammar) . ' <= ' . $vright->sql($this->grammar);
+                return $vcol . ' <= ' . $vright->sql($grammar);
 
             case '>=':
-                return $vleft->sql($this->grammar) . ' >= ' . $vright->sql($this->grammar);
+                return $vcol . ' >= ' . $vright->sql($grammar);
 
             case 'like':
             case 'LIKE':
-                return $this->grammar->formatLike($left, $right);
+                return $grammar->formatLike($col, $right);
             
             case 'notlike':
             case 'NOTLIKE':
-                return $this->grammar->formatNotLike($left, $right);
+                return $grammar->formatNotLike($col, $right);
+
+            default:
+                throw new Exception('Invalid arguments');
+        }
+    }
+
+    protected function formatWhereBetween($col, $comp, $min, $max)
+    {
+        $grammar = $this->grammar;
+
+        $vcol = $grammar->quoteColumn($col);
+        $vmin = Sql::value($min);
+        $vmax = Sql::value($max);
+        switch($comp)
+        {
+            case 'between':
+            case 'BETWEEN':
+                return $vcol . ' BETWEEN ' . $vmin->sql($grammar) . ' AND ' . $vmax->sql($grammar);
+
+            case 'notbetween':
+            case 'NOTBETWEEN':
+                return $vcol . ' NOT BETWEEN ' . $vmin->sql($grammar) . ' AND ' . $vmax->sql($grammar);
 
             default:
                 throw new Exception('Invalid arguments');

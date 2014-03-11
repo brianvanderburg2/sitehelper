@@ -31,8 +31,8 @@ class Table
     public function __construct($connector, $table)
     {
         $this->connector = $connector;
-        $this->grammar = $connector->grammar;
-        $this->prefix = $connector->prefix;
+        $this->grammar = $connector->grammar();
+        $this->prefix = $connector->prefix();
         $this->table = $table;
 
         $this->cond = new Where($this->grammar);
@@ -56,17 +56,21 @@ class Table
     // SELECT
     //------------------------------------------------------------------------
 
-    protected function handleJoin($table, $col1, $col2, $method)
+    protected function handleJoin($table, $method, $args)
     {
+        $join = new Join($this->grammar);
+        $join->handleOn($args);
         $this->joins[] = $method . ' ' . $this->grammar->quoteTable($this->prefix . $table) . ' AS ' .
-                         $this->grammar->quoteTable($table) . ' ON ' . $this->grammar->quoteColumn($col1) .
-                         ' = ' . $this->grammar->quoteColumn($col2);
+                         $this->grammar->quoteTable($table) . ' ON ' . $join->sql;
         return $this;
     }
     
-    public function join($table, $col1, $col2)
+    public function join($table)
     {
-        return $this->handleJoin($table, $col1, $col2, 'INNER JOIN');
+        $args = func_get_args();
+        array_shift($args);
+
+        return $this->handleJoin($table, 'INNER JOIN', $args);
     }
 
 
@@ -94,12 +98,17 @@ class Table
         return $this;
     }
     
-    public function get($cols='*')
+    public function select($cols='*', $params=null)
     {
-        return $this->connector->query($this->getSql($cols));
+        return $this->connector->select($this->selectSql($cols), $params);
+    }
+    
+    public function prepareSelect($cols='*')
+    {
+        return $this->connector->prepare($this->selectSql($cols));
     }
 
-    public function getSql($cols='*')
+    public function selectSql($cols='*')
     {
         // Format column sql
         if(!is_array($cols))
@@ -165,15 +174,14 @@ class Table
     // INSERT
     //------------------------------------------------------------------------
     
-    public function insert($cols)
+    public function insert($cols, $params=null)
     {
-        return $this->connector->exec($this->insertSql($cols));
+        return $this->connector->insert($this->insertSql($cols), $params);
     }
 
-    public function insertRowId($cols)
+    public function prepareInsert($cols)
     {
-        $this->insert($cols);
-        return $this->connector->rowid();
+        return $this->connector->prepare($this->insertSql($cols));
     }
 
     public function insertSql($cols)
@@ -203,9 +211,14 @@ class Table
     // UDPATE
     //------------------------------------------------------------------------
     
-    public function update($cols)
+    public function update($cols, $params=null)
     {
-        return $this->connector->exec($this->updateSql($cols));
+        return $this->connector->update($this->updateSql($cols), $params);
+    }
+    
+    public function prepareUpdate($cols)
+    {
+        return $this->connector->prepare($this->updateSql($cols));
     }
 
     public function updateSql($cols)
@@ -257,9 +270,14 @@ class Table
     // DELETE
     //------------------------------------------------------------------------
     
-    public function delete()
+    public function delete($params=null)
     {
-        return $this->connector->exec($this->deleteSql());
+        return $this->connector->delete($this->deleteSql(), $params);
+    }
+
+    public function prepareDelete()
+    {
+        return $this->connector->prepare($this->deleteSql());
     }
 
     public function deleteSql()

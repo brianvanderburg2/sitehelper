@@ -7,7 +7,7 @@
 namespace mrbavii\helper\database\connectors;
 use mrbavii\helper\database\grammars;
 
-class Sqlite2 extends Pdo
+class Sqlite2 extends Connector
 {
     public function __construct($settings)
     {

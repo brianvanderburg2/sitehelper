@@ -1,25 +1,287 @@
-SiteHelper\
-    bootstrap.php
-    lib\ (third party PHP libraries)
-    clases\ (core classes) mrbavii\sitehelper
-    stuff\ (Stuff classes) mrbavii\sitestuff
-        One main public class, all others used internally:
-        Stuff
+Rename some things:
+    Namespaces stay mrbavii\helper, etc
+        This uses mrbavii\ to avoid any namespace conflict
+    Internal groups can drop the 'mrbavii' part, for example:
 
-        Stuff::config(...) Configuration settings
-        Stuff::execute();
+        Action::execute('mrbavii.helper', 'listdir')
 
-    Entry point would be used:
+    Can just be
 
-    entry.php
-        require bootstrap (sets up both classloaders)
-        use mrbavii\sitestuff\Stuff
+        Action::execute('helper', 'listdir')
 
-        Stuff::config("database stuff, etc")
-        Stuff::execute()
+    The 'mrbavii' isn't needed because it is not meant to avoid conflicts with other class names.
+    It is just mean to separate the sitehelper actions, templates, misc, into three main groups:
 
-    SiteStuff only provides an API, it does not generate any HTML or send
-    any javascript or css.  Results are returned with JSON.
+    helper      Basic helper configuration and items
+    stuff/cms   Items for any content system made
+    site        Items for site specific customizations
+        (template.site.header, template.site.footer)
+            used by various things to wrap output like directory listing and error pages
+
+Database
+========
+
+Db::connection('name')
+    Calls Db::connect if not already set
+        Uses 'driver' to select driver class
+        Constructs driver with config
+        Calls connect on driver
+        returns driver instance
+    If already set, make sure connected.
+        
+
+Driver
+    __construct takes config
+    connect
+        Driver::connect shoud check $pdo, if null then connect, if not null then already
+        connected.
+    disconnect
+    has pdo instance
+        not used direclty, call (connect())
+    has grammar instance
+        not used directly, call (grammar())
+        Grammar gets Driver instance
+
+Table
+    Table gets Driver instance
+    Can have grammar from driver
+
+    prepareXYZ
+        Builds a query, then calls Driver::prepare
+        Driver::prepare returns stmt\Base or derived
+        Then can all take/skip to set information
+    insert/update/select/delete(params)
+        Still uses prepared queries using prepareXYZ, then executes
+        the statement insert/update/select/delete method direclty with params
+
+Schema
+    Schema gets Driver instance
+    Can have grammar from driver
+    This can do work to create tables, drop tables, check if a table exists, check if a column
+    exists.
+    Altering tables is not planned yet.
+
+Stmt\Base
+    take/skip don't do anything
+Stmt\MsSQL
+    From my understanding, MsSQL does not support OFFSET/LIMIT, so the grammar
+    format function would return blank.  Then, the prepare function would call
+    this instance's take/skip.  When calling Stmt\MsSQL::get, the code would
+    automatically take measures to skip the correct number of rows.
+
+ResultSet
+    max (default null)
+        When this is set, iterating over the result set will stop after this many
+        rows have been read.  Not normally needed, but used when the SQL driver does
+        not support OFFSET/LIMIT.  This is the "LIMIT" value.
+
+Grammmar
+    Takes drive
+
+Connection -> Driver
+Database -> Db (also in config and tests)
+
+Driver::insert/update/delete/select(sql)
+    Generic
+        takes direct sql
+        Can take parameters
+        returns
+            insert
+                id
+            update/delete
+                affected row count (maybe)
+            select
+                result set
+    Does not use prepared queries, just uses exec()
+Driver::prepare (Prepare PDO statement, wrap in Stmt\Base or derived)
+Stmt
+    skip
+    take
+        Tells statement how much to take or skip.  Ignored for many drivers if
+        the SQL language supports LIMIT/OFFSET.  If not, then it is used when executing
+        a select query
+    insert (call if using INSERT)
+    update (call if using UPDATE)
+    delete (call if using DELETE)
+    select (call if using SELECT)
+Driver::transaction()
+    begin
+    commit
+    rollback
+Base driver should be directly PDO instance
+transaction(fn)
+{
+    begin
+    try
+    {
+        call_user_func(fn)
+        commit
+    }
+    catch
+    {
+        rollback
+        throw
+    }
+}
+
+
+Db::connection('name')->(table/insert/update/delete/exec/transaction)
+Db::(table/insert/update/delete/transaction/exec)
+    simply use default connection
+
+Maybe use __callStatic__ (Also use for other classes where useful)
+
+public static function __callStatic__($name, $args)
+{
+    return call_user_func_array(array(Db::connection(), $name), $args);
+}
+
+While I already have a simple set of features, implement something more like Laravel.
+
+Support using a specific database:
+
+Database::table('tablename')
+    Uses the default database
+
+Database::table('tablename', 'databasename')
+    Uses the specified database from 'database.connections.<name>'
+
+Behind the scenes, these really just call
+    Database::connection('name')->table(...) or Database::connection()->table()
+
+table() methods:
+
+    where('col', 'op', 'value')
+    where(fn)
+        Database::Col, Database::Expr, Database::Raw, and Database::Param  cam be used
+        Database::Value
+        op
+            =
+            <>
+            >
+            <
+            LIKE 
+            IN
+            NULL
+            NOTNULL
+            BETWEEN
+            NOTBETWEEN
+
+    distinct() (use distinct rows)
+    orderBy('name', '+name2', '-name3')
+        + or nothing means ASC, - means DESC
+
+    skip(n) OFFSET
+    take(n) LIMIT
+    join('table', 'column', 'op', 'col2')
+    join('table', fn)
+        $join->on('col', 'op', 'col2')
+            orOn
+            where
+            orWhere
+    leftJoin
+    innerJoin
+    outerJoin
+
+    count()
+    min('col')
+    max('col')
+    avg('col')
+    sum('col')
+    increment('col', count)
+    decrement('col', count)
+
+    selectSql
+    insertSql
+    updateSql
+    deleteSql
+        useful for Database::prepare()
+
+    prepareSelect
+    prepareInsert
+    prepareUpdate
+    prepareDelete
+        Build prepared statement
+
+        Execute with $stmt->(select|insert|update|delete)(data)
+        Insert queries will return rowid
+        Others may return modified rows
+        Select will return result set
+
+    Behind the scenes prepareXYZ simply calls $driver->prepare($this->XYZSql())
+        and then $stmt->skip, $stmp->take
+    Behind the scenes, select/insert/update/delete will simply call
+        prepareXYZ->blah(...).  This allows for escaping of any data and prevents
+        SQL injection.
+
+Use PDO
+    allows for parameters
+
+Database::table('users')
+$stmt = Database::table('forum', 'users')->join('groups', 'users.gid', '=', 'groups.id')
+    ->select('table1.col', 'table2.col', 'table2.col2')
+    ->where('table1.col', '=', Param('p1')
+    ->orWhere('table2.col2', '<', Param('p2')
+    ->prepareGet();
+
+$stmt->exec(array('p1' => $data, 'p2' => $more_data))
+
+
+
+Actions
+=======
+
+Action::execute('helper', 'listdir')  // uses template site.header, site.footer
+Action::execute('helper', 'error')    // uses template site.header, site.footer
+Action::execute('helper', 'sendfile') //
+
+
+Action::execute('group', 'name', $params)
+    uses config:
+        action.<group>.<name>.callback
+        action.<group>.<name>.config
+
+        call_user_func(callback, $config, $params)
+
+// Get a url
+    uses config.map
+
+Action::url
+Action::dispatch
+    First call Module::load, which will allow all modules to load and register their dispatchers if any
+
+
+Action.url (get url from group/action)
+    action.map.<name> = group/action
+    action.map.<name> = group
+
+    When handling action:
+        if $1 in map:
+            if $1 is full:
+                action = map entry
+            else
+                action = map entry/$2
+        else
+            action = $1/$2
+
+        decode parameters
+
+    When calling url($group, $action, ...)
+        for each map item
+            if map item is $group/$action
+                use map item
+            if map item is $group
+                use map item/$action
+            else
+                use $group/$action
+
+        encode parameters
+            
+
+
+// Encode and decode parameters into a URL
+Action::encode
+Action::decode
 
 Permissions Helpers (Also need basic user and group helpers)
 ============================================================
@@ -102,48 +364,6 @@ Permissions Helpers (Also need basic user and group helpers)
     }
 
 
-
-
-SiteHelper (SiteHelper PHP Scripts)
-===================================
-
-This code provides some PHP objects that can be used in a web application. It
-also provides a simple web application, which is the entire point of the code.
-This application is entirely AJAX based, the PHP backend only handles the
-requests and sends back a response. The PHP portion also provides access to
-public portion.
-
-Layout
-------
-bootstrap.php
-actions/ (Where the actions for the simple web app are at)
-classes/ (SiteHelper classes)
-doc/
-lib/
-public/
-tests/
-
-
-Application Setup
------------------
-SiteStuff::config(array(
-    "sitehelper.datadir" => "/path/to/external/data/directory",
-    "sitehelper.entry" => $_SERVER['SCRIPT_NAME'], // Normally automatically deduced
-    "server.sendfile" = function($filename, $partial, $start, $end, $filesize){ ... };
-    "database" => array(
-        "connections" => array(
-            "sitehelper" => array("driver" => 'sqlite3', 'filename" = '/path/to/data/file.sqlite3')
-        )
-    )
-));
-
-SiteStuff::execute();
-
-Classes
-=======
-sendfile examples
-
-
 SendFile($filename)
 {
 
@@ -201,10 +421,6 @@ sendFile($filename, $range=null)
 }
 
 
-TODO:
-    style changes:
-        lowerCamelCase for methods and functions
-        variable_names_like_this
     Table -> Split into QueryBuilder and Table (Maybe, maybe not)
     Table -> Split into Table and Builder (builder does the create stuff)
     Database:
@@ -261,95 +477,6 @@ Server
     Server information helper
         front, host, http, https, etc
     sendfile
-
-Database
-========
-
-$db = Database::connect();
-
-$db->table('users')->join('groups', 'users.gid', '=', 'groups.id')
-   ->where('users.id', '=', $uid)->get(array('users.uid' => 'uid'));
-
-
-First, rename Connection to Grammar, and Driver to Connection
-
-
-Database::connect()
-{
-    just create the driver, not the grammer
-
-    internally, a grammar() method will create the grammar on demand when needed, using
-    Database::drivers, passing $this (the driver)
-
-    Table is Query builder, can use driver and grammar
-
-
-    Driver has insert method, returns last inserted row id.
-    For all supported database, the row id should be a row with a serially increasing number
-}
-
-class Connection
-{
-    __construct(...)
-    {
-        $this->settings = $settings);
-    }
-
-    abstract public function connect()
-    {
-    }
-
-    public function grammar()
-    {
-        if($this->grammar === null)
-        {
-            $driver = $this->settings['driver'];
-
-            use Database::drivers[$driver] to create grammar, passing $this
-        }
-    }
-
-    atomic($callback)
-    {
-    }
-
-    exec(...)
-    query(...)
-    lastid()
-    table(...)
-    {
-        return new Table($this, $this->grammar, $tablename);
-    }
-
-    
-
-
-Table methods:
-    exists
-    Table('users')->exists()
-    Table('users')->columns()
-
-
-}
-
-Browser/Request/Response
-========================
-
-class Browser
-{
-    // static class
-    static $filetypes = array(); // ending -> filetype
-}
-
-class Request extends Browser
-{
-}
-
-class Response extends Browser
-{
-}
-
-
 
 License
 =======

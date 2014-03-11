@@ -7,7 +7,7 @@
 namespace mrbavii\helper\database\connectors;
 use mrbavii\helper\database\grammars;
 
-class Sqlite3 extends Pdo
+class Sqlite3 extends Connector
 {
     public function __construct($settings)
     {
@@ -30,7 +30,7 @@ class Sqlite3 extends Pdo
     public function connect()
     {
         parent::connect();
-        static::exec('PRAGMA foreign_keys = ON');
+        $this->exec('PRAGMA foreign_keys = ON');
     }
 }
 

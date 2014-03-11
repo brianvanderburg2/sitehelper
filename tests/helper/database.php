@@ -30,14 +30,14 @@ class TestDatabase extends UnitTestCase
         $db = Database::connect(array('driver' => 'sqlite3'));
 
         $this->assertTrue($db instanceof db\connectors\Sqlite3);
-        $this->assertTrue($db->grammar instanceof db\grammars\Sqlite);
+        $this->assertTrue($db->grammar() instanceof db\grammars\Sqlite);
     }
 
     public function test_config()
     {
         $db = Database::connection('test');
         $this->assertTrue($db instanceof db\connectors\Sqlite3);
-        $this->assertTrue($db->grammar instanceof db\grammars\Sqlite);
+        $this->assertTrue($db->grammar() instanceof db\grammars\Sqlite);
 
         // Reset config and test Database cache
         Config::merge(array('database' => null));
@@ -45,7 +45,7 @@ class TestDatabase extends UnitTestCase
 
         $db2 = Database::connection('test');
         $this->assertTrue($db2 instanceof db\connectors\Sqlite3);
-        $this->assertTrue($db2->grammar instanceof db\grammars\Sqlite);
+        $this->assertTrue($db2->grammar() instanceof db\grammars\Sqlite);
     }
 
     public function test_sql()
@@ -54,29 +54,29 @@ class TestDatabase extends UnitTestCase
         $db = Database::connection('test');
 
         // We use the sqlite3 driver to test the Table sql code
-        $sql = $db->table('users')->getSql();
+        $sql = $db->table('users')->selectSql();
         $shouldbe = "SELECT * FROM `pusers` AS `users`";
         $this->assertTrue($sql == $shouldbe);
 
-        $sql = $db->table('users')->getSql('a,b,c');
+        $sql = $db->table('users')->selectSql('a,b,c');
         $shouldbe = "SELECT `a`, `b`, `c` FROM `pusers` AS `users`";
         $this->assertTrue($sql == $shouldbe);
         
-        $sql = $db->table('users')->join('groups', 'users.gid', 'groups.id')->where(Sql::col('users.uid'), '=', '100')->order('users.name')->orderDesc('users.postcount')->skip(10)->take(10)->getSql(array('users.name' => 'uname', 'groups.name' => 'gname'));
+        $sql = $db->table('users')->join('groups', 'users.gid', 'groups.id')->where('users.uid', '=', '100')->order('users.name')->orderDesc('users.postcount')->skip(10)->take(10)->selectSql(array('users.name' => 'uname', 'groups.name' => 'gname'));
         $shouldbe = "SELECT `users`.`name` AS `uname`, `groups`.`name` AS `gname` FROM `pusers` AS `users` INNER JOIN `pgroups` AS `groups` ON `users`.`gid` = `groups`.`id` WHERE `users`.`uid` = '100' ORDER BY `users`.`name`, `users`.`postcount` DESC LIMIT 10 OFFSET 10";
         $this->assertTrue($sql == $shouldbe);
 
-        $sql = $db->table('users')->where('name', 'like', '\\%jo_sh*')->getSql();
+        $sql = $db->table('users')->where('name', 'like', '\\%jo_sh*')->selectSql();
         $shouldbe = "SELECT * FROM `pusers` AS `users` WHERE `name` LIKE '\\\\\\%jo\\_sh%' ESCAPE '\\'";
         $this->assertTrue($sql == $shouldbe);
 
-        $sql = $db->table('users')->where(Sql::expr(Sql::col('users.age'), '-', Sql::col('users.children')), '>', Sql::col('users.data'))->getSql();
-        $shouldbe = "SELECT * FROM `pusers` AS `users` WHERE (`users`.`age` - `users`.`children`) > `users`.`data`";
+        $sql = $db->table('users')->where('users.age', '>', Sql::expr(Sql::col('users.data'), '+', Sql::col('users.children')))->selectSql();
+        $shouldbe = "SELECT * FROM `pusers` AS `users` WHERE `users`.`age` > (`users`.`data` + `users`.`children`)";
         $this->assertTrue($sql == $shouldbe);
         
 
         // Test some expressions
-        $sql = Sql::expr(Sql::expr('-', Sql::col('users.age')), '*', Sql::expr(Sql::col('users.children'), '-', 2))->sql($db->grammar);
+        $sql = Sql::expr(Sql::expr('-', Sql::col('users.age')), '*', Sql::expr(Sql::col('users.children'), '-', 2))->sql($db->grammar());
         $shouldbe = "((-`users`.`age`) * (`users`.`children` - 2))";
         $this->assertTrue($sql == $shouldbe);
 

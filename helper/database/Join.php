@@ -9,90 +9,94 @@ namespace mrbavii\helper\database;
 class Join
 {
     protected $grammar = null;
-    protected $method = null;
     public $sql = "";
 
-    public function __construct($grammar, $method='INNER JOIN')
+    public function __construct($grammar)
     {
         $this->grammar = $grammar;
-        $this->method = $method;
     }
 
-    public function where()
+    public function on()
     {
-        $this->handleWhere(func_get_args());
+        $this->handleOn(func_get_args());
         return $this;
     }
     
-    public function orWhere()
+    public function orOn()
     {
-        $sql = $this->handleOrWhere(func_get_args());
+        $this->handleOrOn(func_get_args());
         return $this;
     }
 
-    public function handleWhere($args)
+    public function handleOn($args)
     {
         if(strlen($this->sql) > 0)
         {
             $this->sql .= ' AND ';
         }
 
-        $this->sql .= $this->formatWhere($args);
+        $this->sql .= $this->formatOn($args);
     }
 
-    public function handleOrWhere($args)
+    public function handleOrOn($args)
     {
         if(strlen($this->sql) > 0)
         {
             $this->sql .= ' OR ';
         }
 
-        $this->sql .= $this->formatWhere($args);
+        $this->sql .= $this->formatOn($args);
     }
 
-    protected function formatWhere($args)
+    protected function formatOn($args)
     {
         switch(count($args))
         {
             case 1:
-                return $this->formatWhereClosure($args[0]);
+                return $this->formatOnClosure($args[0]);
+
+            case 2:
+                return $this->formatOnComp($args[0], '=', $args[1]);
 
             case 3:
-                return $this->formatWhereComp($args[0], $args[1], $args[2]);
+                return $this->formatOnComp($args[0], $args[1], $args[2]);
 
             default:
                 throw new Exception('Invalid arguments');
         }
     }
 
-    protected function formatWhereClosure($callback)
+    protected function formatOnClosure($callback)
     {
         $tmp = new Join($this->grammar);
         call_user_func($callback, $tmp);
         return '(' . $tmp->sql . ')';
     }
 
-    protected function formatWhereComp($col1, $comp, $col2)
+    protected function formatOnComp($col1, $comp, $col2)
     {
+        $vcol1 = $this->grammar->quoteColumn($col1);
+        $vcol2 = $this->grammar->quoteColumn($col2);
         switch($comp)
         {
             case '=':
-                return $this->grammar->quoteColumn($col1) . ' = ' . $this->grammar->quoteColumn($col2);
+                return $vcol1 . ' = ' . $vcol2;
 
             case '!=':
-                return $this->grammar->quoteColumn($col1) . ' != ' . $this->grammar->quoteColumn($col2);
+            case '<>':
+                return $vcol1 . ' <> ' . $vcol2;
 
             case '<':
-                return $this->grammar->quoteColumn($col1) . ' < ' . $this->grammar->quoteColumn($col2);
+                return $vcol1 . ' < ' . $vcol2;
 
             case '>':
-                return $this->grammar->quoteColumn($col1) . ' > ' . $this->grammar->quoteColumn($col2);
+                return $vcol1 . ' > ' . $vcol2;
 
             case '<=':
-                return $this->grammar->quoteColumn($col1) . ' <= ' . $this->grammar->quoteColumn($col2);
+                return $vcol1 . ' <= ' . $vcol2;
 
             case '>=':
-                return $this->grammar->quoteColumn($col1) . ' >= ' . $this->grammar->quoteColumn($col2);
+                return $vcol1 . ' >= ' . $vcol2;
 
             default:
                 throw new Exception('Invalid arguments');

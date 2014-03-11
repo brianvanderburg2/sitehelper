@@ -27,5 +27,10 @@ class Sql
     {
         return new sql\Value($v);
     }
+
+    public static function param($p)
+    {
+        return new sql\Param($p);
+    }
 }
 
