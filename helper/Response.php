@@ -53,10 +53,23 @@ class Response extends Browser
      */
     public static function redirect($url, $code=303)
     {
-        // No colon means using current domain
-        $pos = strpos($url, ':');
-        if($pos === FALSE)
+        if(strlen($url) >= 2 && substr($url, 0, 2) == '//')
         {
+            // Begin with '//' means scheme relative to another domain
+            if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+            {
+                $proto = 'https:';
+            }
+            else
+            {
+                $proto = 'http:';
+            }
+
+            $url = $proto . $url
+        }
+        else if(strpos($url, ':') == FALSE)
+        {
+            // No colon means using current domain
             if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
             {
                 $proto = 'https://';
