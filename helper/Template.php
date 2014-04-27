@@ -7,7 +7,7 @@ class Template
     protected static $cache = array();
     protected static $params = array();
 
-    public static function get($group, $template, $params=null)
+    public static function get($group, $template, $params=null, $override=FALSE)
     {
         $path = static::find($group, $template);
         if($path === FALSE)
@@ -15,14 +15,26 @@ class Template
             throw new Exception("No such template: ${group}.${template}");
         }
 
-        ob_start();
+        return static::getFile($path, $params, $override);
+    }
+
+    public static function getFile($path, $params=null, $override=FALSE)
+    {
         $saved = null;
         if($params !== null)
         {
             $saved = static::$params;
-            static::$params = array_merge(static::$params, $params);
+            if($override)
+            {
+                static::$params = $params;
+            }
+            else
+            {
+                static::$params = array_merge(static::$params, $params);
+            }
         }
 
+        ob_start();
         try
         {
             Util::loadPhp($path, static::$params, TRUE);
