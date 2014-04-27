@@ -65,7 +65,7 @@ class Response extends Browser
                 $proto = 'http:';
             }
 
-            $url = $proto . $url
+            $url = $proto . $url;
         }
         else if(strpos($url, ':') == FALSE)
         {
