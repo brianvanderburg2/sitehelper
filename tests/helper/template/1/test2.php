@@ -9,7 +9,7 @@ $level = ob_get_level();
 
 try
 {
-    Template::get('test', 'test4', array('number' => 700));
+    print Template::get('test', 'test4', array('number' => 700));
 }
 catch(\Exception $e)
 {
@@ -19,5 +19,4 @@ catch(\Exception $e)
 $case->assertTrue(ob_get_level() == $level);
 
 print Template::get('test', 'test3');
-
 

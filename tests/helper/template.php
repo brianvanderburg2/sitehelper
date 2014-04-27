@@ -11,7 +11,10 @@ class TestTemplate extends UnitTestCase
     public function setUp()
     {
         Config::merge(array(
-            'template.test.path' => __DIR__ . '/template'
+            'template.test' => array(__DIR__ . '/template/1'),
+        ));
+        Config::merge(array(
+            'template.test' => array(__DIR__ . '/template/2'),
         ));
     }
 
@@ -24,7 +27,7 @@ class TestTemplate extends UnitTestCase
         $result = Template::get('test', 'test1', array('case' => $this, 'number' => 500));
         $result = str_replace(array(" ", "\t", "\r", "\n", "\0"), "", $result);
 
-        $this->assertTrue($result == "abc123error456def");
+        $this->assertTrue($result == "abc123error456shouldgetheredef");
     }
 }
 

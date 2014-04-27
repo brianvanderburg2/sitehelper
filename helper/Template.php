@@ -9,28 +9,10 @@ class Template
 
     public static function get($group, $template, $params=null)
     {
-        // Determine the path to the template
-        if(isset(static::$cache["${group}.${template}"]))
+        $path = static::find($group, $template);
+        if($path === FALSE)
         {
-            $path = static::$cache["${group}.${template}"];
-        }
-        else
-        {
-            $path = Config::get("template.${group}.${template}.path");
-            if($path === null)
-            {
-                $path = Config::get("template.${group}.path");
-                if($path === null)
-                {
-                    throw new Exception("Unknown template group: ${group}");
-                }
-                else
-                {
-                    $path = $path . '/' . str_replace('.', '/', $template) . '.php';
-                }
-            }
-
-            static::$cache["${group}.${template}"] = $path;
+            throw new Exception("No such template: ${group}.${template}");
         }
 
         ob_start();
@@ -62,6 +44,34 @@ class Template
 
             throw $e;
         } 
+    }
+
+    public static function find($group, $template)
+    {
+        if(isset(static::$cache["${group}.${template}"]))
+        {
+            $path = static::$cache["${group}.${template}"];
+        }
+        else
+        {
+            $path = FALSE;
+            $paths = Config::get("template.${group}", array());
+            $name = '/' . str_replace('.', '/', $template) . '.php';
+
+            foreach(array_reverse($paths) as $path)
+            {
+                $fullpath = $path . $name;
+                if(file_exists($fullpath))
+                {
+                    $path = $fullpath;
+                    break;
+                }
+            }
+
+            static::$cache["${group}.${template}"] = $path;
+        }
+
+        return $path;
     }
 }
 
