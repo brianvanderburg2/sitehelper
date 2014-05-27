@@ -2,8 +2,10 @@
 
 namespace mrbavii\helper;
 
-class Router
+class Route
 {
+    protected static $route = null;
+
     public static function dispatch($route=null)
     {
         // The route format is <group>/<route>
@@ -58,16 +60,23 @@ class Router
             throw Exception("No such route: ${group}/${route}");
         }
 
+        // Remember the route
+        static::$route = "${group}/${route}";
+
         // Determine the configuration for the route if any is specified
         $config = Config::get("route.${group}.${route}.config", array());
 
         // Source the route file
         $params = array(
             'config' => $config,
-            'group' => $group,
-            'route' => $route
+            'route' => static::$route
         );
         Util::loadPhp($path, $params);
+    }
+
+    public static function get()
+    {
+        return static::$route;
     }
 
     public static function find($group, $route)
