@@ -35,18 +35,23 @@ class Route
 
         // Split into group/route parts
         $parts = explode('/', $route);
-        if(count($parts) != 2)
+        if(count($parts) == 1)
         {
-            $group = 'mrbavii.helper';
-            $route = 'error.404';
+            $group = 'site';
+            $route = $parts[0];
         }
-        else
+        else if(count($parts) == 2)
         {
             $group = $parts[0];
             $route = $parts[1];
         }
+        else
+        {
+            $group = 'mrbavii.helper';
+            $route = 'error.404';
+        }
 
-        // Find the route
+        // Find the route file
         $path = static::find($group, $route);
         if($path === FALSE)
         {
