@@ -10,7 +10,7 @@
 // when building a raw listing.  These files are included as PHP, so can
 // contain PHP code.
 
-// Action configuration:
+// Route configuration:
 //
 // icons      - array of 'content-type' => 'icon url', can also include '#DIRECTORY#', '#PARENT#', '#UNKNOWN#'
 // raw        - if TRUE, only send the table, not the opening and closing HTML
@@ -23,7 +23,7 @@
 //
 // Also depends on Server configuration values such as filetypes and aliases
 
-namespace mrbavii\helper\actions;
+namespace mrbavii\helper\routes;
 use mrbavii\helper\Config;
 use mrbavii\helper\Server;
 
@@ -38,7 +38,7 @@ class ListDir
     protected static $precision;
     protected static $date;
 
-    public static function show($config, $params)
+    public static function show($config)
     {
         // Get our info
         static::$icons = isset($config['icons']) ? $config['icons'] : array();
@@ -312,4 +312,6 @@ ENTRY;
         return sprintf('%.' . static::$precision . 'f', $size) . $sizes[$total];
     }
 }
+
+ListDir::show($config);
 

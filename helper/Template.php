@@ -67,7 +67,7 @@ class Template
         else
         {
             $path = FALSE;
-            $paths = Config::get("template.${group}", array());
+            $paths = Config::get("template.${group}.path", array());
             $name = '/' . str_replace('.', '/', $template) . '.php';
 
             foreach(array_reverse($paths) as $path)
