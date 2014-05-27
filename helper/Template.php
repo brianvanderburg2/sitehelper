@@ -7,12 +7,30 @@ class Template
     protected static $cache = array();
     protected static $params = array();
 
-    public static function get($group, $template, $params=null, $override=FALSE)
+    public static function get($template, $params=null, $override=FALSE)
     {
+        // Split into group/template parts
+        $parts = explode('/', $template);
+        if(count($parts) == 1)
+        {
+            $group = 'site';
+            $template = $parts[0];
+        }
+        else if(count($parts) == 2)
+        {
+            $group = $parts[0];
+            $template = $parts[1];
+        }
+        else
+        {
+            throw new Exception("No such template: ${template}");
+        }
+        
+        // Find it
         $path = static::find($group, $template);
         if($path === FALSE)
         {
-            throw new Exception("No such template: ${group}.${template}");
+            throw new Exception("No such template: ${group}/${template}");
         }
 
         return static::getFile($path, $params, $override);
@@ -60,9 +78,9 @@ class Template
 
     public static function find($group, $template)
     {
-        if(isset(static::$cache["${group}.${template}"]))
+        if(isset(static::$cache["${group}/${template}"]))
         {
-            $path = static::$cache["${group}.${template}"];
+            $path = static::$cache["${group}/${template}"];
         }
         else
         {
@@ -80,7 +98,7 @@ class Template
                 }
             }
 
-            static::$cache["${group}.${template}"] = $path;
+            static::$cache["${group}/${template}"] = $path;
         }
 
         return $path;
