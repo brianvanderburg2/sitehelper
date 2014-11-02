@@ -2,116 +2,102 @@
 
 namespace mrbavii\helper;
 
+
 class Route
 {
-    protected static $route = null;
+    protected static $routes = array();
+    protected static $named = array();
+
+    public static function register($pattern, $callback, $name=null)
+    {
+        static::$routes[] = array(static::patternToRegex($pattern), $callback, $name);
+        if($name !== null)
+        {
+            static::$named[$name] = $pattern;
+        }
+    }
 
     public static function dispatch($route=null)
     {
-        // The route format is <group>/<route>
-        // Group and route can contain '.' for namespacing
-        // The route name may only contain letters and numbers
-        // Each route is a separate file under the directory registered for
-        // the given group.  The file ends in '.php'.
-        // If the route file can not be found, it will fall back
-        // to the mrbavii.helper/error.404
-
         // Determine the route
         if($route === null)
         {
-            if(isset($_POST['route']))
+            $route = Request::getPathInfo();
+        }
+
+        // Find a match
+        foreach(static::$routes as $entry)
+        {
+            $params = array();
+            if(preg_match($entry[0], $route, $params))
             {
-                $route = $_POST['route'];
+                $callback = $entry[1];
+                $config = array();
+                if($entry[2] !== null)
+                {
+                    $config = Config::get('route.' . $entry[2] . '.config', array());
+                }
+
+                call_user_func($callback, $params, $config);
+                return TRUE;
             }
-            else if(isset($_GET['route']))
+        }
+
+        // No match found
+        Event::fire('error.404');
+        return FALSE;
+    }
+
+    public static function url($named, $params)
+    {
+        if(isset(static::$named[$named]))
+        {
+            $route = preg_replace_callback(
+                '#\\{.*?\\}#',
+                function($matches) use($params) { return $params[$matches[0]]; }, # TODO: url encode the match if needed
+                static::$named[$named]
+            );
+
+            # TODO: combine with scheme, script name, proper url encoding if needed
+            # Individual matches may need to be URL encoded if they may contain special characters,
+            # while the rest of the match string should not (it it needs it, it should be escaped properly in register)
+        }
+
+        return FALSE;
+    }
+
+    protected static function pieceCallback($matches)
+    {
+    }
+
+    protected static function paramCallback($matches)
+    {
+    }
+
+    protected static function patternToRegex($pattern)
+    {
+        // Build the regex from the pattern
+        if($pattern == '*')
+        {
+            return '#.*#';
+        }
+
+        $parts = preg_split('#\\{.*?\\}#', $pattern, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+        $regex = "";
+
+        foreach($parts as $part)
+        {
+            if($part[0] == '{')
             {
-                $route = $_GET['route'];
+                # TODO: build regex for parameters
             }
             else
             {
-                $route = 'site/default';
+                $regex .= preg_quote($part);
             }
         }
 
-        // Split into group/route parts
-        $parts = explode('/', $route);
-        if(count($parts) == 1)
-        {
-            $group = 'site';
-            $route = $parts[0];
-        }
-        else if(count($parts) == 2)
-        {
-            $group = $parts[0];
-            $route = $parts[1];
-        }
-        else
-        {
-            $group = 'mrbavii.helper';
-            $route = 'error.404';
-        }
-
-        // Find the route file
-        $path = static::find($group, $route);
-        if($path === FALSE)
-        {
-            $group = 'mrbavii.helper';
-            $route = 'error.404';
-            $path = static::find($group, $route);
-        }
-
-        if($path === FALSE)
-        {
-            throw Exception("No such route: ${group}/${route}");
-        }
-
-        // Remember the route
-        static::$route = "${group}/${route}";
-
-        // Determine the configuration for the route if any is specified
-        $config = Config::get("route.${group}.${route}.config", array());
-
-        // Source the route file
-        $params = array(
-            'config' => $config,
-            'route' => static::$route
-        );
-        Util::loadPhp($path, $params);
-    }
-
-    public static function get()
-    {
-        return static::$route;
-    }
-
-    public static function find($group, $route)
-    {
-        // Check if characters are okay
-        if(!preg_match("#^[a-zA-Z0-9\\.]*$#", $group))
-        {
-            return FALSE;
-        }
-        
-        if(!preg_match("#^[a-zA-Z0-9\\.]*$#", $route))
-        {
-            return FALSE;
-        }
-
-        // Determine if route group exists
-        $path = Config::get("route.${group}.path");
-        if($path === null)
-        {
-            return FALSE;
-        }
-
-        # Filename for the route file
-        $path = $path . '/' . str_replace('.', '/', $route) . '.php';
-        if(!is_readable($path))
-        {
-            return FALSE;
-        }
-
-        return $path;
+        return '#^' . $regex . '$#';
     }
 }
 

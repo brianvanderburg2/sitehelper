@@ -38,7 +38,7 @@ class ListDir
     protected static $precision;
     protected static $date;
 
-    public static function show($config)
+    public static function show($params, $config)
     {
         // Get our info
         static::$icons = isset($config['icons']) ? $config['icons'] : array();
@@ -312,6 +312,4 @@ ENTRY;
         return sprintf('%.' . static::$precision . 'f', $size) . $sizes[$total];
     }
 }
-
-ListDir::show($config);
 
