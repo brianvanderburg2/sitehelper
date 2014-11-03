@@ -28,14 +28,15 @@ class Route
         // Find a match
         foreach(static::$routes as $entry)
         {
+            list($pattern, $callback, $name) = $entry;
+
             $params = array();
-            if(preg_match($entry[0], $route, $params))
+            if(preg_match($pattern, $route, $params))
             {
-                $callback = $entry[1];
                 $config = array();
-                if($entry[2] !== null)
+                if($name !== null)
                 {
-                    $config = Config::get('route.' . $entry[2] . '.config', array());
+                    $config = Config::get('route.' . $name . '.config', array());
                 }
 
                 call_user_func($callback, $params, $config);
