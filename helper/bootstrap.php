@@ -19,3 +19,5 @@ Route::register(
     'mrbavii.helper.listdir'
 );
 
+Template::addSearchPath(__DIR__ . '/templates', 'mrbavii.helper');
+

@@ -24,17 +24,13 @@
 // Also depends on Server configuration values such as filetypes and aliases
 
 namespace mrbavii\helper\routes;
-use mrbavii\helper\Config;
 use mrbavii\helper\Server;
+use mrbavii\helper\Template;
 
 class ListDir
 {
     protected static $showhidden;
     protected static $icons;
-    protected static $header;
-    protected static $footer;
-    protected static $raw;
-    protected static $stylesheet;
     protected static $precision;
     protected static $date;
 
@@ -42,10 +38,6 @@ class ListDir
     {
         // Get our info
         static::$icons = isset($config['icons']) ? $config['icons'] : array();
-        static::$raw = isset($config['raw']) ? $config['raw'] : FALSE;
-        static::$header = isset($config['header']) ? $config['header'] : FALSE;
-        static::$footer = isset($config['footer']) ? $config['footer'] : FALSE;
-        static::$stylesheet = isset($config['stylesheet']) ? $config['stylesheet'] : FALSE;
         static::$showhidden = isset($config['showhidden']) ? $config['showhidden'] : FALSE;
         static::$precision = isset($config['precision']) ? $config['precision'] : 2;
         static::$date = isset($config['date']) ? $config['date'] : 'Y-M-d h:i:s';
@@ -135,10 +127,11 @@ class ListDir
         }
         array_multisort($sortkeys, $sortorder, $sortflags, $filelist);
 
-        // Send out the stuff
-        static::sendHeader($uripath, $path);
+        // Build the parameters
+        $params = array();
 
-        $headlinks = array();
+        $params['uripath'] = $uripath;
+
         foreach(array('n', 's', 'm', 't') as $item)
         {
             $link = $uripath . '?sort=' . $item;
@@ -147,104 +140,39 @@ class ListDir
                 $link .= '&order=desc';
             }
 
-            $headlinks[$item] = htmlspecialchars($link);
+            $params['links'][$item] = $link;
         }
 
-        print <<<OPENTABLE
-<table cellpadding="0" cellspacing="0">
-    <thead>
-        <tr>
-            <th class="i">&nbsp;</th>
-            <th class="n"><a href="{$headlinks['n']}">Name</a></th>
-            <th class="m"><a href="{$headlinks['m']}">Modified</a></th>
-            <th class="s"><a href="{$headlinks['s']}">Size</a></th>
-            <th class="t"><a href="{$headlinks['t']}">Type</a></th>
-        </tr>
-    </thead>
-    <tbody>
-OPENTABLE;
+        $params['contents'] = array();
 
-        $even = FALSE;
-        // Parent link
-        if(ltrim($uripath, '/') != '')
-        {
-            static::sendRow('../', 'Parent Directory', FALSE, FALSE, '#PARENT#', $even);
-            $even = !$even;
-        }
+        $params['contents'][] = static::content('../', 'Parent Directory', FALSE, FALSE, '#PARENT#');
 
         // Folders
         foreach($folderlist as $folder)
         {
-            static::sendRow($folder['n'], $folder['n'], $folder['m'], $folder['s'], $folder['t'], $even);
-            $even = !$even;
+            $params['contents'][] = static::content($folder['n'], $folder['n'], $folder['m'], $folder['s'], $folder['t']);
         }
 
         // Files
         foreach($filelist as $file)
         {
-            static::sendRow($file['n'], $file['n'], $file['m'], $file['s'], $file['t'], $even);
-            $even = !$even;
+            $params['contents'][] = static::content($file['n'], $file['n'], $file['m'], $file['s'], $file['t']);
         }
 
-        print <<<CLOSETABLE
-    </tbody>
-</table>
-CLOSETABLE;
-
-        static::sendFooter($uripath, $path);
-
+        Template::send('mrbavii.helper.listdir.main', $params);
+        exit(0);
     }
 
-    protected static function sendHeader($uripath, $path)
+    protected static function content($link, $name, $modified, $size, $type)
     {
-        if(static::$raw == FALSE)
-        {
-            $stylesheet = '';
-            if(static::$stylesheet !== FALSE)
-            {
-                $stylesheet = '<link rel="stylesheet" type="text/css" href="' . htmlspecialchars(static::$stylesheet) . '" />';
-            }
-            $uripath = htmlspecialchars($uripath);
+        $result = array();
 
-            print <<<HEADING
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>Listing for $uripath</title>
-        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-        $stylesheet
-    </head>
-    <body>
-        <h2>Listing of <span>$uripath</span></h2>
-HEADING;
-        }
-        else
-        {
-            include static::$header;
-        }
-    }
+        $result['l'] = $link;
+        $result['n'] = $name;
+        $result['m'] = ($modified === FALSE) ? $modified : date(static::$date, $modified);
+        $result['s'] = ($size === FALSE) ? $size : static::formatBytes($size);
+        $result['t'] = ($type == '#PARENT#' || $type == '#DIRECTORY#') ? 'Directory' : $type;
 
-    protected static function sendFooter($uripath, $path)
-    {
-        if(static::$raw == FALSE)
-        {
-            print <<<FOOTING
-    </body>
-</html>
-FOOTING;
-        }
-        else
-        {
-            include static::$footer;
-        }
-    }
-
-    protected static function sendRow($link, $name, $modified, $size, $type, $even)
-    {
-        $link = htmlspecialchars($link);
-        $name = htmlspecialchars($name);
-        $modified = ($modified !== FALSE) ? date(static::$date, $modified) : '&nbsp;';
-        $size = ($size !== FALSE) ? static::formatBytes($size) : '&nbsp;';
 
         list($btype) = explode('/', $type);
         $btype .= '/';
@@ -267,36 +195,8 @@ FOOTING;
             $icon = FALSE;
         }
 
-        if($icon !== FALSE)
-        {
-            $icon = '<a href="' . $link . '"><img src="' . htmlspecialchars($icon) . '" alt="" /></a>';
-        }
-        else
-        {
-            $icon = '&nbsp;';
-        }
-
-
-        if($type == '#DIRECTORY#' || $type == '#PARENT#')
-        {
-            $desc = 'Directory';
-        }
-        else
-        {
-            $desc = htmlspecialchars($type);
-        }
-
-        $even = $even ? 'e' : 'o';
-
-        print <<<ENTRY
-    <tr class="$even">
-        <td class="i">$icon</td>
-        <td class="n"><a href="$link">$name</a></td>
-        <td class="m">$modified</td>
-        <td class="s">$size</td>
-        <td class="t">$desc</td>
-    </tr>
-ENTRY;
+        $result['i'] = $icon;
+        return $result;
     }
 
     protected static function formatBytes($size)
