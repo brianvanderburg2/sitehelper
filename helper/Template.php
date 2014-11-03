@@ -2,35 +2,71 @@
 
 namespace mrbavii\helper;
 
+class _TemplateCaller
+{
+    public function send($template, $params=null, $override=FALSE)
+    {
+        Template::send($template, $params, $override);
+    }
+
+    public function get($template, $params=null, $override=FALSE)
+    {
+        return Template::get($template, $params, $override);
+    }
+
+    public function __call($name, $args)
+    {
+        return Template::callFunction($name, $args);
+    }
+}
+
 class Template
 {
+    protected static $fn = array();
     protected static $cache = array();
     protected static $params = array();
-
-    public static function get($template, $params=null, $override=FALSE)
+    protected static $paths = array();
+    protected static $caller = null;
+ 
+    public static function registerFunction($name, $callback)
     {
-        // Split into group/template parts
-        $parts = explode('/', $template);
-        if(count($parts) == 1)
+        static::$fn[$name] = $callback;
+    }
+
+    public static function callFunction($name, $args)
+    {
+        if(isset(static::$fn[$name]))
         {
-            $group = 'site';
-            $template = $parts[0];
-        }
-        else if(count($parts) == 2)
-        {
-            $group = $parts[0];
-            $template = $parts[1];
+            return call_user_func_array(static::$fn[$name], $args);
         }
         else
         {
-            throw new Exception("No such template: ${template}");
+            throw new Exception("No such template function: ${name}");
         }
-        
+    }
+
+    public static function addSearchPath($path, $prefix=null)
+    {
+        if($prefix !== null)
+        {
+            $prefix = trim($prefix, '.') . '.';
+        }
+
+        static::$paths[] = array($path, $prefix);
+    }
+
+    public static function send($template, $params=null, $override=FALSE)
+    {
+        print static::get($template, $params, $override);
+    }
+
+    public static function get($template, $params=null, $override=FALSE)
+    {
         // Find it
-        $path = static::find($group, $template);
+        $path = static::find($template);
         if($path === FALSE)
         {
-            throw new Exception("No such template: ${group}/${template}");
+            throw new Exception("No such template: ${template}");
         }
 
         return static::getFile($path, $params, $override);
@@ -38,6 +74,9 @@ class Template
 
     public static function getFile($path, $params=null, $override=FALSE)
     {
+        if(static::$caller === null)
+            static::$caller = new _TemplateCaller();
+
         $saved = null;
         if($params !== null)
         {
@@ -51,6 +90,9 @@ class Template
                 static::$params = array_merge(static::$params, $params);
             }
         }
+
+        // Always set self
+        static::$params['self'] = static::$caller;
 
         ob_start();
         try
@@ -76,32 +118,45 @@ class Template
         } 
     }
 
-    public static function find($group, $template)
+    public static function find($template)
     {
-        if(isset(static::$cache["${group}/${template}"]))
+        // Check cache first
+        if(isset(static::$cache[$template]))
         {
-            $path = static::$cache["${group}/${template}"];
+            return static::$cache[$template];
         }
-        else
-        {
-            $path = FALSE;
-            $paths = Config::get("template.${group}.path", array());
-            $name = '/' . str_replace('.', '/', $template) . '.php';
 
-            foreach(array_reverse($paths) as $path)
+        // Find it
+        foreach(array_reverse(static::$paths) as $entry)
+        {
+            list($path, $prefix) = $entry;
+
+            if($prefix === null)
             {
-                $fullpath = $path . $name;
-                if(file_exists($fullpath))
+                $the_template = $template;
+            }
+            else
+            {
+                if(Util::startsWith($template, $prefix))
                 {
-                    $path = $fullpath;
-                    break;
+                    $the_template = substr($template, strlen($prefix));
+                }
+                else
+                {
+                    continue;
                 }
             }
 
-            static::$cache["${group}/${template}"] = $path;
+            $the_path = $path . '/' . str_replace('.', '/', $the_template) . '.php';
+            if(file_exists($the_path))
+            {
+                static::$cache[$template] = $the_path;
+                return $the_path;
+            }
         }
 
-        return $path;
+        // Could not find it
+        return FALSE;
     }
 }
 

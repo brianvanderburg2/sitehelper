@@ -1,4 +1,4 @@
 <?php
 
-print "shouldgethere";
+print $self->escape("<shouldgethere>");
 
