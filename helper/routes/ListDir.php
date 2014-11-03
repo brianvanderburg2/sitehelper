@@ -43,25 +43,18 @@ class ListDir
         static::$date = isset($config['date']) ? $config['date'] : 'Y-M-d h:i:s';
 
         // Basic setup
-        if(isset($params['uripath']))
-        {
-            $uripath = $params['uripath'];
-        }
-        else
-        {
-            list($uripath) = explode('?', $_SERVER['REQUEST_URI']);
-            $uripath = rawurldecode($uripath);
-        }
+        list($uripath) = explode('?', $_SERVER['REQUEST_URI']);
+        $rawuripath = rawurldecode($uripath);
 
-        $path = Server::getAlias($uripath);
+        $path = Server::getAlias($rawuripath);
         if($path === FALSE)
         {
-            $path = $_SERVER['DOCUMENT_ROOT'] . $uripath;
+            $path = $_SERVER['DOCUMENT_ROOT'] . $rawuripath;
         }
 
-        if($_SERVER['PHP_SELF'] == $uripath || !is_dir($path))
+        if($_SERVER['PHP_SELF'] == $rawuripath || !is_dir($path))
         {
-            die('Unable to call ' . $uripath . ' directly.');
+            die('Unable to call ' . $rawuripath . ' directly.');
         }
 
         // Get the files and folders
@@ -88,7 +81,7 @@ class ListDir
                 if(is_dir($realpath))
                 {
                     $folderlist[] = array(
-                        'n' => $entry . '/',
+                        'n' => $entry,
                         's' => FALSE,
                         'm' => filemtime($realpath),
                         't' => '#DIRECTORY#'
@@ -130,7 +123,7 @@ class ListDir
         // Build the parameters
         $params = array();
 
-        $params['uripath'] = $uripath;
+        $params['path'] = $rawuripath;
 
         foreach(array('n', 's', 'm', 't') as $item)
         {
@@ -150,13 +143,13 @@ class ListDir
         // Folders
         foreach($folderlist as $folder)
         {
-            $params['contents'][] = static::content($folder['n'], $folder['n'], $folder['m'], $folder['s'], $folder['t']);
+            $params['contents'][] = static::content(rawurlencode($folder['n']) . '/' , $folder['n'] . '/', $folder['m'], $folder['s'], $folder['t']);
         }
 
         // Files
         foreach($filelist as $file)
         {
-            $params['contents'][] = static::content($file['n'], $file['n'], $file['m'], $file['s'], $file['t']);
+            $params['contents'][] = static::content(rawurlencode($file['n']), $file['n'], $file['m'], $file['s'], $file['t']);
         }
 
         Template::send('mrbavii.helper.listdir.main', $params);
