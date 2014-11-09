@@ -8,6 +8,15 @@ class Route
     protected static $routes = array();
     protected static $named = array();
 
+    protected static $regex = array(
+        'num' => '[0-9]+',
+        'alpha' => '[a-zA-Z]+',
+        'alnum' => '[a-zA-Z0-9]+',
+        'ident' => '[a-zA-Z0-9_]+',
+        'any' => '[^/]+',
+        'all' => '.*'
+    );
+
     public static function register($pattern, $callback, $name=null)
     {
         static::$routes[] = array(static::patternToRegex($pattern), $callback, $name);
@@ -49,30 +58,23 @@ class Route
         return FALSE;
     }
 
-    public static function url($named, $params)
+    public static function url($named, $params=array())
     {
         if(isset(static::$named[$named]))
         {
             $route = preg_replace_callback(
-                '#\\{.*?\\}#',
-                function($matches) use($params) { return $params[$matches[0]]; }, # TODO: url encode the match if needed
+                '#\\{(.*?)(:.*?)?\\}#',
+                function($matches) use($params) { return urlencode(strval($params[$matches[1]])); },
                 static::$named[$named]
             );
 
-            # TODO: combine with scheme, script name, proper url encoding if needed
-            # Individual matches may need to be URL encoded if they may contain special characters,
-            # while the rest of the match string should not (it it needs it, it should be escaped properly in register)
+            $route = $_SERVER['SCRIPT_NAME'] . $route;
+            return $route;
+
+            # TODO: combine with scheme and domain or just keep it as absolute without domain part?
         }
 
         return FALSE;
-    }
-
-    protected static function pieceCallback($matches)
-    {
-    }
-
-    protected static function paramCallback($matches)
-    {
     }
 
     protected static function patternToRegex($pattern)
@@ -83,14 +85,40 @@ class Route
             return '#.*#';
         }
 
-        $parts = preg_split('#\\{.*?\\}#', $pattern, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+        $parts = preg_split('#(\\{.*?\\})#', $pattern, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
         $regex = "";
 
         foreach($parts as $part)
         {
-            if($part[0] == '{')
+            if($part[0] == '{' && substr($part, -1) == '}')
             {
-                # TODO: build regex for parameters
+                # Remove '{', '}'
+                $part = substr($part, 1, -1);
+                if($part === FALSE || strlen($part) == 0)
+                    continue;
+
+                # Split on ':'
+                $part = explode(':', $part);
+                if(count($part) > 1)
+                {
+                    $name = $part[0];
+                    $type = $part[1];
+                }
+                else
+                {
+                    $name = $part[0];
+                    $type = 'any';
+                }
+
+                # Append named regular expression part
+                if(!isset(static::$regex[$type]))
+                {
+                    # TODO: should probably raise an exception instead
+                    $type = 'any';
+                }
+
+                $type = static::$regex[$type];
+                $regex .= "(?P<{$name}>{$type})";
             }
             else
             {

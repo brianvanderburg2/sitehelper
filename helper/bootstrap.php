@@ -20,9 +20,9 @@ Route::register(
 );
 
 Route::register(
-    '/mrbavii.helper/error',
+    '/mrbavii.helper/error/{status:num}',
     __NAMESPACE__ . '\routes\Error::show',
-    'mrbavii.helper.listdir'
+    'mrbavii.helper.error'
 );
 
 Template::addSearchPath(__DIR__ . '/templates', 'mrbavii.helper');
