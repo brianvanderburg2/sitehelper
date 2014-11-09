@@ -48,6 +48,8 @@ class Route
                     $config = Config::get('route.' . $name . '.config', array());
                 }
 
+                // We do not urldecode the params, even :any, in case the route
+                // callback wishes to tell the difference between say '/' and '%2F'
                 call_user_func($callback, $params, $config);
                 return TRUE;
             }
@@ -70,8 +72,6 @@ class Route
 
             $route = $_SERVER['SCRIPT_NAME'] . $route;
             return $route;
-
-            # TODO: combine with scheme and domain or just keep it as absolute without domain part?
         }
 
         return FALSE;
