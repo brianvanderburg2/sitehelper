@@ -2,6 +2,7 @@
 
 namespace mrbavii\helper\routes;
 use mrbavii\helper\Template;
+use mrbavii\helper\Response;
 
 class Error
 {
@@ -87,6 +88,7 @@ class Error
             'message' => $message
         );
 
+        Response::status($status, $reason);
         Template::send('mrbavii.helper.error.main', $params);
         exit(0);
     }
