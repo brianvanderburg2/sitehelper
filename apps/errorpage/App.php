@@ -1,10 +1,11 @@
 <?php
 
-namespace mrbavii\helper\routes;
+namespace mrbavii\apps\errorpage;
 use mrbavii\helper\Template;
 use mrbavii\helper\Response;
+use mrbavii\helper\Config;
 
-class Error
+class App
 {
     protected static $reasons = array(
         400 => 'Bad Request',
@@ -75,10 +76,17 @@ class Error
         510 => "A mandatory extension policy in the request is not accepted by the server for this resource."
     );
 
-
-    public static function show($params, $config)
+    protected static function app_config()
     {
-        $status = isset($params['status']) ? $params['status'] : 404;
+        return array(
+            'template.path' => array(array('mrbavii.errorpage.', __DIR__ . '/templates'))
+        );
+    }
+
+    public static function execute($user_config, $status)
+    {
+        Config::set(static::app_config(), $user_config);
+
         $reason = isset(static::$reasons[$status]) ? static::$reasons[$status] : '';
         $message = isset(static::$messages[$status]) ? static::$messages[$status] : 'Error';
 
@@ -89,7 +97,7 @@ class Error
         );
 
         Response::status($status, $reason);
-        Template::send('mrbavii.helper.error.main', $params);
+        Template::send('mrbavii.errorpage.main', $params);
         exit(0);
     }
 }

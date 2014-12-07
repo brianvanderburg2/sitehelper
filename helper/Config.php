@@ -49,9 +49,10 @@ class Config
     }
 
     /**
-     * Merge in configuration recursively.
+     * Set the configuration recursively.
      *
-     * @param config The configuration to merge.
+     * @param app_config The default application configuration.
+     * @param user_config The user configuration.
      *
      * Any items in config may be named with a dot '.', and will automatically
      * be parsed into sub-arrays for configuration.
@@ -75,14 +76,21 @@ class Config
      *         )
      *     )
      * )
+     *
+     * If the matching items in both arrays are indexed arrays, then the
+     * values from the user array will be appended to the values from the
+     * application array
      *            
      */
-    public static function merge($config)
+
+    public function set($app_config, $user_config)
     {
-        static::merge_helper(static::$data, $config);
+        static::$data = array();
+        static::set_helper(static::$data, $app_config);
+        static::set_helper(static::$data, $user_config);
     }
 
-    protected static function merge_helper(&$target, &$source)
+    protected static function set_helper(&$target, &$source)
     {
         foreach($source as $key => $value)
         {
@@ -113,12 +121,12 @@ class Config
                 {
                     if(array_key_exists($key, $tmptarget) && is_array($tmptarget[$key]))
                     {
-                        static::merge_helper($tmptarget[$key], $value);
+                        static::set_helper($tmptarget[$key], $value);
                     }
                     else
                     {
                         $tmptarget[$key] = array();
-                        static::merge_helper($tmptarget[$key], $value);
+                        static::set_helper($tmptarget[$key], $value);
                     }
                 }
                 else
@@ -129,44 +137,5 @@ class Config
         }
     }
 
-    /**
-     * @todo: document
-     */
-    public static function parse($string, $sep=',', $eq='=')
-    {
-        $results = array();
-
-        $parts = explode($sep, $string);
-        foreach($parts as $part)
-        {
-            $pos = strrpos($part, $eq);
-            if($pos !== FALSE)
-            {
-                $name = substr($part, 0, $pos);
-                $value = substr($part, $pos + 1);
-            }
-            else
-            {
-                $name = $part;
-                $value = TRUE;
-            }
-
-            if(isset($results[$name]))
-            {
-                if(!is_array($results[$name]))
-                {
-                    $results[$name] = array($results[$name]);
-                }
-
-                $results[$name][] = $value;
-            }
-            else
-            {
-                $results[$name] = $value;
-            }
-        }
-
-        return $results;
-    }
 }
 

@@ -23,19 +23,31 @@
 //
 // Also depends on Server configuration values such as filetypes and aliases
 
-namespace mrbavii\helper\routes;
+namespace mrbavii\apps\listing;
 use mrbavii\helper\Server;
 use mrbavii\helper\Template;
+use mrbavii\helper\Config;
 
-class ListDir
+class App
 {
     protected static $showhidden;
     protected static $icons;
     protected static $precision;
     protected static $date;
 
-    public static function show($params, $config)
+    protected static function app_config()
     {
+        return array(
+            'template.path' => array(array('mrbavii.listing.', __DIR__ . '/templates'))
+        );
+    }
+
+    public static function execute($user_config)
+    {
+        Config::set(static::app_config(), $user_config);
+
+        $config = Config::get('app', array());
+
         // Get our info
         static::$icons = isset($config['icons']) ? $config['icons'] : array();
         static::$showhidden = isset($config['showhidden']) ? $config['showhidden'] : FALSE;
@@ -152,7 +164,7 @@ class ListDir
             $params['contents'][] = static::content(rawurlencode($file['n']), $file['n'], $file['m'], $file['s'], $file['t']);
         }
 
-        Template::send('mrbavii.helper.listdir.main', $params);
+        Template::send('mrbavii.listing.main', $params);
         exit(0);
     }
 

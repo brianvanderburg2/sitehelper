@@ -25,7 +25,7 @@ class Template
     protected static $fn = array();
     protected static $cache = array();
     protected static $params = array();
-    protected static $paths = array();
+    protected static $paths = null;
     protected static $caller = null;
  
     public static function registerFunction($name, $callback)
@@ -43,16 +43,6 @@ class Template
         {
             throw new Exception("No such template function: ${name}");
         }
-    }
-
-    public static function addSearchPath($path, $prefix=null)
-    {
-        if($prefix !== null)
-        {
-            $prefix = trim($prefix, '.') . '.';
-        }
-
-        static::$paths[] = array($path, $prefix);
     }
 
     public static function send($template, $params=null, $override=FALSE)
@@ -127,9 +117,22 @@ class Template
         }
 
         // Find it
+        if(static::$paths === null)
+        {
+            static::$paths = Config::get('template.path', array());
+        }
+
         foreach(array_reverse(static::$paths) as $entry)
         {
-            list($path, $prefix) = $entry;
+            if(is_array($entry))
+            {
+                list($prefix, $path) = $entry;
+            }
+            else
+            {
+                $prefix = null;
+                $path = $entry;
+            }
 
             if($prefix === null)
             {
@@ -154,8 +157,9 @@ class Template
                 return $the_path;
             }
         }
-
+ 
         // Could not find it
+        static::$cache[$template] = FALSE;
         return FALSE;
     }
 }
