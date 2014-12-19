@@ -2,22 +2,13 @@
 
 // File:        Database.php
 // Author:      Brian Allen Vanderburg II
-// Purpose:     Configuration and connections for database access
+// Purpose:     Configuration and connections for PDO database access
 
 namespace mrbavii\helper;
 
 class Database
 {
     protected static $cache = array(); 
-    protected static $drivers = array( 
-        'sqlite2' => '\mrbavii\helper\database\connectors\Sqlite2',
-        'sqlite3' => '\mrbavii\helper\database\connectors\Sqlite3'
-    );
-
-    public static function register($driver, $factory)
-    {
-        static::$drivers[$driver] = $factory;
-    }
 
     public static function connection($name=null)
     {
@@ -48,38 +39,9 @@ class Database
 
     public static function connect($settings, $offset=0)
     {
-        if(isset($settings['driver']))
-        {
-            $driver = $settings['driver'];
-        }
-        else
-        {
-            throw new Exception('No database driver');
-        }
-
-        if(isset(static::$drivers[$driver]))
-        {
-            $factory = static::$drivers[$driver];
-
-            // Create connector
-            if($factory instanceof \Closure)
-            {
-                $instance = $factory($settings);
-            }
-            else
-            {
-                $instance = new $factory($settings);
-            }
-
-            $instance->connect();
-            return $instance;
-
-        }
-        else
-        {
-            throw new Exception('Unknown database driver: ' . $driver);
-        }
+        $instance = new database\Connection($settings);
+        $instance->connect();
+        return $instance;
     }
-
 }
 
