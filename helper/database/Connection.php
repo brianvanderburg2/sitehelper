@@ -8,22 +8,42 @@ namespace mrbavii\helper\database;
 
 class Connection
 {
-    protected $settings = null;
     protected $pdo = null;
     protected $prefix = '';
+    protected $error = null;
 
     public function __construct($settings)
     {
-        $this->settings = $settings;
         if(isset($settings['prefix']))
         {
             $this->prefix = $settings['prefix'];
+        }
+
+        try
+        {
+            $this->pdo = new \PDO(
+                $settings['dsn'],
+                isset($settings['username']) ? $settings['username'] : null,
+                isset($settings['password']) ? $settings['password'] : null,
+                isset($settings['options']) ? $settings['options'] : null);
+
+            $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $this->pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+
+            if(isset($settings['execsql']))
+            {
+                $this->pdo->exec($settings['execsql']);
+            }
+        }
+        catch(\PDOException $e)
+        {
+            throw new Exception($e);
         }
     }
 
     public function __destruct()
     {
-        $this->disconnect();
+        $this->pdo = null;
     }
 
     public function prefix()
@@ -49,109 +69,119 @@ class Connection
         $this->commit();
     }
 
-    public function connect()
-    {
-        if($this->pdo !== null)
-            return $this->pdo;
-
-        $settings = $this->settings;
-
-        $this->pdo = new \PDO(
-            $settings['dsn'],
-            isset($settings['username']) ? $settings['username'] : null,
-            isset($settings['password']) ? $settings['password'] : null,
-            isset($settings['options']) ? $settings['options'] : null);
-
-        $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
-        if(isset($settings['execsql']))
-        {
-            $this->pdo->exec($settings['execsql']);
-        }
-    }
-
-    public function disconnect()
-    {
-        $this->pdo = null;
-    }
-
     public function begin()
     {
-        $this->pdo->beginTransaction();
+        try
+        {
+            $this->pdo->beginTransaction();
+        }
+        catch(\PDOException $e)
+        {
+            throw new Exception($e);
+        }
     }
 
     public function commit()
     {
-        $this->pdo->commit();
+        try
+        {
+            $this->pdo->commit();
+        }
+        catch(\PDOException $e)
+        {
+            throw new Exception($e);
+        }
     }
 
     public function rollback()
     {
-        $this->pdo->rollBack();
+        try
+        {
+            $this->pdo->rollBack();
+        }
+        catch(\PDOException $e)
+        {
+            throw new Exception($e);
+        }
     }
     
     public function quote($value)
     {
-        return $this->pdo->quote($value);
+        try
+        {
+            return $this->pdo->quote($value);
+        }
+        catch(\PDOException $e)
+        {
+            throw new Exception($e);
+        }
     }
 
     public function exec($sql)
     {
-        if(is_array($sql))
+        try
         {
-            foreach($sql as $s)
+            if(is_array($sql))
             {
-                $this->pdo->exec($s);
+                foreach($sql as $s)
+                {
+                    $this->pdo->exec($s);
+                }
+            }
+            else
+            {
+                $this->pdo->exec($sql);
             }
         }
-        else
+        catch(\PDOException $e)
         {
-            $this->pdo->exec($sql);
+            throw new Exception($e);
         }
     }
 
     public function prepare($sql)
     {
-        $stmt = $this->pdo->prepare($sql);
-        return new Statement($stmt, $this->pdo);
+        try
+        {
+            $stmt = $this->pdo->prepare($sql);
+            return new Statement($stmt);
+        }
+        catch(\PDOException $e)
+        {
+            throw new Exception($e);
+        }
     }
     
     public function select($sql, $params=null)
     {
-        $stmt = $this->prepare($sql);
-        $stmt->exec($params);
-        return $stmt;
+        return $this->prepare($sql)->select($params);
     }
 
     public function insert($sql, $params=null)
     {
-        $stmt = $this->prepare($sql);
-        $stmt->exec($params);
-        return $stmt->rowCount();
+        return $this->prepare($sql)->insert($params);
     }
 
     public function update($sql, $params=null)
     {
-        $stmt = $this->prepare($sql);
-        $stmt->exec($params);
-        return $stmt->rowCount();
+        return $this->prepare($sql)->update($params);
     }
 
     public function delete($sql, $params=null)
     {
-        $stmt = $this->prepare($sql);
-        $stmt->exec($params);
-        return $stmt->rowCount();
+        return $this->prepare($sql)->delete($params);
     }
 
-    public function rowid()
+    public function lastInsertId($name)
     {
-        return $this->pdo->lastInsertId();
-    }
-
-    public function errorCode()
-    {
-        return $this->pdo->errorCode();
+        try
+        {
+            return $this->pdo->lastInsertId($name);
+        }
+        catch(\PDOException $e)
+        {
+            throw new Exception($e);
+        }
     }
 }
 

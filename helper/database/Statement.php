@@ -9,28 +9,28 @@ namespace mrbavii\helper\database;
 class Statement
 {
     protected $stmt = null;
-    protected $pdo = null;
 
-    public function __construct($stmt, $pdo)
+    public function __construct($stmt)
     {
         $this->stmt = $stmt;
-        $this->pdo = $pdo;
     }
 
     public function __destruct()
     {
-        $this->stmt->closeCursor();
         $this->stmt = null;
-    }
-
-    public function close()
-    {
-        $this->stmt->closeCursor();
     }
 
     public function exec($params)
     {
-        return $this->stmt->execute($params);
+        try
+        {
+            $this->stmt->execute($this->params($params));
+            return new ResultSet($this->stmt);
+        }
+        catch(\PDOException $e)
+        {
+            throw new Exception($e);
+        }
     }
 
     public function select($params=null)
@@ -40,35 +40,30 @@ class Statement
 
     public function insert($params=null)
     {
-        $this->exec($params);
-        return $this->stmt->rowCount();
+        return $this->exec($params);
     }
 
     public function update($params=null)
     {
-        $this->exec($params);
-        return $this->stmt->rowCount();
+        return $this->exec($params);
     }
 
     public function delete($params=null)
     {
-        $this->exec($params);
-        return $this->stmt->rowCount();
+        return $this->exec($params);
     }
 
-    public function rowid($name=null)
+    protected function params($params)
     {
-        return $this->pdo->lastInsertId($name);
-    }
-
-    public function errorCode()
-    {
-        return $this->stmt->errorCode();
-    }
-
-    public function next()
-    {
-        return $this->stmt->fetch(\PDO::FETCH_BOTH);
+        // String keys need to have a ':' prepended
+        foreach($params as $key => $value)
+        {
+            if(!is_int($key) && substr($key, 0, 1) != ':')
+            {
+                $params[':' . $key] = $value;
+            }
+        }
+        return $params;
     }
 }
 

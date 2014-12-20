@@ -37,11 +37,9 @@ class Database
         return static::$cache[$name];
     }
 
-    public static function connect($settings, $offset=0)
+    public static function connect($settings)
     {
-        $instance = new database\Connection($settings);
-        $instance->connect();
-        return $instance;
+        return new database\Connection($settings);
     }
 }
 
