@@ -55,5 +55,67 @@ class Request extends Browser
             return $_SERVER['PATH_INFO'];
         }
     }
+
+    /**
+     * Determine the entry point used by the request.
+     */
+    public static function getEntryPoint()
+    {
+        return $_SERVER['SCRIPT_NAME'];
+    }
+
+    /**
+     * Dispatch the request by including another file.
+     */
+    public static function dispatch($dir, $params=array())
+    {
+        $path_info = static::getPathInfo();
+        if(strlen($path_info) == 0)
+            return FALSE;
+
+        // Check each component in the path info
+        $found = FALSE;
+        $filename = $dir;
+
+        $parts = explode('/', $path_info);
+        if(count($parts) == 0)
+            return FALSE;
+
+        if(strlen($parts[0]) == 0) // First part is normally blank
+            array_shift($parts);
+
+        while(($part = array_shift($parts)) !== null)
+        {
+            // Add part to filename
+            if(strlen($part) > 0 && Security::checkPathComponent($part))
+            {
+                $filename .= '/' . $part;
+            }
+            else
+            {
+                return FALSE;
+            }
+
+            // Check if file exists
+            if(file_exists($filename . '.php'))
+            {
+                $found = TRUE;
+                $filename = $filename . '.php';
+                break;
+            }
+        }
+
+        // Build remainder of parts
+        if($found)
+        {
+            $params['pathinfo'] = implode('/', $parts);
+            Util::loadPhp($filename, $params);
+            return TRUE;
+        }
+        else
+        {
+            return FALSE;
+        }
+    }
 }
 
