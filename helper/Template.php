@@ -119,42 +119,47 @@ class Template
         // Find it
         if(static::$paths === null)
         {
-            static::$paths = Config::get('template.path', array());
+            static::$paths = Config::all('template.path');
         }
 
-        foreach(array_reverse(static::$paths) as $entry)
+        foreach(static::$paths as $part)
         {
-            if(is_array($entry))
-            {
-                list($prefix, $path) = $entry;
-            }
-            else
-            {
-                $prefix = null;
-                $path = $entry;
-            }
+            $part = (array)$part;
 
-            if($prefix === null)
+            foreach($part as $entry)
             {
-                $the_template = $template;
-            }
-            else
-            {
-                if(Util::startsWith($template, $prefix))
+                if(is_array($entry))
                 {
-                    $the_template = substr($template, strlen($prefix));
+                    list($prefix, $path) = $entry;
                 }
                 else
                 {
-                    continue;
+                    $prefix = null;
+                    $path = $entry;
                 }
-            }
 
-            $the_path = $path . '/' . str_replace('.', '/', $the_template) . '.php';
-            if(file_exists($the_path))
-            {
-                static::$cache[$template] = $the_path;
-                return $the_path;
+                if($prefix === null)
+                {
+                    $the_template = $template;
+                }
+                else
+                {
+                    if(Util::startsWith($template, $prefix))
+                    {
+                        $the_template = substr($template, strlen($prefix));
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+
+                $the_path = $path . '/' . str_replace('.', '/', $the_template) . '.php';
+                if(file_exists($the_path))
+                {
+                    static::$cache[$template] = $the_path;
+                    return $the_path;
+                }
             }
         }
  

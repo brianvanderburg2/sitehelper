@@ -16,31 +16,15 @@ class Config
     /**
      * Get a configuration item.
      *
-     * @param name The name of the configuration item to get.  This can be in
-     * form 'name, or 'name.subname'.
-     * @return All matching configuration items in an array, or an empty array if no matching items.
+     * @param name The name of the configuration item to get.
+     * @param defval The default value to return if not found.
+     * @return The last added configuration item of the specified name.
      */
     public static function get($name, $defval=null)
     {
-        $parts = explode('.', $name);
-        $name = array_pop($parts);
-        
-        $target = &static::$data;
-        foreach($parts as $part)
+        if(isset(static::$data[$name]))
         {
-            if(array_key_exists($part, $target) && is_array($target[$part]))
-            {
-                $target = &$target[$part];
-            }
-            else
-            {
-                return $defval;
-            }
-        }
-
-        if(array_key_exists($name, $target))
-        {
-            return $target[$name];
+            return end(static::$data[$name]);
         }
         else
         {
@@ -49,93 +33,55 @@ class Config
     }
 
     /**
-     * Set the configuration recursively.
+     * Get all the configuration items.
      *
-     * @param app_config The default application configuration.
-     * @param user_config The user configuration.
+     * @param name The name of the configuration item to get.
+     * @return All the added configuration items, or an empty array().
      *
-     * Any items in config may be named with a dot '.', and will automatically
-     * be parsed into sub-arrays for configuration.
-     *
-     * Example:
-     *
-     * array(
-     *     'database.connections' => array(
-     *         'main' => array('driver' => 'sqlite3'),
-     *         'main2.driver' => 'sqlite3'
-     *     )
-     * )
-     *
-     * Will be treated as:
-     *
-     * array(
-     *     'database' => array(
-     *         'connections' => array(
-     *             'main' => array('driver' => 'sqlite3'),
-     *             'main2' => array('driver' => sqlite3')
-     *         )
-     *     )
-     * )
-     *
-     * If the matching items in both arrays are indexed arrays, then the
-     * values from the user array will be appended to the values from the
-     * application array
-     *            
+     * The returned array will be reversed, so the last added item will be first.
      */
-
-    public function set($app_config, $user_config)
+    public static function all($name)
     {
-        static::$data = array();
-        static::set_helper(static::$data, $app_config);
-        static::set_helper(static::$data, $user_config);
+        if(isset(static::$data[$name]))
+        {
+            return array_reverse(static::$data[$name]);
+        }
+        else
+        {
+            return array();
+        }
     }
 
-    protected static function set_helper(&$target, &$source)
+    /**
+     * Add data to the configuration.
+     *
+     * @param $config The configuration to add.
+     *
+     * Each key gets it's own array, and values are added to the end of the
+     * array. The general idea is that app/default configuration is added first,
+     * then user/overriden configuration is added next.
+     */
+    public static function add($config)
     {
-        foreach($source as $key => $value)
+        foreach($config as $key => $value)
         {
-            if(is_int($key))
+            if(!isset(static::$data[$key]))
             {
-                $target[] = $value;
+                static::$data[$key] = array($value);
             }
             else
             {
-                $parts = explode('.', $key);
-                $key = array_pop($parts);
-                $tmptarget = &$target;
-
-                foreach($parts as $part)
-                {
-                    if(array_key_exists($part, $tmptarget) && is_array($tmptarget[$part]))
-                    {
-                        $tmptarget = &$tmptarget[$part];
-                    }
-                    else
-                    {
-                        $tmptarget[$part] = array();
-                        $tmptarget = &$tmptarget[$part];
-                    }
-                }
-
-                if(is_array($value))
-                {
-                    if(array_key_exists($key, $tmptarget) && is_array($tmptarget[$key]))
-                    {
-                        static::set_helper($tmptarget[$key], $value);
-                    }
-                    else
-                    {
-                        $tmptarget[$key] = array();
-                        static::set_helper($tmptarget[$key], $value);
-                    }
-                }
-                else
-                {
-                    $tmptarget[$key] = $value;
-                }
+                static::$data[$key][] = $value;
             }
         }
     }
 
+    /**
+     * Clear the configuration
+     */
+    public static function clear()
+    {
+        static::$data = array();
+    }
 }
 

@@ -85,7 +85,9 @@ class App
 
     public static function execute($user_config, $status)
     {
-        Config::set(static::app_config(), $user_config);
+        Config::clear();
+        Config::add(static::app_config());
+        Config::add($user_config);
 
         $reason = isset(static::$reasons[$status]) ? static::$reasons[$status] : '';
         $message = isset(static::$messages[$status]) ? static::$messages[$status] : 'Error';

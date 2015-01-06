@@ -44,15 +44,15 @@ class App
 
     public static function execute($user_config)
     {
-        Config::set(static::app_config(), $user_config);
-
-        $config = Config::get('app', array());
+        Config::clear();
+        Config::add(static::app_config());
+        Config::add($user_config);
 
         // Get our info
-        static::$icons = isset($config['icons']) ? $config['icons'] : array();
-        static::$showhidden = isset($config['showhidden']) ? $config['showhidden'] : FALSE;
-        static::$precision = isset($config['precision']) ? $config['precision'] : 2;
-        static::$date = isset($config['date']) ? $config['date'] : 'Y-M-d h:i:s';
+        static::$icons = Config::get('app.icons', array());
+        static::$showhidden = Config::get('app.showhidden', FALSE);
+        static::$precision = Config::get('app.precision', 2);
+        static::$date = Config::get('app.date', 'Y-M-d h:i:s');
 
         // Basic setup
         list($uripath) = explode('?', $_SERVER['REQUEST_URI']);
