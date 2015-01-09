@@ -10,7 +10,10 @@ class TestCache extends UnitTestCase
 {
     public function setUp()
     {
-        Config::merge(array('cache' => array('driver' => 'memory')));
+        Config::clear();
+        Config::add(array(
+            'cache.driver' => 'memory'
+        ));
     }
 
     public function tearDown()
@@ -19,7 +22,7 @@ class TestCache extends UnitTestCase
 
     public function test_instance()
     {
-        $handle = MyCache::instance();
+        $handle = Cache::instance();
 
         $handle->set('name', 100);
         $this->assertTrue($handle->has('name') === TRUE);
@@ -30,7 +33,7 @@ class TestCache extends UnitTestCase
     {
         $settings = array('driver' => 'null');
 
-        $handle = MyCache::connect($settings);
+        $handle = Cache::connect($settings);
 
         $handle->set('name', 100);
         $this->assertTrue($handle->has('name') === FALSE);
@@ -41,7 +44,7 @@ class TestCache extends UnitTestCase
     {
         $settings = array('driver' => 'memory');
 
-        $handle = MyCache::connect($settings);
+        $handle = Cache::connect($settings);
         $handle->set('name', 100);
         $this->assertTrue($handle->has('name') === TRUE);
         $this->assertTrue($handle->get('name') == 100);
@@ -49,8 +52,8 @@ class TestCache extends UnitTestCase
 
     public function test_direct()
     {
-        MyCache::set('name', 'Bob');
-        MyCache::set('age', 21);
+        Cache::set('name', 'Bob');
+        Cache::set('age', 21);
 
         $this->assertTrue(Cache::has('name') == TRUE);
         $this->assertTrue(Cache::get('name') == 'Bob');

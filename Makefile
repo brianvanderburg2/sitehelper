@@ -24,9 +24,7 @@ offline-tests: check
 	@cd tests && php helper/config.php
 	@cd tests && php helper/event.php
 	@cd tests && php helper/cache.php
-	@cd tests && php helper/database.php
 	@cd tests && php helper/session.php
-	@cd tests && php helper/route.php
 	@cd tests && php helper/template.php
 
 .PHONY: online-tests

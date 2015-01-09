@@ -10,8 +10,13 @@ class TestTemplate extends UnitTestCase
 {
     public function setUp()
     {
-        Template::addSearchPath(__DIR__ . '/template/1', 'test');
-        Template::addSearchPath(__DIR__ . '/template/2', 'test');
+        Config::clear();
+        Config::add(array(
+            'template.path' => array(array('test.', __DIR__ . '/template/1'))
+        ));
+        Config::add(array(
+            'template.path' => array(array('test.', __DIR__ . '/template/2'))
+        ));
         Template::registerFunction('escape', function($v){ return htmlspecialchars($v); });
     }
 

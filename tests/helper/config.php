@@ -8,43 +8,26 @@ require_once(__DIR__ . "/../../bootstrap.php");
 
 class TestConfig extends UnitTestCase
 {
-    public function setUp()
+    public function test_config()
     {
-        Config::merge(array('name1' => 1000, 'name2' => array('a' => 1, 'b' => 2)));
-        Config::merge(array('name2.c' => 4001, 'name2.d' => 4002, 'name2.e' => array('f.g' => 31)));
-    }
+        Config::clear();
+        Config::add(array(
+            'name1' => 'value1',
+            'name2' => 'value2'
+        ));
+        Config::add(array(
+            'name2' => 'value3',
+            'name3' => 'value3'
+        ));
 
-    public function tearDown()
-    {
-    }
+        $this->assertTrue(Config::get('name1') == 'value1');
+        $this->assertTrue(Config::get('name2') == 'value3');
+        $this->assertTrue(Config::get('name3') == 'value3');
 
-    public function test_get()
-    {
-        $this->assertTrue(Config::get('name1') == 1000);
+        $this->assertTrue(Config::all('name1') == array('value1'));
+        $this->assertTrue(Config::all('name2') == array('value3', 'value2'));
+        $this->assertTrue(Config::all('name3') == array('value3'));
 
-        $this->assertTrue(Config::get('name2') == array('a' => 1, 'b' => 2, 'c' => 4001, 'd' => 4002, 'e' => array('f' => array('g' => 31))));
-        $this->assertTrue(Config::get('name2.a') == 1);
-        $this->assertTrue(Config::get('name2.b') == 2);
-        $this->assertTrue(Config::get('name2.c') == 4001);
-        $this->assertTrue(Config::get('name2.d') == 4002);
-        $this->assertTrue(Config::get('name2.e.f.g') == 31);
-    }
-
-    public function test_parse()
-    {
-        $p1 = 'host=test.tld,port=100,user=me,pass=secret';
-        $p1r = array('host' => 'test.tld',
-                     'port' => '100',
-                     'user' => 'me',
-                     'pass' => 'secret');
-
-        $p2 = 'host:test.tld;host:test2.tld;user:me;user:me2;retry:5';
-        $p2r = array('host' => array('test.tld', 'test2.tld'),
-                     'user' => array('me', 'me2'),
-                     'retry' => '5');
-
-        $this->assertTrue(Config::parse($p1, ',', '=') == $p1r);
-        $this->assertTrue(Config::parse($p2, ';', ':') == $p2r);
     }
 }
 

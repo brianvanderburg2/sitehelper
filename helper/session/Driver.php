@@ -19,9 +19,9 @@ abstract class Driver
     {
         $this->settings = $settings;
 
-        if(isset($settings['timed']['duration']))
+        if(isset($settings['timed.duration']))
         {
-            $this->timed_duration = $settings['timed']['duration'];
+            $this->timed_duration = $settings['timed.duration'];
         }
     }
 
