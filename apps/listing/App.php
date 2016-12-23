@@ -38,7 +38,7 @@ class App
     protected static function app_config()
     {
         return array(
-            'template.path' => array(array('mrbavii.listing.', __DIR__ . '/templates'))
+            'template.path' => array(array('mrbavii/listing/', __DIR__ . '/templates'))
         );
     }
 
@@ -164,7 +164,7 @@ class App
             $params['contents'][] = static::content(rawurlencode($file['n']), $file['n'], $file['m'], $file['s'], $file['t']);
         }
 
-        Template::send('mrbavii.listing.main', $params);
+        Template::send('/mrbavii/listing/main', $params);
         exit(0);
     }
 

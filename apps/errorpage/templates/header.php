@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Error <?= htmlspecialchars($status); ?></title>
-    <?php $self->send('mrbavii.errorpage.stylesheet'); ?>
+    <?php $self->send('stylesheet'); ?>
 </head>
 
 <body>

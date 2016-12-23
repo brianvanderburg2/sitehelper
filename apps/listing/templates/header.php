@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Listing for <?= htmlspecialchars($path); ?></title>
-    <?php $self->send('mrbavii.listing.stylesheet'); ?>
+    <?php $self->send('stylesheet'); ?>
 </head>
 
 <body>

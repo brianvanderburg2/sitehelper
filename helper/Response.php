@@ -120,7 +120,7 @@ class Response extends Browser
             $url = $proto . $server . $url;
         }
 
-        $this->noCache();
+        static::noCache();
         header("Status: $code");
         header('Location: '.$url, TRUE, $code);
         exit();
@@ -167,7 +167,7 @@ class Response extends Browser
             $if_modified_since = strtotime(preg_replace('#;.*$#', '', $_SERVER['HTTP_IF_MODIFIED_SINCE']));
             if($if_modified_since >= $timestamp)
             {
-                $this->Status(304, 'Not Modified');
+                static::status(304, 'Not Modified');
                 return FALSE;
             }
         }

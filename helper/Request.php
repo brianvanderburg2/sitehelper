@@ -7,6 +7,8 @@ namespace mrbavii\helper;
  */
 class Request extends Browser
 {
+    protected static $params = array();
+
     /**
      * Determine the request method
     */
@@ -63,6 +65,119 @@ class Request extends Browser
     {
         return $_SERVER['SCRIPT_NAME'];
     }
+
+    /**
+     * Determine the request URI.
+     */
+    public static function getUri()
+    {
+        return $_SERVER['REQUEST_URI'];
+    }
+
+    /**
+     * Set a user parameter.
+     */
+    public static function setParam($name, $value)
+    {
+        $this->params[$name] = $value;
+    }
+
+    /**
+     * Get a user parameter.
+     */
+    public static function getParam($name, $defval=null)
+    {
+        if($name === null)
+        {
+            return $this->params;
+        }
+        return isset($this->params[$name]) ? $this->params[$name] : $defval;
+    }
+
+    /**
+     * Get a query ($_GET) variable.
+     */
+    public static function getParam($name, $defval=null)
+    {
+        if($name === null)
+        {
+            return $_GET;
+        }
+        return isset($_GET[$name]) ? $_GET[$name] : $defval;
+    }
+
+    /**
+     * Get a post ($_POST) variable.
+     */
+    public static function getPost($name, $defval=null)
+    {
+        if($name === null)
+        {
+            return $_POST;
+        }
+        return isset($_POST[$name]) ? $_POST[$name] : $defval;
+    }
+
+    /**
+     * Get a $_COOKIE variable.
+     */
+    public static function getCookie($name=null, $defval=null)
+    {
+        if($name === null)
+        {
+            return $_COOKIE;
+        }
+        return isset($_COOKIE[$name]) ? $_COOKIE[$name] : $defval;
+    }
+
+    /**
+     * Get a $_SERVER variable
+     */
+
+    public static function getServer($name=null, $defval=null)
+    {
+        if($name === null)
+        {
+            return $_SERVER;
+        }
+        return isset($_SERVER[$name]) ? $_SERVER[$name] : $defval;
+    }
+
+    /**
+     * Get a $_ENV variable
+     */
+
+    public static function getEnv($name=null, $defval=null)
+    {
+        if($name === null)
+        {
+            return $_ENV;
+        }
+        return isset($_ENV[$name]) ? $_ENV[$name] : $defval;
+    }
+
+    /**
+     * Get an HTTP header
+     */
+    public static function getHeader($name, $defval=null)
+    {
+        // SERVER stores headers as HTTP_<UPPERNAME_WITH_UNDERSCORES>
+        $tmp = "HTTP_" . str_replace("-", "_", strtoupper($name));
+
+        if(isset($_SERVER[$tmp]))
+        {
+            return $_SERVER[$tmp];
+        }
+        else if(isset($_SERVER[$name]))
+        {
+            return $_SERVER[$name];
+        }
+        else
+        {
+            return $defval;
+        }
+    }
+
 
     /**
      * Dispatch the request by including another file.

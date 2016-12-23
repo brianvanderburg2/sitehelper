@@ -79,7 +79,7 @@ class App
     protected static function app_config()
     {
         return array(
-            'template.path' => array(array('mrbavii.errorpage.', __DIR__ . '/templates'))
+            'template.path' => array(array('mrbavii/errorpage/', __DIR__ . '/templates'))
         );
     }
 
@@ -99,7 +99,7 @@ class App
         );
 
         Response::status($status, $reason);
-        Template::send('mrbavii.errorpage.main', $params);
+        Template::send('/mrbavii/errorpage/main', $params);
         exit(0);
     }
 }

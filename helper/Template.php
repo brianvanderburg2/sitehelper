@@ -27,6 +27,7 @@ class Template
     protected static $params = array();
     protected static $paths = null;
     protected static $caller = null;
+    protected static $current = "";
  
     public static function registerFunction($name, $callback)
     {
@@ -53,13 +54,33 @@ class Template
     public static function get($template, $params=null, $override=FALSE)
     {
         // Find it
-        $path = static::find($template);
-        if($path === FALSE)
+        $original = static::$current;
+
+        $norm = static::normalize($template);
+        if($norm === FALSE)
         {
-            throw new Exception("No such template: ${template}");
+            throw new Execption("Unable to normalize template: ${template} from: ${original}");
         }
 
-        return static::getFile($path, $params, $override);
+        $path = static::find($norm);
+        if($path === FALSE)
+        {
+            throw new Exception("No such template: ${template} from: ${original}");
+        }
+
+        try
+        {
+            static::$current = $norm;
+            $result = static::getFile($path, $params, $override);
+            static::$current = $original;
+
+            return $result;
+        }
+        catch(\Exception $e)
+        {
+            static::$current = $original;
+            throw $e;
+        }
     }
 
     public static function getFile($path, $params=null, $override=FALSE)
@@ -142,19 +163,16 @@ class Template
                 {
                     $the_template = $template;
                 }
+                else if(Util::startsWith($template, $prefix))
+                {
+                    $the_template = substr($template, strlen($prefix));
+                }
                 else
                 {
-                    if(Util::startsWith($template, $prefix))
-                    {
-                        $the_template = substr($template, strlen($prefix));
-                    }
-                    else
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
-                $the_path = $path . '/' . str_replace('.', '/', $the_template) . '.php';
+                $the_path = $path . '/' . $the_template . '.php';
                 if(file_exists($the_path))
                 {
                     static::$cache[$template] = $the_path;
@@ -166,6 +184,64 @@ class Template
         // Could not find it
         static::$cache[$template] = FALSE;
         return FALSE;
+    }
+
+    protected static function normalize($template)
+    {
+        $parts = explode("/", $template);
+
+        if($parts[0] == "")
+        {
+            # It is absolute
+            $result = array();
+            array_shift($parts);
+        }
+        else if(strlen(static::$current) == 0)
+        {
+            # Treated as relative to the root template namespace
+            $result = array();
+        }
+        else
+        {
+            # Relative to the current template location
+            $result = explode("/", static::$current);
+
+            # Because templates are files, the path is really one less
+            # Template admin/view is file view under directory admin, so
+            # a relative template "header" should be admin/header not
+            # admin/view/header
+            array_pop($result);
+        }
+
+        # Handle '.' and '..'
+        foreach($parts as $part)
+        {
+            if(strlen($part) == 0)
+            {
+                return FALSE;
+            }
+            else if($part == ".")
+            {
+                continue;
+            }
+            else if($part == "..")
+            {
+                if(count($result) > 0)
+                {
+                    array_pop($result);
+                }
+                else
+                {
+                    return FALSE;
+                }
+            }
+            else
+            {
+                $result[] = $part;
+            }
+        }
+
+        return count($result) ? implode("/", $result) : FALSE;
     }
 }
 

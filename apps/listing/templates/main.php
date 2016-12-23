@@ -1,3 +1,3 @@
-<?php $self->send('mrbavii.listing.header'); ?>
-<?php $self->send('mrbavii.listing.content'); ?>
-<?php $self->send('mrbavii.listing.footer'); ?>
+<?php $self->send('header'); ?>
+<?php $self->send('content'); ?>
+<?php $self->send('footer'); ?>

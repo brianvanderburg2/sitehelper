@@ -4,5 +4,5 @@
 $case->assertTrue($number == 600);
 print "456";
 
-$self->send('test.test5');
+$self->send('test5');
 
